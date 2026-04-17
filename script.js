@@ -31,63 +31,58 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
 
-// Cursor spotlight
+// ── Smooth bubble hover on nav ──
+const navList = document.querySelector(".nav-links");
+const bubble  = document.createElement("span");
+bubble.className = "nav-bubble";
+navList.appendChild(bubble);
+
+let entered = false;
+
+navList.querySelectorAll("li").forEach(li => {
+  li.addEventListener("mouseenter", () => {
+    // offsetLeft/offsetWidth are already relative to the parent — no math needed
+    bubble.style.width  = li.offsetWidth  + "px";
+    bubble.style.left   = li.offsetLeft   + "px";
+
+    if (!entered) {
+      // First entry: appear instantly, no slide
+      bubble.style.transition = "opacity 0.15s ease";
+      entered = true;
+    } else {
+      bubble.style.transition =
+        "left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease";
+    }
+    bubble.style.opacity = "1";
+  });
+});
+
+navList.addEventListener("mouseleave", () => {
+  bubble.style.opacity = "0";
+  entered = false;
+});
+
+// ── Cursor spotlight ──
 const spotlight = document.createElement("div");
 spotlight.className = "spotlight";
 document.body.appendChild(spotlight);
 
-// Smooth bubble hover on nav
-const navList = document.querySelector(".nav-links");
-const bubble = document.createElement("span");
-bubble.className = "nav-bubble";
-navList.appendChild(bubble);
-
-let bubbleVisible = false;
-
-function moveBubble(el) {
-  const elRect = el.getBoundingClientRect();
-  const listRect = navList.getBoundingClientRect();
-  bubble.style.width  = elRect.width  + "px";
-  bubble.style.height = elRect.height + "px";
-  bubble.style.left   = (elRect.left - listRect.left) + "px";
-  bubble.style.top    = (elRect.top  - listRect.top)  + "px";
-  if (!bubbleVisible) {
-    bubble.style.transition = "opacity 0.2s ease";
-    bubbleVisible = true;
-  } else {
-    bubble.style.transition =
-      "left 0.28s cubic-bezier(0.4,0,0.2,1), width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease";
-  }
-  bubble.style.opacity = "1";
-}
-
-navList.querySelectorAll("li").forEach(li => {
-  li.addEventListener("mouseenter", () => moveBubble(li));
-});
-navList.addEventListener("mouseleave", () => {
-  bubble.style.opacity = "0";
-  bubbleVisible = false;
-});
-
-// Combined mousemove — spotlight + parallax orbs
 document.addEventListener("mousemove", (e) => {
-  // spotlight
+  // Spotlight — direct pixel follow
   spotlight.style.left = e.clientX + "px";
   spotlight.style.top  = e.clientY + "px";
 
-  // orb parallax
+  // Orb parallax
   const x = (e.clientX / window.innerWidth  - 0.5) * 2;
   const y = (e.clientY / window.innerHeight - 0.5) * 2;
   document.querySelectorAll(".orb").forEach((orb, i) => {
-    const f = (i + 1) * 10;
-    orb.style.transform = `translate(${x * f}px, ${y * f}px)`;
+    orb.style.transform = `translate(${x * (i + 1) * 10}px, ${y * (i + 1) * 10}px)`;
   });
 });
 
 // Contact form
 function handleSubmit(e) {
   e.preventDefault();
-  const msg = document.getElementById("form-msg");
-  msg.textContent = "Thanks! I'll get back to you soon.";
+  document.getElementById("form-msg").textContent = "Thanks! I'll get back to you soon.";
   e.target.reset();
 }
