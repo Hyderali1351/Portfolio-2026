@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mir Hyder Ali — Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <span class="nav-logo">MHA</span>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="toggle menu">&#9776;</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <p class="hero-greeting">Hi, I'm</p>
+      <h1 class="hero-name">Mir Hyder Ali</h1>
+      <h2 class="hero-title"><span class="typed"></span><span class="cursor">|</span></h2>
+      <p class="hero-sub">I build things for the web — clean, fast, and user-focused.</p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View My Work</a>
+        <a href="#contact" class="btn btn-outline">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="code-window">
+        <div class="code-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="code-filename">portfolio.js</span>
+        </div>
+        <pre class="code-body"><span class="kw">const</span> developer = {
+  name: <span class="str">"Mir Hyder Ali"</span>,
+  skills: [<span class="str">"HTML"</span>, <span class="str">"CSS"</span>, <span class="str">"JavaScript"</span>],
+  passion: <span class="str">"Building great UX"</span>,
+  available: <span class="bool">true</span>,
+};
+
+<span class="kw">console</span>.log(<span class="str">"Let's build something!"</span>);</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about">
+    <div class="container">
+      <h2 class="section-title">About <span class="accent">Me</span></h2>
+      <div class="about-grid">
+        <div class="about-avatar">
+          <div class="avatar-ring">
+            <div class="avatar-initials">MHA</div>
+          </div>
+        </div>
+        <div class="about-text">
+          <p>I'm a passionate developer who loves turning ideas into real, working products. I care deeply about clean code, intuitive design, and building experiences that people enjoy using.</p>
+          <p>When I'm not coding, I'm exploring new technologies, working on side projects, or levelling up my skills.</p>
+          <div class="about-stats">
+            <div class="stat"><span class="stat-num">10+</span><span class="stat-label">Projects Built</span></div>
+            <div class="stat"><span class="stat-num">2+</span><span class="stat-label">Years Coding</span></div>
+            <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Commitment</span></div>
+          </div>
+          <a href="mailto:mirhyderali619@gmail.com" class="btn btn-primary">Email Me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="section section-dark" id="skills">
+    <div class="container">
+      <h2 class="section-title">My <span class="accent">Skills</span></h2>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-icon">🌐</div>
+          <h3>Frontend</h3>
+          <ul>
+            <li>HTML5 &amp; CSS3</li>
+            <li>JavaScript (ES6+)</li>
+            <li>React</li>
+            <li>Responsive Design</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">⚙️</div>
+          <h3>Backend</h3>
+          <ul>
+            <li>Node.js</li>
+            <li>Python</li>
+            <li>REST APIs</li>
+            <li>Databases</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">🛠️</div>
+          <h3>Tools</h3>
+          <ul>
+            <li>Git &amp; GitHub</li>
+            <li>VS Code</li>
+            <li>Figma</li>
+            <li>Terminal</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">💡</div>
+          <h3>Soft Skills</h3>
+          <ul>
+            <li>Problem Solving</li>
+            <li>Communication</li>
+            <li>Team Collaboration</li>
+            <li>Fast Learner</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="section" id="projects">
+    <div class="container">
+      <h2 class="section-title">My <span class="accent">Projects</span></h2>
+      <div class="projects-grid">
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-icon">📁</span>
+            <div class="project-links">
+              <a href="https://github.com/Hyderali1351" target="_blank" title="GitHub">&#60;/&#62;</a>
+            </div>
+          </div>
+          <h3>Project One</h3>
+          <p>A full-stack web application with a clean UI, built to solve a real problem. Replace this with your actual project description.</p>
+          <div class="project-tags">
+            <span>HTML</span><span>CSS</span><span>JavaScript</span>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-icon">📁</span>
+            <div class="project-links">
+              <a href="https://github.com/Hyderali1351" target="_blank" title="GitHub">&#60;/&#62;</a>
+            </div>
+          </div>
+          <h3>Project Two</h3>
+          <p>An interactive web app that leverages APIs to deliver live data. Replace this with your actual project description.</p>
+          <div class="project-tags">
+            <span>React</span><span>API</span><span>Node.js</span>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-icon">📁</span>
+            <div class="project-links">
+              <a href="https://github.com/Hyderali1351" target="_blank" title="GitHub">&#60;/&#62;</a>
+            </div>
+          </div>
+          <h3>Project Three</h3>
+          <p>A mobile-responsive portfolio or tool project. Replace this with your actual project description and links.</p>
+          <div class="project-tags">
+            <span>Python</span><span>CSS</span><span>Git</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:2rem;">
+        <a href="https://github.com/Hyderali1351" target="_blank" class="btn btn-outline">See All on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section section-dark" id="contact">
+    <div class="container">
+      <h2 class="section-title">Get In <span class="accent">Touch</span></h2>
+      <p class="contact-sub">Have a project in mind or just want to connect? My inbox is always open.</p>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <span>📧</span>
+            <a href="mailto:mirhyderali619@gmail.com">mirhyderali619@gmail.com</a>
+          </div>
+          <div class="contact-item">
+            <span>💻</span>
+            <a href="https://github.com/Hyderali1351" target="_blank">github.com/Hyderali1351</a>
+          </div>
+        </div>
+        <form class="contact-form" onsubmit="handleSubmit(event)">
+          <input type="text" placeholder="Your Name" required />
+          <input type="email" placeholder="Your Email" required />
+          <textarea rows="4" placeholder="Your Message" required></textarea>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+          <p class="form-note" id="form-msg"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>Designed &amp; Built by <strong>Mir Hyder Ali</strong> &copy; 2026</p>
+    <div class="footer-links">
+      <a href="https://github.com/Hyderali1351" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
