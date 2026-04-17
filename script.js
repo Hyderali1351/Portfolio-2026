@@ -62,23 +62,34 @@ navList.addEventListener("mouseleave", () => {
   entered = false;
 });
 
-// ── Cursor spotlight ──
+// ── Cursor spotlight (RAF lerp — true 60fps) ──
 const spotlight = document.createElement("div");
 spotlight.className = "spotlight";
 document.body.appendChild(spotlight);
 
-document.addEventListener("mousemove", (e) => {
-  // Spotlight — direct pixel follow
-  spotlight.style.left = e.clientX + "px";
-  spotlight.style.top  = e.clientY + "px";
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+let spotX  = mouseX, spotY = mouseY;
 
-  // Orb parallax
+document.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  // Orb parallax (cheap, runs here not in RAF)
   const x = (e.clientX / window.innerWidth  - 0.5) * 2;
   const y = (e.clientY / window.innerHeight - 0.5) * 2;
   document.querySelectorAll(".orb").forEach((orb, i) => {
     orb.style.transform = `translate(${x * (i + 1) * 10}px, ${y * (i + 1) * 10}px)`;
   });
 });
+
+(function rafLoop() {
+  // lerp: 0.14 = snappy but still smooth
+  spotX += (mouseX - spotX) * 0.14;
+  spotY += (mouseY - spotY) * 0.14;
+  spotlight.style.left = spotX + "px";
+  spotlight.style.top  = spotY + "px";
+  requestAnimationFrame(rafLoop);
+})();
 
 // Contact form
 function handleSubmit(e) {
