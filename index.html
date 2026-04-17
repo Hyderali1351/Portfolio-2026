@@ -6,9 +6,18 @@
   <title>Mir Hyder Ali — Portfolio</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+  <!-- Animated background -->
+  <div class="bg-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
 
   <!-- NAV -->
   <nav class="nav">
@@ -42,7 +51,7 @@
         </div>
         <pre class="code-body"><span class="kw">const</span> developer = {
   name: <span class="str">"Mir Hyder Ali"</span>,
-  skills: [<span class="str">"HTML"</span>, <span class="str">"CSS"</span>, <span class="str">"JavaScript"</span>],
+  skills: [<span class="str">"HTML"</span>, <span class="str">"CSS"</span>, <span class="str">"JS"</span>],
   passion: <span class="str">"Building great UX"</span>,
   available: <span class="bool">true</span>,
 };
@@ -55,8 +64,8 @@
   <!-- ABOUT -->
   <section class="section" id="about">
     <div class="container">
-      <h2 class="section-title">About <span class="accent">Me</span></h2>
-      <div class="about-grid">
+      <h2 class="section-title reveal">About <span class="accent">Me</span></h2>
+      <div class="about-grid reveal">
         <div class="about-avatar">
           <div class="avatar-ring">
             <div class="avatar-initials">MHA</div>
@@ -79,9 +88,9 @@
   <!-- SKILLS -->
   <section class="section section-dark" id="skills">
     <div class="container">
-      <h2 class="section-title">My <span class="accent">Skills</span></h2>
+      <h2 class="section-title reveal">My <span class="accent">Skills</span></h2>
       <div class="skills-grid">
-        <div class="skill-card">
+        <div class="skill-card reveal">
           <div class="skill-icon">🌐</div>
           <h3>Frontend</h3>
           <ul>
@@ -91,7 +100,7 @@
             <li>Responsive Design</li>
           </ul>
         </div>
-        <div class="skill-card">
+        <div class="skill-card reveal">
           <div class="skill-icon">⚙️</div>
           <h3>Backend</h3>
           <ul>
@@ -101,7 +110,7 @@
             <li>Databases</li>
           </ul>
         </div>
-        <div class="skill-card">
+        <div class="skill-card reveal">
           <div class="skill-icon">🛠️</div>
           <h3>Tools</h3>
           <ul>
@@ -111,7 +120,7 @@
             <li>Terminal</li>
           </ul>
         </div>
-        <div class="skill-card">
+        <div class="skill-card reveal">
           <div class="skill-icon">💡</div>
           <h3>Soft Skills</h3>
           <ul>
@@ -128,13 +137,13 @@
   <!-- PROJECTS -->
   <section class="section" id="projects">
     <div class="container">
-      <h2 class="section-title">My <span class="accent">Projects</span></h2>
+      <h2 class="section-title reveal">My <span class="accent">Projects</span></h2>
       <div class="projects-grid">
-        <div class="project-card">
+        <div class="project-card reveal">
           <div class="project-top">
             <span class="project-icon">📁</span>
             <div class="project-links">
-              <a href="https://github.com/Hyderali1351" target="_blank" title="GitHub">&#60;/&#62;</a>
+              <a href="https://github.com/Hyderali1351" target="_blank">&#60;/&#62;</a>
             </div>
           </div>
           <h3>Project One</h3>
@@ -143,11 +152,11 @@
             <span>HTML</span><span>CSS</span><span>JavaScript</span>
           </div>
         </div>
-        <div class="project-card">
+        <div class="project-card reveal">
           <div class="project-top">
             <span class="project-icon">📁</span>
             <div class="project-links">
-              <a href="https://github.com/Hyderali1351" target="_blank" title="GitHub">&#60;/&#62;</a>
+              <a href="https://github.com/Hyderali1351" target="_blank">&#60;/&#62;</a>
             </div>
           </div>
           <h3>Project Two</h3>
@@ -156,11 +165,11 @@
             <span>React</span><span>API</span><span>Node.js</span>
           </div>
         </div>
-        <div class="project-card">
+        <div class="project-card reveal">
           <div class="project-top">
             <span class="project-icon">📁</span>
             <div class="project-links">
-              <a href="https://github.com/Hyderali1351" target="_blank" title="GitHub">&#60;/&#62;</a>
+              <a href="https://github.com/Hyderali1351" target="_blank">&#60;/&#62;</a>
             </div>
           </div>
           <h3>Project Three</h3>
@@ -170,7 +179,7 @@
           </div>
         </div>
       </div>
-      <div style="text-align:center;margin-top:2rem;">
+      <div style="text-align:center;margin-top:2.5rem;">
         <a href="https://github.com/Hyderali1351" target="_blank" class="btn btn-outline">See All on GitHub</a>
       </div>
     </div>
@@ -179,9 +188,9 @@
   <!-- CONTACT -->
   <section class="section section-dark" id="contact">
     <div class="container">
-      <h2 class="section-title">Get In <span class="accent">Touch</span></h2>
-      <p class="contact-sub">Have a project in mind or just want to connect? My inbox is always open.</p>
-      <div class="contact-grid">
+      <h2 class="section-title reveal">Get In <span class="accent">Touch</span></h2>
+      <p class="contact-sub reveal">Have a project in mind or just want to connect? My inbox is always open.</p>
+      <div class="contact-grid reveal">
         <div class="contact-info">
           <div class="contact-item">
             <span>📧</span>
