@@ -41,6 +41,27 @@ document.addEventListener("mousemove", (e) => {
   });
 });
 
+// Smooth bubble hover on nav
+const navList = document.querySelector(".nav-links");
+const bubble = document.createElement("span");
+bubble.className = "nav-bubble";
+navList.appendChild(bubble);
+
+function moveBubble(el) {
+  const rect = el.getBoundingClientRect();
+  const parentRect = navList.getBoundingClientRect();
+  bubble.style.width = rect.width + "px";
+  bubble.style.height = rect.height + "px";
+  bubble.style.left = (rect.left - parentRect.left) + "px";
+  bubble.style.top = (rect.top - parentRect.top) + "px";
+  bubble.style.opacity = "1";
+}
+
+navList.querySelectorAll("a").forEach(link => {
+  link.addEventListener("mouseenter", () => moveBubble(link));
+});
+navList.addEventListener("mouseleave", () => { bubble.style.opacity = "0"; });
+
 // Contact form
 function handleSubmit(e) {
   e.preventDefault();
