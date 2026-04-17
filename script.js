@@ -31,15 +31,10 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
 
-// Parallax orbs on mouse move
-document.addEventListener("mousemove", (e) => {
-  const x = (e.clientX / window.innerWidth - 0.5) * 2;
-  const y = (e.clientY / window.innerHeight - 0.5) * 2;
-  document.querySelectorAll(".orb").forEach((orb, i) => {
-    const factor = (i + 1) * 10;
-    orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
-  });
-});
+// Cursor spotlight
+const spotlight = document.createElement("div");
+spotlight.className = "spotlight";
+document.body.appendChild(spotlight);
 
 // Smooth bubble hover on nav
 const navList = document.querySelector(".nav-links");
@@ -47,20 +42,47 @@ const bubble = document.createElement("span");
 bubble.className = "nav-bubble";
 navList.appendChild(bubble);
 
+let bubbleVisible = false;
+
 function moveBubble(el) {
-  const rect = el.getBoundingClientRect();
-  const parentRect = navList.getBoundingClientRect();
-  bubble.style.width = rect.width + "px";
-  bubble.style.height = rect.height + "px";
-  bubble.style.left = (rect.left - parentRect.left) + "px";
-  bubble.style.top = (rect.top - parentRect.top) + "px";
+  const elRect = el.getBoundingClientRect();
+  const listRect = navList.getBoundingClientRect();
+  bubble.style.width  = elRect.width  + "px";
+  bubble.style.height = elRect.height + "px";
+  bubble.style.left   = (elRect.left - listRect.left) + "px";
+  bubble.style.top    = (elRect.top  - listRect.top)  + "px";
+  if (!bubbleVisible) {
+    bubble.style.transition = "opacity 0.2s ease";
+    bubbleVisible = true;
+  } else {
+    bubble.style.transition =
+      "left 0.28s cubic-bezier(0.4,0,0.2,1), width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease";
+  }
   bubble.style.opacity = "1";
 }
 
-navList.querySelectorAll("a").forEach(link => {
-  link.addEventListener("mouseenter", () => moveBubble(link));
+navList.querySelectorAll("li").forEach(li => {
+  li.addEventListener("mouseenter", () => moveBubble(li));
 });
-navList.addEventListener("mouseleave", () => { bubble.style.opacity = "0"; });
+navList.addEventListener("mouseleave", () => {
+  bubble.style.opacity = "0";
+  bubbleVisible = false;
+});
+
+// Combined mousemove — spotlight + parallax orbs
+document.addEventListener("mousemove", (e) => {
+  // spotlight
+  spotlight.style.left = e.clientX + "px";
+  spotlight.style.top  = e.clientY + "px";
+
+  // orb parallax
+  const x = (e.clientX / window.innerWidth  - 0.5) * 2;
+  const y = (e.clientY / window.innerHeight - 0.5) * 2;
+  document.querySelectorAll(".orb").forEach((orb, i) => {
+    const f = (i + 1) * 10;
+    orb.style.transform = `translate(${x * f}px, ${y * f}px)`;
+  });
+});
 
 // Contact form
 function handleSubmit(e) {
