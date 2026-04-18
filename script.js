@@ -472,6 +472,7 @@ function openPuzzle() {
   puzzleOverlay.classList.add('show');
   pLine('> CLASSIFIED FILE DETECTED');
   pLine('> AUTHENTICATION REQUIRED', true);
+  pLine('> login as: mirhyderali', true);
   setTimeout(() => puzzleInput.focus(), 300);
 }
 
