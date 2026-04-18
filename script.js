@@ -308,16 +308,14 @@ if (intro && introCanvas) {
     grantedEl.classList.add('show');
     await pause(700);
 
-    // Ramp overlay alpha to 1 over ~420ms, then trigger CSS fade + remove
-    const startFade = performance.now();
-    const fadeDur   = 420;
+    // Ramp canvas to black over 400ms, then CSS-fade the whole intro
     await new Promise(res => {
-      const tick = ts => {
-        overlayAlpha = Math.min(((ts - startFade) / fadeDur) ** 2, 1);
-        if (overlayAlpha < 1) requestAnimationFrame(tick);
-        else res();
-      };
-      requestAnimationFrame(tick);
+      let fp = 0;
+      const iv = setInterval(() => {
+        fp = Math.min(fp + 0.05, 1);
+        overlayAlpha = fp * fp;
+        if (fp >= 1) { clearInterval(iv); res(); }
+      }, 16);
     });
 
     rafRunning = false;
@@ -325,7 +323,19 @@ if (intro && introCanvas) {
     setTimeout(() => intro.remove(), 750);
   }
 
-  runTerminal();
+  // Safety net — remove intro after 12s no matter what
+  const safetyTimer = setTimeout(() => {
+    if (intro.isConnected) {
+      intro.classList.add('out');
+      setTimeout(() => intro.remove(), 750);
+    }
+  }, 12000);
+
+  runTerminal().then(() => clearTimeout(safetyTimer)).catch(() => {
+    clearTimeout(safetyTimer);
+    intro.classList.add('out');
+    setTimeout(() => intro.remove(), 750);
+  });
 }
 
 // ── Gaming / desk scene activation ──
