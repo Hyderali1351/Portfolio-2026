@@ -147,11 +147,48 @@ requestAnimationFrame(drawAurora);
   requestAnimationFrame(rafLoop);
 })();
 
-// ── Contact form ──
-function handleSubmit(e) {
+// ── Contact form → Formspree ──
+// To activate: sign up free at formspree.io, create a form, paste your form ID below
+const FORMSPREE_ID = "YOUR_FORM_ID"; // ← replace with your Formspree form ID
+
+async function handleSubmit(e) {
   e.preventDefault();
-  document.getElementById("form-msg").textContent = "Thanks! I'll get back to you soon.";
-  e.target.reset();
+  const form = e.target;
+  const msg  = document.getElementById("form-msg");
+  const btn  = form.querySelector("button[type=submit]");
+
+  if (FORMSPREE_ID === "YOUR_FORM_ID") {
+    // Fallback: open mail client if Formspree not configured
+    const name    = form.name.value;
+    const email   = form.email.value;
+    const message = form.message.value;
+    window.location.href = `mailto:mirhyderali619@gmail.com?subject=Portfolio message from ${encodeURIComponent(name)}&body=${encodeURIComponent(message + "\n\nFrom: " + email)}`;
+    return;
+  }
+
+  btn.textContent = "Sending…";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { Accept: "application/json" },
+    });
+    if (res.ok) {
+      msg.textContent = "✓ Message sent — I'll get back to you soon!";
+      msg.style.color = "#4ade80";
+      form.reset();
+    } else {
+      throw new Error();
+    }
+  } catch {
+    msg.textContent = "Something went wrong — email me directly.";
+    msg.style.color = "#f87171";
+  } finally {
+    btn.textContent = "Send Message";
+    btn.disabled = false;
+  }
 }
 
 // ─────────────────────────────────────────
