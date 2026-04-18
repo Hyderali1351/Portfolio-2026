@@ -18,6 +18,11 @@ document.querySelector(".nav-toggle").addEventListener("click", () => {
 document.querySelectorAll(".nav-links a").forEach(link => {
   link.addEventListener("click", () => document.querySelector(".nav-links").classList.remove("open"));
 });
+// Close mobile nav when tapping outside
+document.addEventListener("click", (e) => {
+  const nav = document.querySelector(".nav");
+  if (!nav.contains(e.target)) document.querySelector(".nav-links").classList.remove("open");
+});
 
 // ── Scroll reveal — bidirectional ──
 // Elements animate in when entering viewport from either direction,
@@ -99,11 +104,11 @@ document.addEventListener("mouseup",   () => document.body.classList.remove("cur
 document.addEventListener("mouseleave", () => document.body.classList.add("cur-out"));
 document.addEventListener("mouseenter", () => document.body.classList.remove("cur-out"));
 
-// ── Custom cursor (dot + lagging ring) ──
+// ── Custom cursor (dot + lagging ring) — desktop only ──
+const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 const curDot  = document.createElement("div"); curDot.className  = "cur-dot";
 const curRing = document.createElement("div"); curRing.className = "cur-ring";
-document.body.appendChild(curDot);
-document.body.appendChild(curRing);
+if (!isTouch) { document.body.appendChild(curDot); document.body.appendChild(curRing); }
 
 // ── Scroll progress bar ──
 const prog = document.getElementById("scroll-prog");
@@ -166,8 +171,8 @@ function drawAurora(ts) {
 }
 requestAnimationFrame(drawAurora);
 
-// ── Spider web particle layer ──
-(function () {
+// ── Spider web particle layer (desktop only — no mouse on touch) ──
+if (!isTouch) (function () {
   const wc  = document.getElementById("web-canvas");
   const wCtx = wc.getContext("2d");
   const NODES = 55;
@@ -250,8 +255,8 @@ requestAnimationFrame(drawAurora);
   requestAnimationFrame(drawWeb);
 })();
 
-// ── RAF loop: ring lerp ──
-(function ringLoop() {
+// ── RAF loop: ring lerp (desktop only) ──
+if (!isTouch) (function ringLoop() {
   ringX += (mouseX - ringX) * 0.11;
   ringY += (mouseY - ringY) * 0.11;
   curRing.style.left = ringX + "px";
