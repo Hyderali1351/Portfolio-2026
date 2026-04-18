@@ -46,17 +46,21 @@ navList.querySelectorAll("li").forEach(li => {
     bubble.style.width  = li.offsetWidth  + "px";
     bubble.style.left   = li.offsetLeft   + "px";
     if (!entered) {
-      bubble.style.transition = "opacity 0.15s ease";
+      bubble.style.transition = "opacity 0.15s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1)";
       entered = true;
     } else {
       bubble.style.transition =
-        "left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease";
+        "left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1)";
     }
-    bubble.style.opacity = "1";
+    bubble.style.opacity   = "1";
+    bubble.style.transform = "translateY(calc(-50% - 3px))";
+    bubble.style.boxShadow = "inset 0 1.5px 2px rgba(255,255,255,0.55), inset 0 -1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(167,139,250,0.45), 0 2px 8px rgba(255,255,255,0.1)";
   });
 });
 navList.addEventListener("mouseleave", () => {
-  bubble.style.opacity = "0";
+  bubble.style.opacity   = "0";
+  bubble.style.transform = "translateY(-50%)";
+  bubble.style.boxShadow = "";
   entered = false;
 });
 

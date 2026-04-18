@@ -99,13 +99,17 @@ a:hover { opacity: 0.75; }
   font-weight: 500;
   padding: 0.4rem 0.9rem;
   border-radius: 9999px;
-  transition: all var(--transition);
+  transition: color 0.2s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+              text-shadow 0.2s ease;
   position: relative;
   z-index: 1;
+  display: inline-block;
 }
 .nav-links a:hover {
-  color: var(--text);
-  text-shadow: 0 0 8px rgba(196,181,253,0.9), 0 0 20px rgba(167,139,250,0.6), 0 0 40px rgba(139,92,246,0.3);
+  color: #e9e3ff;
+  transform: translateY(-3px) scale(1.07);
+  text-shadow: 0 0 10px rgba(196,181,253,1), 0 0 22px rgba(167,139,250,0.7),
+               0 0 45px rgba(139,92,246,0.35);
 }
 
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.4rem; }
@@ -118,8 +122,9 @@ a:hover { opacity: 0.75; }
   border-radius: 9999px;
   pointer-events: none;
   opacity: 0;
-  will-change: left, width, opacity;
+  will-change: left, width, opacity, transform;
   z-index: 0;
+  transition: box-shadow 0.2s ease;
 
   /* layered glass — specular highlight top-left, refraction gradient, tinted body */
   background:
