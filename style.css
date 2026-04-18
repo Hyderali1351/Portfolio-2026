@@ -582,6 +582,8 @@ a:hover { opacity: 0.75; }
   font-size: 0.9rem;
 }
 .contact-item span { font-size: 1.3rem; }
+.contact-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.contact-icon svg { width: 22px; height: 22px; }
 .contact-item a { color: var(--text-muted); }
 .contact-item a:hover { color: var(--text); opacity: 1; }
 
