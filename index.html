@@ -6,25 +6,32 @@
   <title>Mir Hyder Ali — Portfolio</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- Animated background -->
-  <div class="bg-canvas">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-    <div class="orb orb-4"></div>
-    <div class="orb orb-5"></div>
+  <!-- Scroll progress -->
+  <div id="scroll-prog"></div>
+
+  <!-- Intro splash -->
+  <div id="intro">
+    <div class="intro-glow"></div>
+    <canvas id="intro-canvas"></canvas>
   </div>
+
+  <!-- Aurora canvas background -->
+  <canvas id="bg-aurora"></canvas>
+  <div class="grain"></div>
 
   <!-- NAV -->
   <nav class="nav">
-    <span class="nav-logo">MHA</span>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#interests">Interests</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -37,7 +44,7 @@
       <p class="hero-greeting">Hi, I'm</p>
       <h1 class="hero-name">Mir Hyder Ali</h1>
       <h2 class="hero-title"><span class="typed"></span><span class="cursor">|</span></h2>
-      <p class="hero-sub">I build things for the web — clean, fast, and user-focused.</p>
+      <p class="hero-sub">Building the infrastructure that powers tomorrow's AI — from bare metal to Kubernetes, one GPU cluster at a time.</p>
       <div class="hero-cta">
         <a href="#projects" class="btn btn-primary">View My Work</a>
         <a href="#contact" class="btn btn-outline">Get in Touch</a>
@@ -47,16 +54,17 @@
       <div class="code-window">
         <div class="code-bar">
           <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-          <span class="code-filename">portfolio.js</span>
+          <span class="code-filename">engineer.py</span>
         </div>
-        <pre class="code-body"><span class="kw">const</span> developer = {
-  name: <span class="str">"Mir Hyder Ali"</span>,
-  skills: [<span class="str">"HTML"</span>, <span class="str">"CSS"</span>, <span class="str">"JS"</span>],
-  passion: <span class="str">"Building great UX"</span>,
-  available: <span class="bool">true</span>,
-};
+        <pre class="code-body"><span class="kw">class</span> Engineer:
+  name  = <span class="str">"Mir Hyder Ali"</span>
+  role  = <span class="str">"AI HPC Infrastructure"</span>
+  stack = [<span class="str">"GB200"</span>, <span class="str">"H100"</span>,
+           <span class="str">"Kubernetes"</span>, <span class="str">"Slurm"</span>]
+  based = <span class="str">"Irving, TX"</span>
+  open  = <span class="bool">True</span>
 
-<span class="kw">console</span>.log(<span class="str">"Let's build something!"</span>);</pre>
+<span class="kw">print</span>(<span class="str">"Let's build something!"</span>)</pre>
       </div>
     </div>
   </section>
@@ -65,21 +73,24 @@
   <section class="section" id="about">
     <div class="container">
       <h2 class="section-title reveal">About <span class="accent">Me</span></h2>
-      <div class="about-grid reveal">
-        <div class="about-avatar">
+      <div class="about-grid">
+        <div class="about-avatar reveal-left">
           <div class="avatar-ring">
-            <div class="avatar-initials">MHA</div>
+            <img src="photo.PNG" alt="Mir Hyder Ali" class="avatar-photo" />
           </div>
         </div>
-        <div class="about-text">
-          <p>I'm a passionate developer who loves turning ideas into real, working products. I care deeply about clean code, intuitive design, and building experiences that people enjoy using.</p>
-          <p>When I'm not coding, I'm exploring new technologies, working on side projects, or levelling up my skills.</p>
+        <div class="about-text reveal-right">
+          <p>I'm an AI HPC Infrastructure Engineer with 3+ years of experience deploying and managing large-scale GPU compute clusters for enterprise AI clients. I specialize in NVIDIA Blackwell (GB200 NVL72) and Hopper (H100) systems, InfiniBand fabric, and Kubernetes-based AI workloads.</p>
+          <p>Based in Irving, Texas. Currently building bleeding-edge AI infrastructure at Wistron. I hold an M.S. in Computer Science from Lewis University (2025) and am passionate about bridging advanced hardware with intelligent software automation.</p>
           <div class="about-stats">
-            <div class="stat"><span class="stat-num">10+</span><span class="stat-label">Projects Built</span></div>
-            <div class="stat"><span class="stat-num">2+</span><span class="stat-label">Years Coding</span></div>
-            <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Commitment</span></div>
+            <div class="stat reveal-scale" style="--delay:0ms"><span class="stat-num">3+</span><span class="stat-label">Years Experience</span></div>
+            <div class="stat reveal-scale" style="--delay:110ms"><span class="stat-num">100+</span><span class="stat-label">GPU Nodes Deployed</span></div>
+            <div class="stat reveal-scale" style="--delay:220ms"><span class="stat-num">M.S.</span><span class="stat-label">Computer Science</span></div>
           </div>
-          <a href="mailto:mirhyderali619@gmail.com" class="btn btn-primary">Email Me</a>
+          <div class="about-actions">
+            <a href="mailto:mirhyderali619@gmail.com" class="btn btn-primary">Email Me</a>
+            <a href="https://linkedin.com/in/mir-hyder-ali" target="_blank" class="btn btn-outline">LinkedIn</a>
+          </div>
         </div>
       </div>
     </div>
@@ -90,45 +101,313 @@
     <div class="container">
       <h2 class="section-title reveal">My <span class="accent">Skills</span></h2>
       <div class="skills-grid">
-        <div class="skill-card reveal">
-          <div class="skill-icon">🌐</div>
-          <h3>Frontend</h3>
+        <div class="skill-card reveal-scale" style="--delay:0ms">
+          <div class="skill-icon">🖥️</div>
+          <h3>HPC &amp; Compute</h3>
           <ul>
-            <li>HTML5 &amp; CSS3</li>
-            <li>JavaScript (ES6+)</li>
-            <li>React</li>
-            <li>Responsive Design</li>
+            <li>NVIDIA GB200 / H100</li>
+            <li>Kubernetes &amp; Slurm</li>
+            <li>InfiniBand HDR/NDR</li>
+            <li>NVMe Storage Arrays</li>
           </ul>
         </div>
-        <div class="skill-card reveal">
+        <div class="skill-card reveal-scale" style="--delay:110ms">
+          <div class="skill-icon">☁️</div>
+          <h3>Cloud &amp; DevOps</h3>
+          <ul>
+            <li>AWS &amp; Azure</li>
+            <li>Docker &amp; Terraform</li>
+            <li>Prometheus / Grafana</li>
+            <li>CI/CD Pipelines</li>
+          </ul>
+        </div>
+        <div class="skill-card reveal-scale" style="--delay:220ms">
           <div class="skill-icon">⚙️</div>
-          <h3>Backend</h3>
+          <h3>Systems &amp; Network</h3>
           <ul>
-            <li>Node.js</li>
-            <li>Python</li>
-            <li>REST APIs</li>
-            <li>Databases</li>
+            <li>Linux (RHEL / Ubuntu)</li>
+            <li>IPMI / iDRAC / BMC</li>
+            <li>Bash &amp; PowerShell</li>
+            <li>NVLink Fabric</li>
           </ul>
         </div>
-        <div class="skill-card reveal">
-          <div class="skill-icon">🛠️</div>
-          <h3>Tools</h3>
+        <div class="skill-card reveal-scale" style="--delay:330ms">
+          <div class="skill-icon">🤖</div>
+          <h3>Software &amp; AI</h3>
           <ul>
-            <li>Git &amp; GitHub</li>
-            <li>VS Code</li>
-            <li>Figma</li>
-            <li>Terminal</li>
+            <li>Python Automation</li>
+            <li>REST APIs &amp; Git</li>
+            <li>AI/ML Infrastructure</li>
+            <li>Research &amp; Analysis</li>
           </ul>
         </div>
-        <div class="skill-card reveal">
-          <div class="skill-icon">💡</div>
-          <h3>Soft Skills</h3>
-          <ul>
-            <li>Problem Solving</li>
-            <li>Communication</li>
-            <li>Team Collaboration</li>
-            <li>Fast Learner</li>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="section" id="experience">
+    <div class="container">
+      <h2 class="section-title reveal">Work <span class="accent">Experience</span></h2>
+      <div class="exp-timeline">
+
+        <div class="exp-card reveal">
+          <div class="exp-dot"></div>
+          <div class="exp-header">
+            <div class="exp-title-block">
+              <h3>AI HPC Infrastructure Lead Engineer</h3>
+              <span class="exp-company">Wistron Corporation</span>
+            </div>
+            <div class="exp-meta">
+              <span class="exp-date">May 2023 – Present</span>
+              <span class="exp-location">Irving, TX</span>
+            </div>
+          </div>
+          <ul class="exp-bullets">
+            <li>Deploy and commission NVIDIA GB200 NVL72 and H100 GPU clusters for Fortune 500 AI clients, managing full rack-to-rack lifecycle from bare-metal provisioning to OS imaging.</li>
+            <li>Configure and validate InfiniBand HDR/NDR fabric, NVLink topology, and NVMe-oF storage arrays to meet AI training performance SLAs.</li>
+            <li>Automate cluster health monitoring, GPU utilization dashboards, and failure alerting with Python, Bash, Prometheus, and Grafana.</li>
+            <li>Coordinate with NVIDIA field engineers on firmware, driver, and OFED stack qualification for production AI workloads.</li>
           </ul>
+          <div class="exp-tags">
+            <span>NVIDIA GB200</span><span>Kubernetes</span><span>Slurm</span><span>InfiniBand</span><span>Python</span><span>Linux</span>
+          </div>
+        </div>
+
+        <div class="exp-card reveal" style="--delay:100ms">
+          <div class="exp-dot"></div>
+          <div class="exp-header">
+            <div class="exp-title-block">
+              <h3>IT Graduate Assistant</h3>
+              <span class="exp-company">Lewis University</span>
+            </div>
+            <div class="exp-meta">
+              <span class="exp-date">Jan 2023 – May 2023</span>
+              <span class="exp-location">Romeoville, IL</span>
+            </div>
+          </div>
+          <ul class="exp-bullets">
+            <li>Administered campus network infrastructure including Windows Server, Active Directory, and VMware virtualisation environments.</li>
+            <li>Provided Tier 2 technical support for faculty and students; resolved hardware, software, and network issues.</li>
+          </ul>
+          <div class="exp-tags">
+            <span>Windows Server</span><span>Active Directory</span><span>VMware</span><span>Networking</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Education sub-block -->
+      <div class="edu-block reveal" style="--delay:60ms">
+        <h3 class="edu-heading">Education</h3>
+        <div class="edu-grid">
+          <div class="edu-item">
+            <span class="edu-degree">M.S. Computer Science</span>
+            <span class="edu-school">Lewis University</span>
+            <span class="edu-year">Dec 2023 – May 2025 · Romeoville, IL</span>
+          </div>
+          <div class="edu-item">
+            <span class="edu-degree">B.E. Computer Science</span>
+            <span class="edu-school">Lords Institute of Engineering &amp; Technology</span>
+            <span class="edu-year">2019 – 2022 · Hyderabad, India</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="section" id="research">
+    <div class="container">
+      <h2 class="section-title reveal">Published <span class="accent">Research</span></h2>
+
+      <div class="research-card reveal">
+
+        <!-- Paper meta -->
+        <div class="research-header">
+          <div class="research-badge">
+            <span class="rb-dot"></span>Published · Springer ITNG 2025 · pp. 433–444
+          </div>
+          <h3 class="research-title">The Use of GenAI in Graph-Based Unit Testing</h3>
+          <p class="research-authors">Abubakr S. Masood &nbsp;·&nbsp; <strong>Mir H. Ali</strong> &nbsp;·&nbsp; Mohammed W. Amair &nbsp;·&nbsp; Ziad A. Al-Sharif &nbsp;·&nbsp; Safwan Omari</p>
+        </div>
+
+        <!-- Visual pipeline -->
+        <div class="research-pipeline reveal-scale">
+          <div class="pipe-node">
+            <div class="pipe-icon">
+              <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="3" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="21" x2="21" y2="21" stroke="currentColor" stroke-width="1.2"/></svg>
+            </div>
+            <span class="pipe-label">Source Code</span>
+            <span class="pipe-sub">Functions &amp; Classes</span>
+          </div>
+          <div class="pipe-arrow-wrap"><div class="pipe-connector"></div><span class="pipe-arrow-label">AST / CFG</span></div>
+          <div class="pipe-node">
+            <div class="pipe-icon">
+              <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="25" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="26" cy="25" r="3.5" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="9.5" x2="8" y2="22" stroke="currentColor" stroke-width="1.2"/><line x1="19" y1="9.5" x2="24" y2="22" stroke="currentColor" stroke-width="1.2"/><line x1="9.5" y1="25" x2="22.5" y2="25" stroke="currentColor" stroke-width="1.2"/></svg>
+            </div>
+            <span class="pipe-label">Graph Model</span>
+            <span class="pipe-sub">Call &amp; Control-Flow</span>
+          </div>
+          <div class="pipe-arrow-wrap"><div class="pipe-connector"></div><span class="pipe-arrow-label">Prompt</span></div>
+          <div class="pipe-node pipe-node-accent">
+            <div class="pipe-icon">
+              <svg viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="26" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 6V8M16 6V8M22 6V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 17l3-3 2 2 4-4 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="pipe-label">GenAI / LLM</span>
+            <span class="pipe-sub">Context-Aware Generation</span>
+          </div>
+          <div class="pipe-arrow-wrap"><div class="pipe-connector"></div><span class="pipe-arrow-label">Output</span></div>
+          <div class="pipe-node">
+            <div class="pipe-icon">
+              <svg viewBox="0 0 32 32" fill="none"><path d="M7 16l5 5 13-13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="pipe-label">Unit Tests</span>
+            <span class="pipe-sub">High Path Coverage</span>
+          </div>
+        </div>
+
+        <!-- Abstract -->
+        <p class="research-abstract reveal">
+          This paper explores using Generative AI to augment graph-based unit test generation. Source code is parsed into call graphs and control-flow graphs, encoding structural relationships between functions and execution paths. These graphs provide rich contextual prompts to a large language model, enabling it to generate unit tests that exercise deeper execution paths — achieving higher structural coverage than conventional auto-generated tests.
+        </p>
+
+        <!-- Stats row -->
+        <div class="research-stats reveal">
+          <div class="rs-item"><span class="rs-val">2025</span><span class="rs-key">Published</span></div>
+          <div class="rs-item"><span class="rs-val">5</span><span class="rs-key">Co-Authors</span></div>
+          <div class="rs-item"><span class="rs-val">12 pp</span><span class="rs-key">Pages</span></div>
+          <div class="rs-item"><span class="rs-val">Springer</span><span class="rs-key">Publisher</span></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="research-cta reveal">
+          <a href="#" class="btn btn-primary" target="_blank" rel="noopener">View Published Paper</a>
+          <span class="research-cite">
+            Masood, A.S., Ali, M.H., et al. <em>The Use of GenAI in Graph-Based Unit Testing.</em> ITNG 2025, Springer.
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERESTS / GAMING -->
+  <section class="section section-dark" id="interests">
+    <div class="container">
+      <h2 class="section-title reveal">Beyond <span class="accent">The Screen</span></h2>
+      <div class="interests-grid">
+        <div class="interests-text reveal-left">
+          <h3>Gaming &amp; Tech Enthusiast</h3>
+          <p>When I'm not pushing commits or deploying GPU clusters, I'm deep in a gaming session or obsessing over the perfect desk setup. I treat my rig with the same attention to detail as my infrastructure — every RGB strip calibrated, every cable routed.</p>
+          <p>Currently obsessed with: PC building, FPS games, and chasing that perfect refresh-rate feeling.</p>
+          <div class="interest-tags">
+            <span>⚡ PC Gaming</span>
+            <span>🖥️ Setup Building</span>
+            <span>🎮 FPS Games</span>
+            <span>🔧 Hardware</span>
+          </div>
+        </div>
+
+        <!-- 3D Gaming Room Scene -->
+        <div class="room-scene reveal-right" id="setup-scene">
+
+          <!-- Ambient screen glow (behind everything) -->
+          <div class="scene-glow" id="scene-glow"></div>
+
+          <!-- Room walls -->
+          <div class="r-back-wall">
+            <div class="r-wall-poster"></div>
+          </div>
+          <div class="r-left-wall"></div>
+          <div class="r-floor">
+            <div class="r-floor-grid"></div>
+          </div>
+
+          <!-- Ceiling RGB bar -->
+          <div class="r-ceiling">
+            <div class="r-ceil-rgb" id="s-rgb"></div>
+          </div>
+
+          <!-- ── Desk assembly ── -->
+          <div class="r-desk-wrap">
+
+            <!-- Monitor (3D tilted) -->
+            <div class="r-monitor" id="s-monitor">
+              <div class="r-bezel">
+                <div class="r-screen" id="s-screen">
+                  <div class="s-beam"></div>
+                  <div class="s-ui">
+                    <div class="s-titlebar">
+                      <div class="s-dot"></div><div class="s-dot"></div><div class="s-dot s-dot-acc"></div>
+                    </div>
+                    <div class="s-lines">
+                      <div class="s-line" style="--w:72%"></div>
+                      <div class="s-line s-line-acc" style="--w:48%"></div>
+                      <div class="s-line" style="--w:85%"></div>
+                      <div class="s-line" style="--w:36%"></div>
+                      <div class="s-line s-line-acc" style="--w:60%"></div>
+                      <div class="s-cursor"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="r-mon-neck"></div>
+              <div class="r-mon-foot"></div>
+            </div>
+
+            <!-- PC Tower (3 visible faces) -->
+            <div class="r-tower" id="s-tower">
+              <div class="r-tower-front">
+                <div class="s-power-led"></div>
+                <div class="s-fan">
+                  <div class="s-fan-inner" id="s-fan-inner">
+                    <div class="s-blade"></div>
+                    <div class="s-blade"></div>
+                    <div class="s-blade"></div>
+                  </div>
+                  <div class="s-fan-glow"></div>
+                </div>
+                <div class="r-tower-strip"></div>
+              </div>
+              <div class="r-tower-side"></div>
+              <div class="r-tower-top"></div>
+            </div>
+
+            <!-- Desk surface + RGB strip -->
+            <div class="r-desk-surface">
+              <div class="r-desk-rgb"></div>
+            </div>
+            <div class="r-desk-front-face"></div>
+
+            <!-- Keyboard -->
+            <div class="r-kbd" id="s-kbd">
+              <div class="s-krow"></div>
+              <div class="s-krow"></div>
+              <div class="s-krow"></div>
+            </div>
+            <!-- Mouse -->
+            <div class="r-mouse"></div>
+          </div>
+
+          <!-- Gaming Chair -->
+          <div class="r-chair">
+            <div class="r-chair-headrest"></div>
+            <div class="r-chair-back">
+              <div class="r-chair-rgb"></div>
+              <div class="r-chair-wing-l"></div>
+              <div class="r-chair-wing-r"></div>
+            </div>
+            <div class="r-chair-arms">
+              <div class="r-chair-arm-l"></div>
+              <div class="r-chair-arm-r"></div>
+            </div>
+            <div class="r-chair-seat"></div>
+            <div class="r-chair-col"></div>
+            <div class="r-chair-base"></div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -139,43 +418,43 @@
     <div class="container">
       <h2 class="section-title reveal">My <span class="accent">Projects</span></h2>
       <div class="projects-grid">
-        <div class="project-card reveal">
+        <div class="project-card reveal-scale" style="--delay:0ms">
           <div class="project-top">
-            <span class="project-icon">📁</span>
+            <span class="project-icon">🔬</span>
             <div class="project-links">
               <a href="https://github.com/Hyderali1351" target="_blank">&#60;/&#62;</a>
             </div>
           </div>
-          <h3>Project One</h3>
-          <p>A full-stack web application with a clean UI, built to solve a real problem. Replace this with your actual project description.</p>
+          <h3>Generative AI for Software Testing</h3>
+          <p>Co-authored research paper exploring LLM-based automated test case generation. Evaluated GPT-4 and CodeLlama on real-world codebases, achieving 78% valid test coverage with minimal human input.</p>
           <div class="project-tags">
-            <span>HTML</span><span>CSS</span><span>JavaScript</span>
+            <span>Python</span><span>OpenAI API</span><span>LangChain</span><span>Research</span>
           </div>
         </div>
-        <div class="project-card reveal">
+        <div class="project-card reveal-scale" style="--delay:130ms">
           <div class="project-top">
-            <span class="project-icon">📁</span>
+            <span class="project-icon">📊</span>
             <div class="project-links">
               <a href="https://github.com/Hyderali1351" target="_blank">&#60;/&#62;</a>
             </div>
           </div>
-          <h3>Project Two</h3>
-          <p>An interactive web app that leverages APIs to deliver live data. Replace this with your actual project description.</p>
+          <h3>HPC Cluster Health Monitor</h3>
+          <p>Real-time dashboard tracking GPU utilization, temperature, InfiniBand link health, and job queues across 100+ nodes. Reduced mean-time-to-detect hardware failures from hours to minutes.</p>
           <div class="project-tags">
-            <span>React</span><span>API</span><span>Node.js</span>
+            <span>Python</span><span>Prometheus</span><span>Grafana</span><span>Bash</span>
           </div>
         </div>
-        <div class="project-card reveal">
+        <div class="project-card reveal-scale" style="--delay:260ms">
           <div class="project-top">
-            <span class="project-icon">📁</span>
+            <span class="project-icon">🌐</span>
             <div class="project-links">
               <a href="https://github.com/Hyderali1351" target="_blank">&#60;/&#62;</a>
             </div>
           </div>
-          <h3>Project Three</h3>
-          <p>A mobile-responsive portfolio or tool project. Replace this with your actual project description and links.</p>
+          <h3>Portfolio 2026</h3>
+          <p>This site — built from scratch with vanilla HTML, CSS, and JS. Features a WebGL-inspired aurora canvas background, glassmorphism design system, SVG handwriting intro, and 3D animated gaming room scene.</p>
           <div class="project-tags">
-            <span>Python</span><span>CSS</span><span>Git</span>
+            <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Canvas API</span>
           </div>
         </div>
       </div>
@@ -189,9 +468,9 @@
   <section class="section section-dark" id="contact">
     <div class="container">
       <h2 class="section-title reveal">Get In <span class="accent">Touch</span></h2>
-      <p class="contact-sub reveal">Have a project in mind or just want to connect? My inbox is always open.</p>
-      <div class="contact-grid reveal">
-        <div class="contact-info">
+      <p class="contact-sub reveal">Have a project in mind or want to talk AI infrastructure? My inbox is always open.</p>
+      <div class="contact-grid">
+        <div class="contact-info reveal-left">
           <div class="contact-item">
             <span>📧</span>
             <a href="mailto:mirhyderali619@gmail.com">mirhyderali619@gmail.com</a>
@@ -200,8 +479,20 @@
             <span>💻</span>
             <a href="https://github.com/Hyderali1351" target="_blank">github.com/Hyderali1351</a>
           </div>
+          <div class="contact-item">
+            <span>🔗</span>
+            <a href="https://linkedin.com/in/mir-hyder-ali" target="_blank">linkedin.com/in/mir-hyder-ali</a>
+          </div>
+          <div class="contact-item">
+            <span>📸</span>
+            <a href="https://www.instagram.com/zaid_hyder.ali/" target="_blank">@zaid_hyder.ali</a>
+          </div>
+          <div class="contact-item">
+            <span>📍</span>
+            <span>Irving, Texas</span>
+          </div>
         </div>
-        <form class="contact-form" onsubmit="handleSubmit(event)">
+        <form class="contact-form reveal-right" onsubmit="handleSubmit(event)">
           <input type="text" placeholder="Your Name" required />
           <input type="email" placeholder="Your Email" required />
           <textarea rows="4" placeholder="Your Message" required></textarea>
@@ -217,6 +508,8 @@
     <p>Designed &amp; Built by <strong>Mir Hyder Ali</strong> &copy; 2026</p>
     <div class="footer-links">
       <a href="https://github.com/Hyderali1351" target="_blank">GitHub</a>
+      <a href="https://linkedin.com/in/mir-hyder-ali" target="_blank">LinkedIn</a>
+      <a href="https://www.instagram.com/zaid_hyder.ali/" target="_blank">Instagram</a>
     </div>
   </footer>
 
