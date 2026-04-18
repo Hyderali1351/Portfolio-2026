@@ -585,8 +585,8 @@ const TRIGGER = 'sudo';
 let triggerBuf = '';
 
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === 'Escape') { closePuzzle(); return; }
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key.length !== 1) return;
   triggerBuf = (triggerBuf + e.key.toLowerCase()).slice(-TRIGGER.length);
   if (triggerBuf === TRIGGER) { triggerBuf = ''; openPuzzle(); }
