@@ -284,14 +284,8 @@ if (intro && introCanvas) {
     await pause(620);
 
     const lines = [
-      { t: '> init_connection --target mirhyderali.dev', s: 14, p: 160, dim: false },
-      { t: '  ████████████████ AUTHENTICATED',           s:  9, p: 340, dim: true  },
-      { t: '> whoami',                                   s: 52, p: 120, dim: false },
-      { t: '  mirhyderali  |  root  |  clearance: L5',   s: 13, p: 380, dim: false },
-      { t: '> ls ./payload',                             s: 38, p: 160, dim: false },
-      { t: '  ai-research/  sys-core/  neural-nets/',    s: 11, p: 280, dim: true  },
-      { t: '> ./inject_payload --run --stealth',         s: 13, p: 160, dim: false },
-      { t: '  [■] neural mesh  [■] identity  [■] ONLINE',s:  8, p: 280, dim: true  },
+      { t: 'login: mirhyderali',   s: 55, p: 300, dim: false },
+      { t: 'password: ••••••••••', s: 80, p: 500, dim: true  },
     ];
 
     for (const line of lines) {

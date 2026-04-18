@@ -529,24 +529,24 @@ a:hover { opacity: 0.75; }
   /* no CSS transition — JS RAF lerp drives it for true 60fps */
 }
 
-/* ── Hero entrance (intro overlay fade ~5.1s, CSS fade ~5.5s) ── */
+/* ── Hero entrance (intro ~4.5s total) ── */
 .hero-greeting {
-  animation: heroFadeUp 0.7s 5.2s both;
+  animation: heroFadeUp 0.7s 4.5s both;
 }
 .hero-name {
-  animation: heroFadeUp 0.8s 5.35s both;
+  animation: heroFadeUp 0.8s 4.65s both;
 }
 .hero-title {
-  animation: heroFadeUp 0.7s 5.5s both;
+  animation: heroFadeUp 0.7s 4.8s both;
 }
 .hero-sub {
-  animation: heroFadeUp 0.7s 5.65s both;
+  animation: heroFadeUp 0.7s 4.95s both;
 }
 .hero-cta {
-  animation: heroFadeUp 0.7s 5.8s both;
+  animation: heroFadeUp 0.7s 5.1s both;
 }
 .hero-visual {
-  animation: heroWindowIn 0.9s 5.4s both;
+  animation: heroWindowIn 0.9s 4.7s both;
 }
 @keyframes heroFadeUp {
   from { opacity: 0; transform: translateY(38px); }
