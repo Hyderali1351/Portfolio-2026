@@ -43,6 +43,16 @@ a:hover { opacity: 0.75; }
   pointer-events: none;
   display: block;
 }
+#web-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  display: block;
+  opacity: 0.45;
+}
 
 /* Grain overlay */
 .grain {
