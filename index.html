@@ -16,8 +16,51 @@
 
   <!-- Intro splash -->
   <div id="intro">
-    <div class="intro-glow"></div>
     <canvas id="intro-canvas"></canvas>
+    <div id="intro-overlay">
+
+      <!-- Hexagon monogram logo -->
+      <div id="intro-logo">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="hx-glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <!-- Outer hex -->
+          <polygon points="50,4 93,27.5 93,72.5 50,96 7,72.5 7,27.5"
+                   stroke="rgba(167,139,250,0.75)" stroke-width="1.5" fill="rgba(139,92,246,0.07)" filter="url(#hx-glow)"/>
+          <!-- Inner hex -->
+          <polygon points="50,16 82,34 82,66 50,84 18,66 18,34"
+                   stroke="rgba(167,139,250,0.25)" stroke-width="1" fill="none"/>
+          <!-- Corner tick marks -->
+          <line x1="50" y1="4"  x2="50" y2="12"  stroke="rgba(0,255,65,0.6)" stroke-width="1.5"/>
+          <line x1="93" y1="27.5" x2="86" y2="31" stroke="rgba(0,255,65,0.6)" stroke-width="1.5"/>
+          <line x1="93" y1="72.5" x2="86" y2="69" stroke="rgba(0,255,65,0.6)" stroke-width="1.5"/>
+          <line x1="50" y1="96" x2="50" y2="88"  stroke="rgba(0,255,65,0.6)" stroke-width="1.5"/>
+          <line x1="7"  y1="72.5" x2="14" y2="69" stroke="rgba(0,255,65,0.6)" stroke-width="1.5"/>
+          <line x1="7"  y1="27.5" x2="14" y2="31" stroke="rgba(0,255,65,0.6)" stroke-width="1.5"/>
+          <!-- Monogram -->
+          <text x="50" y="55" text-anchor="middle" dominant-baseline="middle"
+                font-family="Inter,sans-serif" font-weight="800" font-size="22"
+                fill="rgba(196,181,253,0.95)" letter-spacing="3">MHA</text>
+        </svg>
+      </div>
+
+      <!-- Terminal window -->
+      <div id="intro-terminal">
+        <div class="term-bar">
+          <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
+          <span class="term-title">mirhyderali — bash — 80×24</span>
+        </div>
+        <div class="term-body">
+          <div id="term-out"></div>
+          <span id="term-cur">█</span>
+        </div>
+      </div>
+
+      <!-- Access granted flash -->
+      <div id="intro-granted">ACCESS GRANTED</div>
+
+    </div>
   </div>
 
   <!-- Aurora canvas background -->
@@ -90,6 +133,11 @@
           <div class="about-actions">
             <a href="mailto:mirhyderali619@gmail.com" class="btn btn-primary">Email Me</a>
             <a href="https://linkedin.com/in/mir-hyder-ali" target="_blank" class="btn btn-outline">LinkedIn</a>
+          </div>
+          <div class="li-badge-wrap">
+            <div class="badge-base LI-profile-badge" data-locale="en_US" data-size="large" data-theme="dark" data-type="HORIZONTAL" data-vanity="mir-hyder-ali" data-version="v1">
+              <a class="badge-base__link LI-simple-link" href="https://www.linkedin.com/in/mir-hyder-ali?trk=profile-badge">Mir Hyder Ali</a>
+            </div>
           </div>
         </div>
       </div>
@@ -514,5 +562,6 @@
   </footer>
 
   <script src="script.js"></script>
+  <script src="https://platform.linkedin.com/badges/js/profile.js" async defer type="text/javascript"></script>
 </body>
 </html>

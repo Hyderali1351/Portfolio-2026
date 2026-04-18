@@ -320,6 +320,12 @@ a:hover { opacity: 0.75; }
   margin-top: 0.25rem;
 }
 
+.li-badge-wrap {
+  margin-top: 1.2rem;
+  opacity: 0.92;
+  transform: scale(0.95);
+  transform-origin: left center;
+}
 .about-text p { color: var(--text-muted); margin-bottom: 1rem; font-size: 1.02rem; }
 
 .about-stats { display: flex; gap: 2rem; margin: 2rem 0; }
@@ -523,24 +529,24 @@ a:hover { opacity: 0.75; }
   /* no CSS transition — JS RAF lerp drives it for true 60fps */
 }
 
-/* ── Hero entrance (globe fade starts ~3.45s, total ~3.93s) ── */
+/* ── Hero entrance (intro overlay fade ~5.1s, CSS fade ~5.5s) ── */
 .hero-greeting {
-  animation: heroFadeUp 0.7s 3.5s both;
+  animation: heroFadeUp 0.7s 5.2s both;
 }
 .hero-name {
-  animation: heroFadeUp 0.8s 3.65s both;
+  animation: heroFadeUp 0.8s 5.35s both;
 }
 .hero-title {
-  animation: heroFadeUp 0.7s 3.8s both;
+  animation: heroFadeUp 0.7s 5.5s both;
 }
 .hero-sub {
-  animation: heroFadeUp 0.7s 3.95s both;
+  animation: heroFadeUp 0.7s 5.65s both;
 }
 .hero-cta {
-  animation: heroFadeUp 0.7s 4.1s both;
+  animation: heroFadeUp 0.7s 5.8s both;
 }
 .hero-visual {
-  animation: heroWindowIn 0.9s 3.7s both;
+  animation: heroWindowIn 0.9s 5.4s both;
 }
 @keyframes heroFadeUp {
   from { opacity: 0; transform: translateY(38px); }
@@ -628,26 +634,112 @@ a:hover { opacity: 0.75; }
   pointer-events: none;
 }
 
-.intro-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(167,139,250,0.18) 0%, transparent 70%);
-  opacity: 0;
-  animation: introGlowPulse 1.8s 0.6s ease forwards;
-  pointer-events: none;
-}
-@keyframes introGlowPulse {
-  0%   { opacity: 0; transform: scale(0.6); }
-  40%  { opacity: 1; }
-  100% { opacity: 0.35; transform: scale(1.2); }
-}
-
-.intro-center {
+/* ── Intro overlay (logo + terminal) ── */
+#intro-overlay {
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.85rem;
+  gap: 1.1rem;
+}
+
+#intro-logo {
+  animation: introLogoIn 0.6s 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes introLogoIn {
+  from { opacity: 0; transform: scale(0.6) rotate(-15deg); }
+  to   { opacity: 1; transform: none; }
+}
+#intro-logo svg {
+  width: 88px; height: 88px;
+  filter: drop-shadow(0 0 14px rgba(139,92,246,0.75)) drop-shadow(0 0 30px rgba(139,92,246,0.3));
+  animation: logoPulse 2.6s 0.8s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%, 100% { filter: drop-shadow(0 0 14px rgba(139,92,246,0.75)) drop-shadow(0 0 30px rgba(139,92,246,0.3)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(167,139,250,1))   drop-shadow(0 0 50px rgba(139,92,246,0.5)); }
+}
+
+#intro-terminal {
+  width: min(500px, 90vw);
+  background: rgba(1, 7, 3, 0.9);
+  border: 1px solid rgba(0,255,65,0.22);
+  border-radius: 10px;
+  box-shadow:
+    0 0 40px rgba(0,255,65,0.07),
+    0 0 80px rgba(139,92,246,0.07),
+    inset 0 1px 0 rgba(0,255,65,0.08);
+  overflow: hidden;
+  animation: termIn 0.4s 0.45s cubic-bezier(0.25,0.46,0.45,0.94) both;
+}
+@keyframes termIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(0,12,5,0.95);
+  border-bottom: 1px solid rgba(0,255,65,0.1);
+}
+.tdot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tdot:nth-child(1) { background: #ff5f57; box-shadow: 0 0 4px #ff5f57; }
+.tdot:nth-child(2) { background: #febc2e; box-shadow: 0 0 4px #febc2e; }
+.tdot:nth-child(3) { background: #28c840; box-shadow: 0 0 4px #28c840; }
+.term-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: rgba(0,255,65,0.4);
+  margin-left: 8px;
+  letter-spacing: 0.04em;
+}
+
+.term-body {
+  padding: 14px 18px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.68rem, 1.4vw, 0.8rem);
+  color: #00ff41;
+  line-height: 1.8;
+  text-shadow: 0 0 8px rgba(0,255,65,0.45);
+  min-height: 148px;
+}
+.tline { white-space: pre; }
+.tline-dim { color: rgba(0,255,65,0.55); }
+
+#term-cur {
+  display: inline-block;
+  animation: termBlink 0.75s step-end infinite;
+  color: #00ff41;
+  text-shadow: 0 0 10px rgba(0,255,65,0.8);
+}
+@keyframes termBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+#intro-granted {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1rem, 3vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  color: #00ff41;
+  text-shadow: 0 0 18px rgba(0,255,65,1), 0 0 40px rgba(0,255,65,0.6), 0 0 80px rgba(0,255,65,0.3);
+  opacity: 0;
+  transform: scale(0.88);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+}
+#intro-granted.show {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* ── Canvas neon intro ── */

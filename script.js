@@ -155,8 +155,8 @@ function handleSubmit(e) {
 }
 
 // ─────────────────────────────────────────
-// INTRO — Hacker wireframe globe
-// ─────────────────────────────────────────
+// INTRO — Neural network background + hacker terminal
+// ─────────────────────────────────────────────────────
 const intro       = document.getElementById("intro");
 const introCanvas = document.getElementById("intro-canvas");
 
@@ -165,199 +165,167 @@ if (intro && introCanvas) {
   introCanvas.height = window.innerHeight;
   const ctx = introCanvas.getContext("2d");
   const W = introCanvas.width, H = introCanvas.height;
-  const cx = W / 2, cy = H / 2;
 
-  // Stars — green-tinted
-  const STARS = Array.from({length: 280}, () => ({
-    x: Math.random() * W, y: Math.random() * H,
-    r: Math.random() * 1.2 + 0.2,
-    b: Math.random() * 0.7 + 0.2,
-    g: Math.random() > 0.55, // some green, some white
+  // ── Neural network nodes ──────────────────────────
+  const NODE_COUNT = 72;
+  const MAX_DIST   = Math.min(W, H) * 0.21;
+
+  const nodes = Array.from({length: NODE_COUNT}, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.45,
+    vy: (Math.random() - 0.5) * 0.45,
+    r: Math.random() * 2.0 + 1.2,
+    phase: Math.random() * Math.PI * 2,
+    spd: Math.random() * 0.022 + 0.008,
   }));
 
-  // Continent polygons [lon°, lat°]
-  const LAND = [
-    [[-168,60],[-168,72],[-148,72],[-141,68],[-138,60],[-136,58],[-130,54],
-     [-126,50],[-124,46],[-124,42],[-122,36],[-118,32],[-110,22],[-100,18],
-     [-88,16],[-83,10],[-78,8],[-82,10],[-90,28],[-88,30],[-82,32],
-     [-80,25],[-80,32],[-76,34],[-75,39],[-74,41],[-70,43],[-67,45],
-     [-64,46],[-60,47],[-55,50],[-52,47],[-58,52],[-65,58],
-     [-80,63],[-96,72],[-118,72],[-140,66],[-154,60],[-164,54],[-168,56],[-168,60]],
-    [[-80,10],[-75,12],[-65,11],[-52,4],[-38,-1],[-35,-5],[-35,-12],
-     [-38,-16],[-40,-22],[-48,-28],[-52,-34],[-57,-38],[-65,-42],
-     [-68,-55],[-75,-52],[-73,-42],[-70,-18],[-76,-8],[-80,2],[-80,10]],
-    [[-10,36],[0,36],[12,38],[22,38],[28,42],[35,42],[35,48],
-     [24,50],[28,56],[20,58],[15,58],[10,58],[5,62],[-2,62],
-     [-5,58],[-8,54],[-10,50],[-8,44],[-5,40],[-10,36]],
-    [[-18,15],[-16,10],[-12,5],[-5,4],[0,5],[8,4],[15,0],[35,-5],
-     [38,-10],[35,-26],[32,-34],[22,-34],[18,-34],[16,-29],[12,-18],
-     [12,-5],[0,5],[8,12],[15,22],[24,22],[35,30],[32,36],[10,38],
-     [0,38],[-5,36],[-18,35],[-18,15]],
-    [[-44,60],[-40,65],[-30,66],[-18,68],[-18,72],[-26,76],[-36,80],
-     [-50,83],[-60,80],[-65,72],[-58,66],[-50,62],[-44,60]],
-    // Asia (simplified)
-    [[40,36],[45,38],[55,40],[65,38],[75,36],[80,28],[90,22],[100,10],
-     [105,2],[110,-2],[115,2],[120,8],[130,30],[135,34],[140,38],[145,40],
-     [140,44],[135,48],[130,48],[120,52],[110,56],[100,58],[90,58],
-     [80,55],[70,52],[60,48],[50,46],[40,42],[36,38],[40,36]],
-    // Australia
-    [[114,-22],[118,-20],[122,-18],[128,-14],[134,-12],[138,-14],[140,-18],
-     [148,-20],[154,-26],[156,-32],[152,-38],[148,-38],[144,-36],[140,-36],
-     [136,-34],[130,-32],[124,-30],[118,-28],[114,-26],[114,-22]],
-  ];
+  // Pulse packets travelling along edges
+  const packets = [];
+  let lastPacketMs = 0;
 
-  // Hacker green palette
-  const GN = {
-    bright:  'rgba(0,255,65,0.90)',
-    mid:     'rgba(0,255,65,0.38)',
-    dim:     'rgba(0,255,65,0.10)',
-    glow:    'rgba(0,255,65,0.55)',
-    outline: 'rgba(0,255,65,0.60)',
-    sphere:  'rgba(0,30,10,0.50)',
-  };
+  // Canvas fade overlay (driven by terminal sequence end)
+  let overlayAlpha = 0;
+  let rafRunning   = true;
 
-  let R    = Math.min(W, H) * 0.28;
-  const Rb = R;
-  let vLon = 10, vLat = 8;
-  const endLon = 195; // arbitrary end after 185° spin
+  function rafLoop(ts) {
+    ctx.clearRect(0, 0, W, H);
 
-  function proj(lon, lat) {
-    const λ  = lon  * Math.PI / 180,  φ  = lat  * Math.PI / 180;
-    const λ0 = vLon * Math.PI / 180,  φ1 = vLat * Math.PI / 180;
-    const cosC = Math.sin(φ1)*Math.sin(φ) + Math.cos(φ1)*Math.cos(φ)*Math.cos(λ-λ0);
-    if (cosC < 0) return null;
-    return {
-      x: cx + R * Math.cos(φ) * Math.sin(λ-λ0),
-      y: cy - R * (Math.cos(φ1)*Math.sin(φ) - Math.sin(φ1)*Math.cos(φ)*Math.cos(λ-λ0)),
-    };
-  }
-
-  function drawGlobe() {
-    // Dark sphere fill
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
-    ctx.fillStyle = GN.sphere; ctx.fill();
-
-    // Outer ring glow
-    ctx.shadowColor = GN.glow; ctx.shadowBlur = 18;
-    ctx.strokeStyle = GN.outline; ctx.lineWidth = 1.3;
-    ctx.stroke(); ctx.shadowBlur = 0;
-    ctx.restore();
-
-    // Clip to sphere for grid + continents
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.clip();
-
-    // Dense lat/lon mesh
-    ctx.lineWidth = 0.5;
-    for (let la=-75; la<=75; la+=15) {
-      ctx.beginPath(); let f=true;
-      ctx.strokeStyle = (la===0) ? GN.mid : GN.dim;
-      for (let lo=-180; lo<=180; lo+=3) {
-        const p=proj(lo,la); if(!p){f=true;continue;}
-        f?(ctx.moveTo(p.x,p.y),f=false):ctx.lineTo(p.x,p.y);
-      } ctx.stroke();
-    }
-    for (let lo=-180; lo<180; lo+=15) {
-      ctx.beginPath(); let f=true;
-      ctx.strokeStyle = (lo===0) ? GN.mid : GN.dim;
-      for (let la=-85; la<=85; la+=3) {
-        const p=proj(lo,la); if(!p){f=true;continue;}
-        f?(ctx.moveTo(p.x,p.y),f=false):ctx.lineTo(p.x,p.y);
-      } ctx.stroke();
-    }
-
-    // Continent outlines — bright with glow
-    LAND.forEach(poly => {
-      ctx.beginPath();
-      let pen=false;
-      for (const [lo,la] of poly) {
-        const p=proj(lo,la);
-        if(!p){pen=false;continue;}
-        pen?ctx.lineTo(p.x,p.y):(ctx.moveTo(p.x,p.y),pen=true);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = GN.bright; ctx.lineWidth = 1.1;
-      ctx.shadowColor = GN.glow; ctx.shadowBlur = 7;
-      ctx.stroke(); ctx.shadowBlur = 0;
+    // Move nodes
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
     });
 
-    ctx.restore();
-
-    // Subtle inner radial vignette
-    const vig = ctx.createRadialGradient(cx,cy,R*.55, cx,cy,R);
-    vig.addColorStop(0,'transparent');
-    vig.addColorStop(1,'rgba(0,8,4,0.55)');
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.clip();
-    ctx.fillStyle=vig; ctx.fillRect(cx-R,cy-R,R*2,R*2);
-    ctx.restore();
-
-    // Outer glow halo
-    const halo = ctx.createRadialGradient(cx,cy,R*.9, cx,cy,R*1.15);
-    halo.addColorStop(0,'rgba(0,255,65,0.12)');
-    halo.addColorStop(1,'transparent');
-    ctx.fillStyle=halo;
-    ctx.beginPath(); ctx.arc(cx,cy,R*1.15,0,Math.PI*2); ctx.fill();
-  }
-
-  // Phase durations (ms): stars → appear → rotate → zoom → fade
-  const P = { stars:300, appear:500, rotate:1400, pause:300, zoom:950, fade:480 };
-  let t0 = null;
-
-  function frame(ts) {
-    if (!t0) t0 = ts;
-    const t = ts - t0;
-    const p1=P.stars, p2=p1+P.appear, p3=p2+P.rotate,
-          p4=p3+P.pause, p5=p4+P.zoom;
-
-    ctx.clearRect(0,0,W,H);
-
-    // Stars
-    const sa = Math.min(t/P.stars, 1);
-    STARS.forEach(s => {
-      ctx.globalAlpha = s.b * sa;
-      ctx.fillStyle = s.g ? 'rgba(100,255,130,0.9)' : '#fff';
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
-    });
-    ctx.globalAlpha = 1;
-
-    if (t > p1) {
-      const ga = Math.min((t-p1)/P.appear, 1);
-
-      // Spin globe during rotate phase
-      if (t>p2 && t<=p3) {
-        const rp=(t-p2)/P.rotate, re=rp<.5?2*rp*rp:1-Math.pow(-2*rp+2,2)/2;
-        vLon = 10 + (endLon-10)*re;
-      } else if (t>p3) { vLon=endLon; }
-
-      // Zoom in
-      if (t>p4 && t<=p5) {
-        const zp=(t-p4)/P.zoom, ze=zp*zp;
-        R = Rb*(1+ze*9);
-      } else if (t>p5) { R=Rb*10; }
-
-      ctx.save(); ctx.globalAlpha=ga;
-      drawGlobe();
-      ctx.restore();
-
-      // Fade to dark
-      if (t > p5) {
-        const fp = Math.min((t-p5)/P.fade, 1);
-        ctx.fillStyle = `rgba(4,1,16,${fp*fp})`;
-        ctx.fillRect(0,0,W,H);
-        if (fp >= 1) {
-          intro.classList.add("out");
-          setTimeout(() => intro.remove(), 750);
-          return;
+    // Spawn a new pulse packet periodically
+    if (ts - lastPacketMs > 110) {
+      const i = Math.floor(Math.random() * NODE_COUNT);
+      const j = Math.floor(Math.random() * NODE_COUNT);
+      if (i !== j) {
+        const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+        if (Math.sqrt(dx*dx + dy*dy) < MAX_DIST) {
+          packets.push({ from: i, to: j, t: 0 });
+          lastPacketMs = ts;
         }
       }
     }
 
-    requestAnimationFrame(frame);
+    // Draw edges
+    for (let i = 0; i < NODE_COUNT; i++) {
+      for (let j = i + 1; j < NODE_COUNT; j++) {
+        const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < MAX_DIST) {
+          const s = 1 - d / MAX_DIST;
+          ctx.strokeStyle = `rgba(139,92,246,${s * 0.26})`;
+          ctx.lineWidth   = s * 0.9;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw + advance packets
+    for (let p = packets.length - 1; p >= 0; p--) {
+      packets[p].t += 0.02;
+      if (packets[p].t >= 1) { packets.splice(p, 1); continue; }
+      const n1 = nodes[packets[p].from], n2 = nodes[packets[p].to];
+      const px = n1.x + (n2.x - n1.x) * packets[p].t;
+      const py = n1.y + (n2.y - n1.y) * packets[p].t;
+      ctx.shadowColor = '#00ff41';
+      ctx.shadowBlur  = 10;
+      ctx.fillStyle   = `rgba(0,255,65,${0.9 - packets[p].t * 0.4})`;
+      ctx.beginPath(); ctx.arc(px, py, 2.4, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur  = 0;
+    }
+
+    // Draw nodes with breathing glow
+    nodes.forEach(n => {
+      n.phase += n.spd;
+      const g = (Math.sin(n.phase) + 1) * 0.5;
+      ctx.shadowColor = 'rgba(139,92,246,0.85)';
+      ctx.shadowBlur  = 5 + g * 12;
+      ctx.fillStyle   = `rgba(${155 + g*40},${120 + g*30},250,${0.6 + g * 0.4})`;
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + g * 1.3, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur  = 0;
+    });
+
+    // Dark fade overlay (triggered at terminal end)
+    if (overlayAlpha > 0) {
+      ctx.fillStyle = `rgba(3,0,8,${overlayAlpha})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    if (rafRunning) requestAnimationFrame(rafLoop);
+  }
+  requestAnimationFrame(rafLoop);
+
+  // ── Terminal typing sequence ──────────────────────
+  const termOut     = document.getElementById("term-out");
+  const termCur     = document.getElementById("term-cur");
+  const grantedEl   = document.getElementById("intro-granted");
+
+  const pause = ms => new Promise(r => setTimeout(r, ms));
+
+  function typeInto(el, text, speed) {
+    return new Promise(res => {
+      let i = 0;
+      const iv = setInterval(() => {
+        el.textContent += text[i++];
+        if (i >= text.length) { clearInterval(iv); res(); }
+      }, speed);
+    });
   }
 
-  requestAnimationFrame(frame);
+  async function runTerminal() {
+    await pause(620);
+
+    const lines = [
+      { t: '> init_connection --target mirhyderali.dev', s: 14, p: 160, dim: false },
+      { t: '  ████████████████ AUTHENTICATED',           s:  9, p: 340, dim: true  },
+      { t: '> whoami',                                   s: 52, p: 120, dim: false },
+      { t: '  mirhyderali  |  root  |  clearance: L5',   s: 13, p: 380, dim: false },
+      { t: '> ls ./payload',                             s: 38, p: 160, dim: false },
+      { t: '  ai-research/  sys-core/  neural-nets/',    s: 11, p: 280, dim: true  },
+      { t: '> ./inject_payload --run --stealth',         s: 13, p: 160, dim: false },
+      { t: '  [■] neural mesh  [■] identity  [■] ONLINE',s:  8, p: 280, dim: true  },
+    ];
+
+    for (const line of lines) {
+      const el = document.createElement('div');
+      el.className = 'tline' + (line.dim ? ' tline-dim' : '');
+      termOut.appendChild(el);
+      termOut.parentElement.scrollTop = termOut.parentElement.scrollHeight;
+      await typeInto(el, line.t, line.s);
+      await pause(line.p);
+    }
+
+    // Hide cursor, show ACCESS GRANTED
+    termCur.style.display = 'none';
+    grantedEl.classList.add('show');
+    await pause(700);
+
+    // Ramp overlay alpha to 1 over ~420ms, then trigger CSS fade + remove
+    const startFade = performance.now();
+    const fadeDur   = 420;
+    await new Promise(res => {
+      const tick = ts => {
+        overlayAlpha = Math.min(((ts - startFade) / fadeDur) ** 2, 1);
+        if (overlayAlpha < 1) requestAnimationFrame(tick);
+        else res();
+      };
+      requestAnimationFrame(tick);
+    });
+
+    rafRunning = false;
+    intro.classList.add('out');
+    setTimeout(() => intro.remove(), 750);
+  }
+
+  runTerminal();
 }
 
 // ── Gaming / desk scene activation ──
