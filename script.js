@@ -346,7 +346,7 @@ if (intro && introCanvas) {
 
     const lines = [
       { t: 'login: mirhyderali',   s: 55, p: 300, dim: false },
-      { t: 'password: ••••••••••', s: 80, p: 500, dim: true  },
+      { t: 'password: ••••••••••', s: 60, p: 400, dim: true  },
     ];
 
     for (const line of lines) {
@@ -492,29 +492,17 @@ puzzleInput.addEventListener('keydown', e => {
   if (pStage === 'login') {
     pLine('login: ' + val);
     if (val.toLowerCase() === 'mirhyderali') {
-      pStage = 'password';
-      puzzlePrompt.textContent = 'password: ';
-      puzzleInput.type = 'password';
-    } else {
-      pLine('> unknown user', true);
-    }
-
-  } else if (pStage === 'password') {
-    pLine('password: ••••••••');
-    if (val === 'MHA') {
       pStage = 'done';
       puzzlePrompt.textContent = '';
       puzzleInput.disabled = true;
       pLine('> DECRYPTING CLASSIFIED FILE...');
-      // Progress bar
       const barEl = document.createElement('div');
       barEl.className = 'tline tline-dim';
       puzzleOut.appendChild(barEl);
       let step = 0;
       const iv = setInterval(() => {
         step++;
-        const done = Math.floor(step * 1.05);
-        barEl.textContent = '  [' + '█'.repeat(done) + '░'.repeat(20 - done) + '] ' + (step * 5) + '%';
+        barEl.textContent = '  [' + '█'.repeat(step) + '░'.repeat(20 - step) + '] ' + (step * 5) + '%';
         puzzleOut.scrollTop = puzzleOut.scrollHeight;
         if (step >= 20) {
           clearInterval(iv);
@@ -531,11 +519,7 @@ puzzleInput.addEventListener('keydown', e => {
         }
       }, 55);
     } else {
-      pLine('> ACCESS DENIED', true);
-      pStage = 'login';
-      puzzlePrompt.textContent = 'login: ';
-      puzzleInput.type = 'text';
-      puzzleInput.disabled = false;
+      pLine('> unknown user — try again', true);
     }
   }
 
