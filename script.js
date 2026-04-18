@@ -62,20 +62,44 @@ navList.addEventListener("mouseleave", () => {
 
 // ── Mouse tracking ──
 let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-let spotX  = mouseX, spotY = mouseY;
 let parallaxX = 0, parallaxY = 0;
+let ringX = mouseX, ringY = mouseY;
 
 document.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   parallaxX = (e.clientX / window.innerWidth  - 0.5) * 2;
   parallaxY = (e.clientY / window.innerHeight - 0.5) * 2;
+  curDot.style.left = mouseX + "px";
+  curDot.style.top  = mouseY + "px";
+  document.body.classList.remove("cur-out");
 });
 
-// ── Cursor spotlight ──
-const spotlight = document.createElement("div");
-spotlight.className = "spotlight";
-document.body.appendChild(spotlight);
+// Hover state
+document.addEventListener("mouseover", e => {
+  if (e.target.closest("a, button, [role=button], input, textarea, select, label, .btn, .nav-bubble")) {
+    document.body.classList.add("cur-hover");
+  }
+});
+document.addEventListener("mouseout", e => {
+  if (e.target.closest("a, button, [role=button], input, textarea, select, label, .btn, .nav-bubble")) {
+    document.body.classList.remove("cur-hover");
+  }
+});
+
+// Click burst
+document.addEventListener("mousedown", () => document.body.classList.add("cur-click"));
+document.addEventListener("mouseup",   () => document.body.classList.remove("cur-click"));
+
+// Hide when mouse leaves window
+document.addEventListener("mouseleave", () => document.body.classList.add("cur-out"));
+document.addEventListener("mouseenter", () => document.body.classList.remove("cur-out"));
+
+// ── Custom cursor (dot + lagging ring) ──
+const curDot  = document.createElement("div"); curDot.className  = "cur-dot";
+const curRing = document.createElement("div"); curRing.className = "cur-ring";
+document.body.appendChild(curDot);
+document.body.appendChild(curRing);
 
 // ── Scroll progress bar ──
 const prog = document.getElementById("scroll-prog");
@@ -138,13 +162,13 @@ function drawAurora(ts) {
 }
 requestAnimationFrame(drawAurora);
 
-// ── RAF loop: spotlight lerp ──
-(function rafLoop() {
-  spotX += (mouseX - spotX) * 0.14;
-  spotY += (mouseY - spotY) * 0.14;
-  spotlight.style.left = spotX + "px";
-  spotlight.style.top  = spotY + "px";
-  requestAnimationFrame(rafLoop);
+// ── RAF loop: ring lerp ──
+(function ringLoop() {
+  ringX += (mouseX - ringX) * 0.11;
+  ringY += (mouseY - ringY) * 0.11;
+  curRing.style.left = ringX + "px";
+  curRing.style.top  = ringY + "px";
+  requestAnimationFrame(ringLoop);
 })();
 
 // ── Contact form → Formspree ──
