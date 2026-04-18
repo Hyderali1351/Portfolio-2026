@@ -370,3 +370,113 @@ function activateScene() {
   setTimeout(() => { if (kbd) kbd.classList.add("on"); }, 2100);
   setTimeout(() => { if (chairRgb) chairRgb.classList.add("on"); }, 2500);
 }
+
+// ── Resume puzzle easter egg ──────────────────────────
+// Trigger: type "sudo" anywhere on the page (not in an input)
+// Login:   mirhyderali
+// Password: MHA  (hint: watch the intro logo)
+const TRIGGER = 'sudo';
+let triggerBuf = '';
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'Escape') { closePuzzle(); return; }
+  if (e.key.length !== 1) return;
+  triggerBuf = (triggerBuf + e.key.toLowerCase()).slice(-TRIGGER.length);
+  if (triggerBuf === TRIGGER) { triggerBuf = ''; openPuzzle(); }
+});
+
+const puzzleOverlay = document.getElementById('puzzle-overlay');
+const puzzleOut     = document.getElementById('puzzle-out');
+const puzzleInput   = document.getElementById('puzzle-input');
+const puzzlePrompt  = document.getElementById('puzzle-prompt');
+
+let pStage = 'idle'; // idle | login | password | done
+
+function pLine(text, dim = false) {
+  const el = document.createElement('div');
+  el.className = 'tline' + (dim ? ' tline-dim' : '');
+  el.textContent = text;
+  puzzleOut.appendChild(el);
+  puzzleOut.scrollTop = puzzleOut.scrollHeight;
+}
+
+function openPuzzle() {
+  puzzleOut.innerHTML = '';
+  pStage = 'login';
+  puzzleInput.type = 'text';
+  puzzleInput.value = '';
+  puzzleInput.disabled = false;
+  puzzlePrompt.textContent = 'login: ';
+  puzzleOverlay.classList.add('show');
+  pLine('> CLASSIFIED FILE DETECTED');
+  pLine('> AUTHENTICATION REQUIRED', true);
+  setTimeout(() => puzzleInput.focus(), 300);
+}
+
+function closePuzzle() {
+  puzzleOverlay.classList.remove('show');
+  pStage = 'idle';
+}
+
+puzzleOverlay.addEventListener('click', e => {
+  if (e.target === puzzleOverlay) closePuzzle();
+});
+
+puzzleInput.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const val = puzzleInput.value.trim();
+  puzzleInput.value = '';
+
+  if (pStage === 'login') {
+    pLine('login: ' + val);
+    if (val.toLowerCase() === 'mirhyderali') {
+      pStage = 'password';
+      puzzlePrompt.textContent = 'password: ';
+      puzzleInput.type = 'password';
+    } else {
+      pLine('> unknown user', true);
+    }
+
+  } else if (pStage === 'password') {
+    pLine('password: ••••••••');
+    if (val === 'MHA') {
+      pStage = 'done';
+      puzzlePrompt.textContent = '';
+      puzzleInput.disabled = true;
+      pLine('> DECRYPTING CLASSIFIED FILE...');
+      // Progress bar
+      const barEl = document.createElement('div');
+      barEl.className = 'tline tline-dim';
+      puzzleOut.appendChild(barEl);
+      let step = 0;
+      const iv = setInterval(() => {
+        step++;
+        const done = Math.floor(step * 1.05);
+        barEl.textContent = '  [' + '█'.repeat(done) + '░'.repeat(20 - done) + '] ' + (step * 5) + '%';
+        puzzleOut.scrollTop = puzzleOut.scrollHeight;
+        if (step >= 20) {
+          clearInterval(iv);
+          pLine('> resume.pdf ── UNLOCKED ✓');
+          setTimeout(() => {
+            const a = document.createElement('a');
+            a.href = 'resume.pdf';
+            a.download = 'MirHyderAli_Resume.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(closePuzzle, 1800);
+          }, 400);
+        }
+      }, 55);
+    } else {
+      pLine('> ACCESS DENIED', true);
+      pStage = 'login';
+      puzzlePrompt.textContent = 'login: ';
+      puzzleInput.type = 'text';
+      puzzleInput.disabled = false;
+    }
+  }
+
+  puzzleInput.focus();
+});
