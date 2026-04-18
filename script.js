@@ -292,6 +292,21 @@ if (!isTouch) (function () {
   requestAnimationFrame(drawWeb);
 })();
 
+// ── Visitor counter ──
+(function () {
+  fetch("https://api.counterapi.dev/v1/mirhyderali/visits/up")
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById("visitor-counter");
+      const ct = document.getElementById("vc-count");
+      if (el && ct && data.count) {
+        ct.textContent = Number(data.count).toLocaleString();
+        el.style.display = "flex";
+      }
+    })
+    .catch(() => {});
+})();
+
 // ── RAF loop: ring lerp (desktop only) ──
 if (!isTouch) (function ringLoop() {
   ringX += (mouseX - ringX) * 0.11;
