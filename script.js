@@ -238,12 +238,12 @@ if (!isTouch) (function () {
         const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
         const d  = Math.sqrt(dx * dx + dy * dy);
         if (d < MAX_DIST) {
-          const a = (1 - d / MAX_DIST) * 0.15;
+          const a = (1 - d / MAX_DIST) * 0.45;
           wCtx.beginPath();
           wCtx.moveTo(pts[i].x, pts[i].y);
           wCtx.lineTo(pts[j].x, pts[j].y);
           wCtx.strokeStyle = `rgba(196,181,253,${a.toFixed(3)})`;
-          wCtx.lineWidth = 0.65;
+          wCtx.lineWidth = 1.0;
           wCtx.stroke();
         }
       }
@@ -257,12 +257,12 @@ if (!isTouch) (function () {
         if (d < minD) { minD = d; closest = p; }
       });
       if (closest) {
-        const a = (1 - minD / 210) * 0.28;
+        const a = (1 - minD / 210) * 0.65;
         wCtx.beginPath();
         wCtx.moveTo(closest.x, closest.y);
         wCtx.lineTo(nc.x, nc.y);
         wCtx.strokeStyle = `rgba(167,139,250,${a.toFixed(3)})`;
-        wCtx.lineWidth = 0.85;
+        wCtx.lineWidth = 1.2;
         wCtx.stroke();
       }
     });
@@ -271,12 +271,12 @@ if (!isTouch) (function () {
     pts.forEach(p => {
       const md = Math.hypot(p.x - mouseX, p.y - mouseY);
       if (md < 190) {
-        const a = (1 - md / 190) * 0.28;
+        const a = (1 - md / 190) * 0.65;
         wCtx.beginPath();
         wCtx.moveTo(p.x, p.y);
         wCtx.lineTo(mouseX, mouseY);
         wCtx.strokeStyle = `rgba(167,139,250,${a.toFixed(3)})`;
-        wCtx.lineWidth = 0.85;
+        wCtx.lineWidth = 1.2;
         wCtx.stroke();
       }
     });
@@ -285,7 +285,7 @@ if (!isTouch) (function () {
     pts.forEach(p => {
       wCtx.beginPath();
       wCtx.arc(p.x, p.y, 1.35, 0, Math.PI * 2);
-      wCtx.fillStyle = "rgba(196,181,253,0.27)";
+      wCtx.fillStyle = "rgba(196,181,253,0.65)";
       wCtx.fill();
     });
   }
