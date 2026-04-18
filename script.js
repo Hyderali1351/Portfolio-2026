@@ -171,84 +171,121 @@ function drawAurora(ts) {
 }
 requestAnimationFrame(drawAurora);
 
-// ── Spider web particle layer (desktop only — no mouse on touch) ──
+// ── Spider web particle layer (desktop only) ──
 if (!isTouch) (function () {
-  const wc  = document.getElementById("web-canvas");
+  const wc   = document.getElementById("web-canvas");
   const wCtx = wc.getContext("2d");
-  const NODES = 55;
-  const MAX_DIST = 160;
-  const MOUSE_ATTRACT = 0.012; // very gentle pull toward cursor
+  const NODES    = 60;
+  const MAX_DIST = 155;
+  const PAD      = 35; // soft-bounce zone near edges
 
-  function resize() { wc.width = window.innerWidth; wc.height = window.innerHeight; }
+  function resize() {
+    wc.width  = window.innerWidth;
+    wc.height = window.innerHeight;
+  }
   window.addEventListener("resize", resize, { passive: true });
   resize();
 
-  // Build particles
+  // Spread particles evenly across the whole viewport from the start
   const pts = Array.from({ length: NODES }, () => ({
-    x:  Math.random() * window.innerWidth,
-    y:  Math.random() * window.innerHeight,
-    vx: (Math.random() - 0.5) * 0.35,
-    vy: (Math.random() - 0.5) * 0.35,
+    x:  PAD + Math.random() * (window.innerWidth  - PAD * 2),
+    y:  PAD + Math.random() * (window.innerHeight - PAD * 2),
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: (Math.random() - 0.5) * 0.5,
   }));
 
-  let lastWebTs = 0;
+  // Cache nav-link centres (nav is position:fixed so these stay stable)
+  let navCentres = [];
+  function cacheNav() {
+    navCentres = Array.from(document.querySelectorAll(".nav-links a")).map(el => {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+  }
+  requestAnimationFrame(cacheNav); // run after first paint
+  window.addEventListener("resize", cacheNav, { passive: true });
+
+  let lastTs = 0;
   function drawWeb(ts) {
     requestAnimationFrame(drawWeb);
-    if (ts - lastWebTs < 33) return;
-    lastWebTs = ts;
+    if (ts - lastTs < 33) return;
+    lastTs = ts;
 
     const W = wc.width, H = wc.height;
     wCtx.clearRect(0, 0, W, H);
 
-    // Move + wrap
     pts.forEach(p => {
-      // Gentle mouse attraction
-      const dx = mouseX - p.x, dy = mouseY - p.y;
-      p.vx += dx * MOUSE_ATTRACT * 0.001;
-      p.vy += dy * MOUSE_ATTRACT * 0.001;
-      // Speed cap
+      // Soft edge repulsion — keeps particles distributed across the full canvas
+      if (p.x < PAD)   p.vx += 0.055;
+      if (p.x > W-PAD) p.vx -= 0.055;
+      if (p.y < PAD)   p.vy += 0.055;
+      if (p.y > H-PAD) p.vy -= 0.055;
+
+      // Speed cap (no global attractor — prevents clustering)
       const spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-      if (spd > 0.7) { p.vx = p.vx / spd * 0.7; p.vy = p.vy / spd * 0.7; }
+      if (spd > 0.65) { p.vx = p.vx / spd * 0.65; p.vy = p.vy / spd * 0.65; }
+
       p.x += p.vx;
       p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      // Safety wrap if repulsion isn't enough
+      if (p.x < -8) p.x = W + 8; if (p.x > W + 8) p.x = -8;
+      if (p.y < -8) p.y = H + 8; if (p.y > H + 8) p.y = -8;
     });
 
-    // Draw edges
+    // Particle ↔ particle edges
     for (let i = 0; i < pts.length; i++) {
       for (let j = i + 1; j < pts.length; j++) {
         const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < MAX_DIST) {
-          const alpha = (1 - dist / MAX_DIST) * 0.18;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < MAX_DIST) {
+          const a = (1 - d / MAX_DIST) * 0.15;
           wCtx.beginPath();
           wCtx.moveTo(pts[i].x, pts[i].y);
           wCtx.lineTo(pts[j].x, pts[j].y);
-          wCtx.strokeStyle = `rgba(196,181,253,${alpha.toFixed(3)})`;
-          wCtx.lineWidth = 0.7;
+          wCtx.strokeStyle = `rgba(196,181,253,${a.toFixed(3)})`;
+          wCtx.lineWidth = 0.65;
           wCtx.stroke();
         }
       }
-      // Mouse connection (within 200px)
-      const mdx = pts[i].x - mouseX, mdy = pts[i].y - mouseY;
-      const md = Math.sqrt(mdx * mdx + mdy * mdy);
-      if (md < 200) {
-        const alpha = (1 - md / 200) * 0.32;
-        wCtx.beginPath();
-        wCtx.moveTo(pts[i].x, pts[i].y);
-        wCtx.lineTo(mouseX, mouseY);
-        wCtx.strokeStyle = `rgba(167,139,250,${alpha.toFixed(3)})`;
-        wCtx.lineWidth = 0.9;
-        wCtx.stroke();
-      }
     }
 
-    // Draw dots
+    // Nearest particle → each nav link (web "reaches" toward the nav buttons)
+    navCentres.forEach(nc => {
+      let closest = null, minD = 210;
+      pts.forEach(p => {
+        const d = Math.hypot(p.x - nc.x, p.y - nc.y);
+        if (d < minD) { minD = d; closest = p; }
+      });
+      if (closest) {
+        const a = (1 - minD / 210) * 0.28;
+        wCtx.beginPath();
+        wCtx.moveTo(closest.x, closest.y);
+        wCtx.lineTo(nc.x, nc.y);
+        wCtx.strokeStyle = `rgba(167,139,250,${a.toFixed(3)})`;
+        wCtx.lineWidth = 0.85;
+        wCtx.stroke();
+      }
+    });
+
+    // Mouse connections (visual only — no attraction force)
+    pts.forEach(p => {
+      const md = Math.hypot(p.x - mouseX, p.y - mouseY);
+      if (md < 190) {
+        const a = (1 - md / 190) * 0.28;
+        wCtx.beginPath();
+        wCtx.moveTo(p.x, p.y);
+        wCtx.lineTo(mouseX, mouseY);
+        wCtx.strokeStyle = `rgba(167,139,250,${a.toFixed(3)})`;
+        wCtx.lineWidth = 0.85;
+        wCtx.stroke();
+      }
+    });
+
+    // Dots
     pts.forEach(p => {
       wCtx.beginPath();
-      wCtx.arc(p.x, p.y, 1.4, 0, Math.PI * 2);
-      wCtx.fillStyle = "rgba(196,181,253,0.30)";
+      wCtx.arc(p.x, p.y, 1.35, 0, Math.PI * 2);
+      wCtx.fillStyle = "rgba(196,181,253,0.27)";
       wCtx.fill();
     });
   }

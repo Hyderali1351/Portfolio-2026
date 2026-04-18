@@ -48,10 +48,10 @@ a:hover { opacity: 0.75; }
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   display: block;
-  opacity: 0.45;
+  opacity: 0.5;
 }
 
 /* Grain overlay */
@@ -2143,4 +2143,93 @@ body.cur-out .cur-ring { opacity: 0; }
   /* Reduce intro terminal size */
   .term-body { font-size: 0.7rem; padding: 10px 12px 14px; }
   #intro-logo svg { width: 70px; height: 70px; }
+}
+
+/* ══════════════════════════════════════
+   LARGE SCREEN / TV  ≥ 1440px
+   Targets 1080p TVs, 4K monitors, wide
+   desktop displays via Chrome/browser.
+   ══════════════════════════════════════ */
+@media (min-width: 1440px) {
+  .container { max-width: 1320px; }
+
+  .hero {
+    padding: 10rem 8rem 5rem;
+    gap: 5rem;
+  }
+  .hero-name    { font-size: clamp(4rem, 4.2vw, 6rem); }
+  .hero-title   { font-size: 1.75rem; }
+  .hero-sub     { font-size: 1.15rem; max-width: 520px; }
+  .code-body    { font-size: 1rem; line-height: 2; }
+
+  .section      { padding: 9rem 3rem; }
+  .section-title { font-size: 2.7rem; margin-bottom: 4rem; }
+
+  /* About */
+  .avatar-ring  { width: 260px; height: 260px; }
+  .about-grid   { gap: 5rem; }
+  .about-text p { font-size: 1.1rem; }
+  .stat-num     { font-size: 2.2rem; }
+
+  /* Skills */
+  .skills-grid  { grid-template-columns: repeat(4, 1fr); gap: 1.75rem; }
+  .skill-card   { padding: 2.5rem 2rem; }
+
+  /* Projects */
+  .projects-grid { grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .project-card  { padding: 2.5rem; }
+
+  /* Experience */
+  .exp-card     { padding: 2rem 2.5rem; }
+  .exp-title-block h3 { font-size: 1.15rem; }
+
+  /* Research */
+  .research-card { padding: 3rem; }
+  .research-title { font-size: 2rem; }
+  .pipe-icon    { width: 64px; height: 64px; }
+  .pipe-icon svg { width: 30px; height: 30px; }
+  .pipe-label   { font-size: 0.9rem; }
+  .pipe-sub     { font-size: 0.78rem; }
+
+  /* Gaming room — bigger on large screens */
+  .room-scene   { max-width: 560px; height: 400px; }
+  .r-desk-wrap  { width: 430px; bottom: 76px; }
+  .r-screen     { width: 220px; height: 135px; }
+  .r-bezel      { padding: 9px; }
+  .r-mon-neck   { width: 18px; height: 20px; }
+  .r-mon-foot   { width: 62px; }
+  .r-tower      { width: 62px; height: 110px; right: 3%; }
+  .r-chair      { left: 6%; width: 80px; }
+  .r-chair-back { width: 62px; height: 70px; }
+  .r-chair-headrest { width: 44px; height: 18px; }
+  .r-chair-seat { width: 70px; height: 17px; }
+  .r-chair-arms { width: 76px; }
+  .r-kbd        { left: 10%; }
+  .s-krow:nth-child(1) { width: 130px; }
+  .s-krow:nth-child(2) { width: 118px; }
+  .s-krow:nth-child(3) { width: 106px; }
+
+  /* Contact */
+  .contact-grid { gap: 4rem; }
+  .contact-item { font-size: 1rem; }
+
+  /* Nav — slightly larger pill */
+  .nav          { width: min(780px, 92vw); }
+  .nav-links a  { font-size: 0.95rem; padding: 0.45rem 1rem; }
+}
+
+/* ══════════════════════════════════════
+   4K / ULTRA-WIDE  ≥ 2000px
+   ══════════════════════════════════════ */
+@media (min-width: 2000px) {
+  .container    { max-width: 1600px; }
+  .hero         { padding: 12rem 10rem 6rem; gap: 7rem; }
+  .hero-name    { font-size: clamp(5rem, 4vw, 7rem); }
+  .section      { padding: 11rem 4rem; }
+  .section-title { font-size: 3.2rem; }
+  .nav          { width: min(900px, 92vw); }
+  .nav-links a  { font-size: 1rem; padding: 0.5rem 1.1rem; }
+  .room-scene   { max-width: 680px; height: 480px; }
+  .r-desk-wrap  { width: 520px; }
+  .r-screen     { width: 265px; height: 162px; }
 }
