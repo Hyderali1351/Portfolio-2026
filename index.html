@@ -207,71 +207,86 @@
   <section class="section" id="experience">
     <div class="container">
       <h2 class="section-title reveal">Work <span class="accent">Experience</span></h2>
-      <div class="exp-timeline">
+      <div class="exp-bento">
 
-        <div class="exp-card reveal">
-          <div class="exp-dot"></div>
-          <div class="exp-header">
-            <div class="exp-title-block">
-              <h3>AI HPC Infrastructure Lead Engineer</h3>
-              <span class="exp-company">Wistron Corporation</span>
+        <!-- Featured: Wistron — full width -->
+        <div class="exp-bubble exp-bubble--featured reveal">
+          <div class="exp-bubble-head">
+            <div class="exp-bubble-badge" style="background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.35);color:#a78bfa">W</div>
+            <div class="exp-bubble-info">
+              <h3 class="exp-bubble-title">AI HPC Infrastructure Lead Engineer</h3>
+              <span class="exp-bubble-company">Wistron Corporation</span>
+              <div class="exp-bubble-meta">
+                <span>May 2023 – Present</span>
+                <span>Irving, TX</span>
+              </div>
             </div>
-            <div class="exp-meta">
-              <span class="exp-date">May 2023 – Present</span>
-              <span class="exp-location">Irving, TX</span>
-            </div>
+            <button class="exp-expand-btn" aria-label="Toggle details"><span class="exp-plus">+</span></button>
           </div>
-          <ul class="exp-bullets">
-            <li>Deploy and commission NVIDIA GB200 NVL72 and H100 GPU clusters for Fortune 500 AI clients, managing full rack-to-rack lifecycle from bare-metal provisioning to OS imaging.</li>
-            <li>Configure and validate InfiniBand HDR/NDR fabric, NVLink topology, and NVMe-oF storage arrays to meet AI training performance SLAs.</li>
-            <li>Automate cluster health monitoring, GPU utilization dashboards, and failure alerting with Python, Bash, Prometheus, and Grafana.</li>
-            <li>Coordinate with NVIDIA field engineers on firmware, driver, and OFED stack qualification for production AI workloads.</li>
-          </ul>
-          <div class="exp-tags">
-            <span>NVIDIA GB200</span><span>Kubernetes</span><span>Slurm</span><span>InfiniBand</span><span>Python</span><span>Linux</span>
+          <div class="exp-bubble-body">
+            <ul class="exp-bullets">
+              <li>Deploy and commission NVIDIA GB200 NVL72 and H100 GPU clusters for Fortune 500 AI clients, managing full rack-to-rack lifecycle from bare-metal provisioning to OS imaging.</li>
+              <li>Configure and validate InfiniBand HDR/NDR fabric, NVLink topology, and NVMe-oF storage arrays to meet AI training performance SLAs.</li>
+              <li>Automate cluster health monitoring, GPU utilization dashboards, and failure alerting with Python, Bash, Prometheus, and Grafana.</li>
+              <li>Coordinate with NVIDIA field engineers on firmware, driver, and OFED stack qualification for production AI workloads.</li>
+            </ul>
+            <div class="exp-tags">
+              <span>NVIDIA GB200</span><span>Kubernetes</span><span>Slurm</span><span>InfiniBand</span><span>Python</span><span>Linux</span>
+            </div>
           </div>
         </div>
 
-        <div class="exp-card reveal" style="--delay:100ms">
-          <div class="exp-dot"></div>
-          <div class="exp-header">
-            <div class="exp-title-block">
-              <h3>IT Graduate Assistant</h3>
-              <span class="exp-company">Lewis University</span>
+        <!-- Lewis University — half width -->
+        <div class="exp-bubble reveal" style="--delay:80ms">
+          <div class="exp-bubble-head">
+            <div class="exp-bubble-badge" style="background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.35);color:#60a5fa">L</div>
+            <div class="exp-bubble-info">
+              <h3 class="exp-bubble-title">IT Graduate Assistant</h3>
+              <span class="exp-bubble-company">Lewis University</span>
+              <div class="exp-bubble-meta">
+                <span>Jan – May 2023</span>
+                <span>Romeoville, IL</span>
+              </div>
             </div>
-            <div class="exp-meta">
-              <span class="exp-date">Jan 2023 – May 2023</span>
-              <span class="exp-location">Romeoville, IL</span>
+            <button class="exp-expand-btn" aria-label="Toggle details"><span class="exp-plus">+</span></button>
+          </div>
+          <div class="exp-bubble-body">
+            <ul class="exp-bullets">
+              <li>Administered campus network infrastructure including Windows Server, Active Directory, and VMware virtualisation environments.</li>
+              <li>Provided Tier 2 technical support for faculty and students; resolved hardware, software, and network issues.</li>
+            </ul>
+            <div class="exp-tags">
+              <span>Windows Server</span><span>Active Directory</span><span>VMware</span><span>Networking</span>
             </div>
           </div>
-          <ul class="exp-bullets">
-            <li>Administered campus network infrastructure including Windows Server, Active Directory, and VMware virtualisation environments.</li>
-            <li>Provided Tier 2 technical support for faculty and students; resolved hardware, software, and network issues.</li>
-          </ul>
-          <div class="exp-tags">
-            <span>Windows Server</span><span>Active Directory</span><span>VMware</span><span>Networking</span>
+        </div>
+
+        <!-- Education — half width -->
+        <div class="exp-bubble reveal" style="--delay:160ms">
+          <div class="exp-bubble-head">
+            <div class="exp-bubble-badge" style="background:rgba(190,24,93,0.15);border-color:rgba(190,24,93,0.35);color:#f472b6;font-size:1.1rem">🎓</div>
+            <div class="exp-bubble-info">
+              <h3 class="exp-bubble-title">Education</h3>
+              <span class="exp-bubble-company">Lewis University · Lords Institute</span>
+              <div class="exp-bubble-meta"><span>2019 – 2025</span></div>
+            </div>
+            <button class="exp-expand-btn" aria-label="Toggle details"><span class="exp-plus">+</span></button>
+          </div>
+          <div class="exp-bubble-body">
+            <div class="edu-bento-item">
+              <span class="edu-degree">M.S. Computer Science</span>
+              <span class="edu-school">Lewis University</span>
+              <span class="edu-year">Dec 2023 – May 2025 · Romeoville, IL</span>
+            </div>
+            <div class="edu-bento-item">
+              <span class="edu-degree">B.E. Computer Science</span>
+              <span class="edu-school">Lords Institute of Engineering &amp; Technology</span>
+              <span class="edu-year">2019 – 2022 · Hyderabad, India</span>
+            </div>
           </div>
         </div>
 
       </div>
-
-      <!-- Education sub-block -->
-      <div class="edu-block reveal" style="--delay:60ms">
-        <h3 class="edu-heading">Education</h3>
-        <div class="edu-grid">
-          <div class="edu-item">
-            <span class="edu-degree">M.S. Computer Science</span>
-            <span class="edu-school">Lewis University</span>
-            <span class="edu-year">Dec 2023 – May 2025 · Romeoville, IL</span>
-          </div>
-          <div class="edu-item">
-            <span class="edu-degree">B.E. Computer Science</span>
-            <span class="edu-school">Lords Institute of Engineering &amp; Technology</span>
-            <span class="edu-year">2019 – 2022 · Hyderabad, India</span>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 
