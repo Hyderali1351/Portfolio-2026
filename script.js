@@ -290,8 +290,9 @@ if (!isTouch) (function () {
   fetch("https://api.counterapi.dev/v1/mirhyderali/visits/up")
     .then(r => r.json())
     .then(data => {
-      const ct = document.getElementById("vc-count");
-      if (ct && data.count) ct.textContent = Number(data.count).toLocaleString();
+      const ct  = document.getElementById("vc-count");
+      const raw = data?.count ?? data?.value ?? data?.hits;
+      if (ct && raw != null) ct.textContent = Number(raw).toLocaleString();
     })
     .catch(() => {});
 })();
@@ -301,13 +302,16 @@ if (!isTouch) (function () {
   const DAYS  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function tick() {
-    const now = new Date();
-    const hh  = String(now.getHours()).padStart(2, '0');
-    const mm  = String(now.getMinutes()).padStart(2, '0');
-    const ss  = String(now.getSeconds()).padStart(2, '0');
-    const el  = document.getElementById('clock-time');
-    const de  = document.getElementById('clock-date');
-    if (el) el.textContent = `${hh}:${mm}:${ss}`;
+    const now  = new Date();
+    const h24  = now.getHours();
+    const ampm = h24 >= 12 ? 'PM' : 'AM';
+    const h12  = h24 % 12 || 12;
+    const hh   = String(h12).padStart(2, '0');
+    const mm   = String(now.getMinutes()).padStart(2, '0');
+    const ss   = String(now.getSeconds()).padStart(2, '0');
+    const el   = document.getElementById('clock-time');
+    const de   = document.getElementById('clock-date');
+    if (el) el.textContent = `${hh}:${mm}:${ss} ${ampm}`;
     if (de) de.textContent = `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()}`;
   }
   tick();
