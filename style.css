@@ -227,6 +227,65 @@ a:hover { opacity: 0.75; }
 
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.4rem; }
 
+/* ── Scroll progress ring button ── */
+#scroll-ring-btn {
+  position: fixed;
+  bottom: 2rem; right: 2rem;
+  width: 50px; height: 50px;
+  background: rgba(10,4,28,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(167,139,250,0.18);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  z-index: 500;
+  opacity: 0;
+  transform: translateY(14px) scale(0.85);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease,
+              border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.45);
+}
+#scroll-ring-btn.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+#scroll-ring-btn:hover {
+  border-color: rgba(167,139,250,0.45);
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.12), 0 4px 28px rgba(139,92,246,0.28);
+}
+#scroll-ring-btn svg:first-child {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  overflow: visible;
+}
+.srb-track {
+  fill: none;
+  stroke: rgba(167,139,250,0.14);
+  stroke-width: 2.6;
+}
+.srb-fill {
+  fill: none;
+  stroke: #a78bfa;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  transform-origin: 20px 20px;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 0 5px rgba(167,139,250,0.85));
+  transition: stroke-dashoffset 0.12s linear;
+}
+.srb-arrow {
+  position: relative; z-index: 1;
+  width: 15px; height: 15px;
+  transition: transform 0.28s ease;
+}
+#scroll-ring-btn:hover .srb-arrow { transform: translateY(-2px); }
+
 .nav-bubble {
   position: absolute;
   top: 50%;
@@ -672,6 +731,40 @@ a:hover { opacity: 0.75; }
   border-radius: 6px;
 }
 
+/* ── Project card scratch reveal ── */
+.scratch-bg {
+  position: absolute; inset: 0; z-index: 0;
+  border-radius: var(--radius);
+  opacity: 0.72;
+}
+[data-project="ai"]  .scratch-bg { background: linear-gradient(135deg, #2e1065 0%, #1e3a8a 60%, #0c4a6e 100%); }
+[data-project="hpc"] .scratch-bg { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0c4a6e 100%); }
+[data-project="web"] .scratch-bg { background: linear-gradient(135deg, #3730a3 0%, #6d28d9 50%, #9d174d 100%); }
+
+.scratch-canvas {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  border-radius: var(--radius);
+}
+.scratch-hint {
+  position: absolute;
+  bottom: 1rem; right: 1.1rem;
+  z-index: 2;
+  color: rgba(167,139,250,0.55);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.67rem;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  user-select: none;
+}
+.project-content {
+  position: relative; z-index: 3;
+  display: flex; flex-direction: column; gap: 1rem;
+  flex: 1;
+}
+
 /* ── Contact ── */
 .contact-sub { text-align: center; color: var(--text-muted); margin-bottom: 3rem; font-size: 1.05rem; }
 .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; align-items: start; }
@@ -1093,6 +1186,47 @@ body.cur-out .cur-ring { opacity: 0; }
 /* ══════════════════════════════════════
    EXPERIENCE BENTO GRID
 ══════════════════════════════════════ */
+/* ── Experience filter pill tabs ── */
+.exp-filter {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.75rem;
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(167,139,250,0.1);
+  border-radius: 9999px;
+  padding: 4px;
+  width: fit-content;
+  gap: 0;
+}
+.exp-filter-btn {
+  position: relative; z-index: 1;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem; font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  padding: 0.38rem 1.15rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+.exp-filter-btn.active { color: var(--text); }
+.exp-filter-btn:hover:not(.active) { color: rgba(196,181,253,0.8); }
+.exp-filter-track {
+  position: absolute;
+  top: 4px;
+  height: calc(100% - 8px);
+  border-radius: 9999px;
+  background: rgba(139,92,246,0.2);
+  border: 1px solid rgba(167,139,250,0.32);
+  pointer-events: none;
+  transition: left 0.38s cubic-bezier(0.34,1.56,0.64,1),
+              width 0.38s cubic-bezier(0.34,1.56,0.64,1);
+  will-change: left, width;
+  box-shadow: 0 0 14px rgba(139,92,246,0.14), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
 .exp-bento {
   display: grid;
   grid-template-columns: 1.35fr 1fr;

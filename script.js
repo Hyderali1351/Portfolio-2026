@@ -1033,4 +1033,146 @@ puzzleInput.addEventListener('keydown', e => {
     });
   });
 
+  // ── Scroll progress ring ──
+  const scrollRingBtn = document.getElementById('scroll-ring-btn');
+  const srbFill = scrollRingBtn && scrollRingBtn.querySelector('.srb-fill');
+  if (scrollRingBtn && srbFill) {
+    const CIRC = 2 * Math.PI * 16; // r=16 → ~100.5
+    srbFill.style.strokeDasharray  = CIRC;
+    srbFill.style.strokeDashoffset = CIRC;
+
+    function updateRing() {
+      const scrolled  = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const pct       = maxScroll > 0 ? scrolled / maxScroll : 0;
+      srbFill.style.strokeDashoffset = CIRC * (1 - pct);
+      if (scrolled > 280) scrollRingBtn.classList.add('visible');
+      else                scrollRingBtn.classList.remove('visible');
+    }
+
+    window.addEventListener('scroll', updateRing, { passive: true });
+    scrollRingBtn.addEventListener('click', () =>
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    );
+  }
+
+  // ── Experience filter ──
+  const expFilterBtns  = document.querySelectorAll('.exp-filter-btn');
+  const expFilterTrack = document.querySelector('.exp-filter-track');
+  const expBubbles     = document.querySelectorAll('.exp-bubble');
+
+  function moveFilterTrack(btn) {
+    if (!expFilterTrack) return;
+    expFilterTrack.style.left  = btn.offsetLeft + 'px';
+    expFilterTrack.style.width = btn.offsetWidth + 'px';
+  }
+
+  // Init track position on active button
+  const initFilterBtn = document.querySelector('.exp-filter-btn.active');
+  if (initFilterBtn) requestAnimationFrame(() => moveFilterTrack(initFilterBtn));
+
+  expFilterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      expFilterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      moveFilterTrack(btn);
+
+      const filter = btn.dataset.filter;
+      expBubbles.forEach(bubble => {
+        const match = filter === 'all' || bubble.dataset.category === filter;
+        gsap.to(bubble, {
+          autoAlpha: match ? 1 : 0.18,
+          scale:     match ? 1 : 0.96,
+          duration: 0.38,
+          ease: 'power2.out',
+        });
+      });
+    });
+  });
+
+  // ── Project card scratch reveal ──
+  document.querySelectorAll('.project-card[data-project]').forEach(card => {
+    const canvas = card.querySelector('.scratch-canvas');
+    const hint   = card.querySelector('.scratch-hint');
+    if (!canvas) return;
+
+    const ctx  = canvas.getContext('2d');
+    let inited = false;
+    let scratching = false;
+
+    function initCanvas() {
+      if (inited) return;
+      inited = true;
+      canvas.width  = card.offsetWidth;
+      canvas.height = card.offsetHeight;
+      paintOverlay();
+    }
+
+    function paintOverlay() {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(5, 2, 16, 0.86)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Subtle purple pixel dust
+      for (let i = 0; i < 700; i++) {
+        ctx.fillStyle = `rgba(139,92,246,${Math.random() * 0.06})`;
+        ctx.fillRect(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height,
+          1, 1
+        );
+      }
+    }
+
+    function scratchAt(cx, cy) {
+      if (hint) hint.style.opacity = '0';
+      ctx.globalCompositeOperation = 'destination-out';
+      const r = 30;
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0,   'rgba(0,0,0,1)');
+      g.addColorStop(0.5, 'rgba(0,0,0,0.8)');
+      g.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    // Init when card scrolls into view
+    const io = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { setTimeout(initCanvas, 80); io.disconnect(); }
+    }, { threshold: 0.1 });
+    io.observe(card);
+
+    // Mousedown + mousemove on the whole card (canvas has pointer-events:none)
+    card.addEventListener('mousedown', e => {
+      initCanvas();
+      scratching = true;
+      const r = canvas.getBoundingClientRect();
+      scratchAt(e.clientX - r.left, e.clientY - r.top);
+    });
+    card.addEventListener('mousemove', e => {
+      if (!scratching) return;
+      const r = canvas.getBoundingClientRect();
+      scratchAt(e.clientX - r.left, e.clientY - r.top);
+    });
+    window.addEventListener('mouseup', () => { scratching = false; });
+
+    // Touch
+    card.addEventListener('touchstart', e => {
+      initCanvas();
+      scratching = true;
+      const r = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      scratchAt(t.clientX - r.left, t.clientY - r.top);
+    }, { passive: true });
+    card.addEventListener('touchmove', e => {
+      if (!scratching) return;
+      const r = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      scratchAt(t.clientX - r.left, t.clientY - r.top);
+    }, { passive: true });
+    card.addEventListener('touchend', () => { scratching = false; });
+  });
+
 })();
