@@ -6,10 +6,22 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-// Stop the 2D aurora loop and take over the canvas
+// Stop the 2D aurora loop
 window.__stopAurora = true;
-const canvas = document.getElementById('bg-aurora');
-if (!canvas) throw new Error('bg-aurora canvas not found');
+
+// bg-aurora already has a 2D context from script.js — browsers block WebGL on
+// a canvas that already has a 2D context. Create a fresh canvas instead.
+const auroraEl = document.getElementById('bg-aurora');
+if (auroraEl) auroraEl.style.opacity = '0'; // hide (loop already stopped)
+
+const canvas = document.createElement('canvas');
+Object.assign(canvas.style, {
+  position: 'fixed', inset: '0', width: '100%', height: '100%',
+  zIndex: '0', pointerEvents: 'none', display: 'block',
+});
+// Insert right after aurora so spider-web canvas stays on top
+(auroraEl?.parentNode ?? document.body)
+  .insertBefore(canvas, auroraEl?.nextSibling ?? null);
 
 const isMobile = window.matchMedia('(hover:none) and (pointer:coarse)').matches;
 

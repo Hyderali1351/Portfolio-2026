@@ -724,6 +724,7 @@ puzzleInput.addEventListener('keydown', e => {
   });
 
   gsap.utils.toArray(".reveal-right").forEach(el => {
+    if (el.id === 'setup-scene') return; // gaming zoom owns this element
     const delay = parseFloat(el.style.getPropertyValue("--delay") || "0") / 1000;
     gsap.fromTo(el,
       { x: 70, autoAlpha: 0 },
@@ -764,22 +765,22 @@ puzzleInput.addEventListener('keydown', e => {
     let sceneActivated = false;
     ScrollTrigger.create({
       trigger: '#interests',
-      start: 'top 70%',
+      start: 'top 55%',  // fire when section is well into view
       once: true,
       onEnter: () => {
-        gsap.from(sceneEl, {
-          scale: 5.5,
-          transformOrigin: '68% 47%',
-          autoAlpha: 0,
-          duration: 1.6,
-          ease: 'power3.out',
-          onStart: () => {
-            // boot PC halfway through the zoom-out
-            setTimeout(() => {
-              if (!sceneActivated) { sceneActivated = true; activateScene(); }
-            }, 700);
+        // fromTo: explicit start+end so CSS opacity:0 (reveal-right) can't interfere
+        gsap.fromTo(sceneEl,
+          { scale: 5.5, transformOrigin: '68% 47%', autoAlpha: 0 },
+          {
+            scale: 1, autoAlpha: 1, duration: 1.6, ease: 'power3.out',
+            overwrite: true,
+            onStart: () => {
+              setTimeout(() => {
+                if (!sceneActivated) { sceneActivated = true; activateScene(); }
+              }, 700);
+            }
           }
-        });
+        );
       }
     });
   }
