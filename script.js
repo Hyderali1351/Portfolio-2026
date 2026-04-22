@@ -531,18 +531,7 @@ if (intro && introCanvas) {
 }
 
 // ── Gaming / desk scene activation ──
-const setupScene = document.getElementById("setup-scene");
-if (setupScene) {
-  const sceneObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        activateScene();
-        sceneObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.45 });
-  sceneObserver.observe(setupScene);
-}
+// Gaming scene activation handled by GSAP ScrollTrigger (see bottom of file)
 
 function activateScene() {
   const screen    = document.getElementById("s-screen");
@@ -665,11 +654,23 @@ puzzleInput.addEventListener('keydown', e => {
 });
 
 // ─────────────────────────────────────────
-// GSAP PRO MAX ANIMATIONS
+// GSAP PRO MAX ANIMATIONS + LENIS SMOOTH SCROLL
 // ─────────────────────────────────────────
 (function initProAnimations() {
   if (typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
+
+  // ── Lenis smooth scroll ─────────────────────────────
+  if (typeof Lenis !== 'undefined') {
+    const lenis = new Lenis({
+      lerp: 0.07,
+      smoothWheel: true,
+      smoothTouch: false,
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
 
   // ── Hero: set initial hidden state, reveal after intro ──
   const heroEls = [".hero-greeting", ".hero-name", ".hero-title", ".hero-sub", ".hero-cta"];
@@ -710,13 +711,13 @@ puzzleInput.addEventListener('keydown', e => {
     );
   }
 
-  // ── Scroll reveals (replace IntersectionObserver) ──────
+  // ── Scroll reveals (once: no re-animation on scroll-up = fast) ──────
   gsap.utils.toArray(".reveal").forEach(el => {
     const delay = parseFloat(el.style.getPropertyValue("--delay") || "0") / 1000;
     gsap.fromTo(el,
       { y: 60, autoAlpha: 0 },
       { y: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", delay,
-        scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } }
+        scrollTrigger: { trigger: el, start: "top 88%", once: true } }
     );
   });
 
@@ -725,7 +726,7 @@ puzzleInput.addEventListener('keydown', e => {
     gsap.fromTo(el,
       { x: -70, autoAlpha: 0 },
       { x: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", delay,
-        scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } }
+        scrollTrigger: { trigger: el, start: "top 85%", once: true } }
     );
   });
 
@@ -734,7 +735,7 @@ puzzleInput.addEventListener('keydown', e => {
     gsap.fromTo(el,
       { x: 70, autoAlpha: 0 },
       { x: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", delay,
-        scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } }
+        scrollTrigger: { trigger: el, start: "top 85%", once: true } }
     );
   });
 
@@ -743,7 +744,7 @@ puzzleInput.addEventListener('keydown', e => {
     gsap.fromTo(el,
       { scale: 0.82, y: 35, autoAlpha: 0 },
       { scale: 1, y: 0, autoAlpha: 1, duration: 0.72, ease: "back.out(1.6)", delay,
-        scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } }
+        scrollTrigger: { trigger: el, start: "top 88%", once: true } }
     );
   });
 
@@ -758,11 +759,37 @@ puzzleInput.addEventListener('keydown', e => {
     ScrollTrigger.create({
       trigger: el, start: "top 85%", once: true,
       onEnter: () => gsap.to(proxy, {
-        val: end, duration: 1.8, ease: "power2.out",
+        val: end, duration: 2, ease: "power2.out",
         onUpdate() { el.textContent = Math.round(proxy.val) + suffix; }
       })
     });
   });
+
+  // ── Gaming section: cinematic zoom-out from fan ──────────
+  const sceneEl = document.getElementById('setup-scene');
+  if (sceneEl) {
+    let sceneActivated = false;
+    ScrollTrigger.create({
+      trigger: '#interests',
+      start: 'top 70%',
+      once: true,
+      onEnter: () => {
+        gsap.from(sceneEl, {
+          scale: 5.5,
+          transformOrigin: '68% 47%',
+          autoAlpha: 0,
+          duration: 1.6,
+          ease: 'power3.out',
+          onStart: () => {
+            // boot PC halfway through the zoom-out
+            setTimeout(() => {
+              if (!sceneActivated) { sceneActivated = true; activateScene(); }
+            }, 700);
+          }
+        });
+      }
+    });
+  }
 
   // ── 3D card tilt on hover ──
   function addTilt(selector, maxDeg) {
