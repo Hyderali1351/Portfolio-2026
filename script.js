@@ -1115,59 +1115,6 @@ if (!isTouch) (function () {
   requestAnimationFrame(drawBubbles);
 })();
 
-// ── Visitor counter ──
-(function () {
-  const ct = document.getElementById("vc-count");
-  if (!ct) return;
-
-  // hitscounter.dev: free, CORS-enabled, persists across all devices
-  // OFFSET bridges the gap between the live API count and the ~484 already shown
-  const API_URL     = 'https://hitscounter.dev/api/hit?url=mirhyderali.com%2Fportfolio';
-  const OFFSET      = 481;  // displayed = OFFSET + live API count (starts ≈484)
-  const LOCAL_KEY   = 'mha_vc_live_v2'; // v2: busts stale 481-stuck cache
-  const SESSION_KEY = 'mha_vs';
-
-  function animateTo(target) {
-    const from = Math.max(target - 8, 0);
-    let cur = from;
-    ct.textContent = from.toLocaleString();
-    const iv = setInterval(() => {
-      cur = Math.min(cur + 1, target);
-      ct.textContent = cur.toLocaleString();
-      if (cur >= target) clearInterval(iv);
-    }, 55);
-  }
-
-  // Show last-known value immediately so there's no blank flash
-  const cached = parseInt(localStorage.getItem(LOCAL_KEY) || '0', 10);
-  if (cached) animateTo(cached);
-
-  const isNewSession = !sessionStorage.getItem(SESSION_KEY);
-  if (isNewSession) sessionStorage.setItem(SESSION_KEY, '1');
-
-  if (isNewSession) {
-    // New browser session → call API (increments counter server-side), read total
-    fetch(API_URL, { cache: 'no-cache' })
-      .then(r => r.text())
-      .then(svg => {
-        // SVG title format: "<title>today / total</title>"
-        const m = svg.match(/<title>([\d,]+)\s*\/\s*([\d,]+)<\/title>/);
-        if (!m) throw new Error('parse fail');
-        const apiTotal = parseInt(m[2].replace(/,/g, ''), 10);
-        const display  = OFFSET + apiTotal;
-        localStorage.setItem(LOCAL_KEY, display);
-        animateTo(display);
-      })
-      .catch(() => {
-        // API down — fall back to cached or seed
-        if (!cached) animateTo(OFFSET);
-      });
-  } else {
-    // Same session — don't re-increment; cached value already shown above
-    if (!cached) animateTo(OFFSET);
-  }
-})();
-
 // ── Clock widget ──
 (function () {
   const DAYS  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
