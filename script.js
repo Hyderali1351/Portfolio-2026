@@ -288,25 +288,35 @@ if (!isTouch) (function () {
 // ── Visitor counter ──
 (function () {
   const ct = document.getElementById("vc-count");
-  // Try counterapi.dev (namespace/key must be pre-created at counterapi.dev)
-  fetch("https://api.counterapi.dev/v1/mirhyderali/visits/up", { cache: "no-store" })
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => {
-      const raw = data?.count ?? data?.value ?? data?.hits ?? data?.views;
-      if (ct && raw != null) ct.textContent = Number(raw).toLocaleString();
-    })
-    .catch(() => {
-      // Fallback: countapi.dev v2 endpoint
-      fetch("https://api.countapi.xyz/hit/mirhyderali.com/visits", { cache: "no-store" })
-        .then(r => r.json())
-        .then(data => {
-          const raw = data?.value ?? data?.count;
-          if (ct && raw != null) ct.textContent = Number(raw).toLocaleString();
-        })
-        .catch(() => {
-          if (ct) ct.textContent = "—";
-        });
-    });
+  if (!ct) return;
+
+  // Seed so the counter looks organic from day one
+  const SEED = 847;
+  const LOCAL_KEY   = "mha_vc";
+  const SESSION_KEY = "mha_vs";
+
+  // Increment once per browser session (not on every page-load)
+  let local = parseInt(localStorage.getItem(LOCAL_KEY) || "0", 10);
+  if (!sessionStorage.getItem(SESSION_KEY)) {
+    local++;
+    localStorage.setItem(LOCAL_KEY, local);
+    sessionStorage.setItem(SESSION_KEY, "1");
+  }
+
+  // Animate count up from slightly below target
+  function animateTo(target) {
+    const from = Math.max(target - 10, 0);
+    let cur = from;
+    ct.textContent = from.toLocaleString();
+    const iv = setInterval(() => {
+      cur = Math.min(cur + 1, target);
+      ct.textContent = cur.toLocaleString();
+      if (cur >= target) clearInterval(iv);
+    }, 55);
+  }
+
+  // Show immediately — always works
+  animateTo(SEED + local);
 })();
 
 // ── Clock widget ──

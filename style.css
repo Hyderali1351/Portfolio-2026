@@ -19,7 +19,12 @@
   --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Prevent iOS Safari from auto-resizing text in landscape */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body {
   font-family: -apple-system, 'SF Pro Display', 'Inter', sans-serif;
@@ -28,6 +33,20 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
   min-height: 100vh;
+  min-height: 100dvh;
+  /* Remove blue flash on tap for all elements */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent double-tap zoom delay on all interactive elements */
+a, button, [role="button"], label, .btn,
+.exp-filter-btn, .nav-links a, .project-card {
+  touch-action: manipulation;
+}
+
+/* Prevent iOS auto-zoom on form focus — keep font >= 16px */
+input, textarea, select {
+  font-size: 16px;
 }
 
 a { color: var(--text); text-decoration: none; transition: opacity var(--transition); }
@@ -93,8 +112,8 @@ a:hover { opacity: 0.75; }
 /* ── Visitor counter badge ── */
 #visitor-counter {
   position: fixed;
-  bottom: 1.2rem;
-  right: 1.2rem;
+  bottom: calc(1.2rem + env(safe-area-inset-bottom));
+  right: max(1.2rem, env(safe-area-inset-right));
   z-index: 510;
   display: flex;
   align-items: center;
@@ -125,8 +144,8 @@ a:hover { opacity: 0.75; }
 /* Clock widget */
 #site-clock {
   position: fixed;
-  bottom: 1.2rem;
-  left: 1.2rem;
+  bottom: calc(1.2rem + env(safe-area-inset-bottom));
+  left: max(1.2rem, env(safe-area-inset-left));
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -182,7 +201,9 @@ a:hover { opacity: 0.75; }
 
 /* ── Nav ── */
 .nav {
-  position: fixed; top: 1.2rem; left: 50%; transform: translateX(-50%);
+  position: fixed;
+  top: max(1.2rem, env(safe-area-inset-top) + 0.4rem);
+  left: 50%; transform: translateX(-50%);
   z-index: 200;
   display: flex; align-items: center; justify-content: center;
   padding: 0.5rem 0.75rem;
@@ -230,7 +251,8 @@ a:hover { opacity: 0.75; }
 /* ── Scroll progress ring button ── */
 #scroll-ring-btn {
   position: fixed;
-  bottom: 5rem; right: 2rem;
+  bottom: calc(5rem + env(safe-area-inset-bottom));
+  right: max(2rem, env(safe-area-inset-right));
   width: 50px; height: 50px;
   background: rgba(10,4,28,0.88);
   backdrop-filter: blur(14px);
@@ -361,6 +383,7 @@ a:hover { opacity: 0.75; }
 /* ── Hero ── */
 .hero {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -2346,6 +2369,21 @@ body.cur-out .cur-ring { opacity: 0; }
   /* Experience */
   .exp-bento { grid-template-columns: 1fr; }
   .exp-bubble-head { padding: 1.2rem; }
+  /* Filter pills — scroll horizontally on mobile so they don't wrap oddly */
+  .exp-filter {
+    width: calc(100vw - 2.5rem);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+  .exp-filter::-webkit-scrollbar { display: none; }
+  .exp-filter-btn { padding: 0.38rem 0.85rem; font-size: 0.8rem; }
+
+  /* Clock: hide on phones (too crowded) */
+  #site-clock { display: none; }
+  /* Scroll ring: right-aligned to clear visitor counter */
+  #scroll-ring-btn { right: max(1.2rem, env(safe-area-inset-right)); }
 
   /* Research */
   .research-card { padding: 1.5rem 1.25rem; }
