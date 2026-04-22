@@ -6,8 +6,9 @@ window.__stopAurora = true;
 // Password: MHA@2026   (SHA-256 hash stored below — change both)
 // ──────────────────────────────────────────────────────────────
 (function () {
-  const ADMIN_HASH = '5f538cfec35d8773084a5ced1429dddca8fa2411643836fab1a88e8450dfd7ec';
+  let ADMIN_HASH = '5f538cfec35d8773084a5ced1429dddca8fa2411643836fab1a88e8450dfd7ec';
   const OWNER = 'Hyderali1351', REPO = 'Portfolio-2026', FILE = 'index.html';
+  const RECOVERY_EMAIL = 'mirhyderali619@gmail.com';
 
   let active = false;
   let buf = '';
@@ -38,12 +39,14 @@ window.__stopAurora = true;
           <button id="adm-cancel" class="adm-btn-ghost">Cancel</button>
           <button id="adm-enter" class="adm-btn-primary">Unlock</button>
         </div>
+        <p style="text-align:center;margin-top:.75rem"><button id="adm-forgot" class="adm-link-btn">Forgot password?</button></p>
       </div>`;
     document.body.appendChild(m);
     const pw = document.getElementById('adm-pw');
     pw.focus();
     document.getElementById('adm-cancel').onclick = () => m.remove();
     document.getElementById('adm-enter').onclick  = () => tryLogin(m, pw.value);
+    document.getElementById('adm-forgot').onclick = () => { m.remove(); showForgotPassword(); };
     pw.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(m, pw.value); });
     m.addEventListener('click', e => { if (e.target === m) m.remove(); });
   }
@@ -62,6 +65,86 @@ window.__stopAurora = true;
     }
   }
 
+  // ── Forgot password ────────────────────────────────────────
+  function showForgotPassword() {
+    const m = document.createElement('div');
+    m.id = 'adm-modal';
+    m.innerHTML = `
+      <div class="adm-box">
+        <div class="adm-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>Password Recovery</span>
+        </div>
+        <p class="adm-hint" style="margin-bottom:.75rem">Enter your recovery email to get a one-time access code.</p>
+        <input id="adm-rec-email" type="email" placeholder="Recovery email" autocomplete="off" />
+        <p id="adm-err" class="adm-err"></p>
+        <div class="adm-btns">
+          <button id="adm-back" class="adm-btn-ghost">← Back</button>
+          <button id="adm-send-otp" class="adm-btn-primary">Send Code</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    document.getElementById('adm-rec-email').focus();
+    document.getElementById('adm-back').onclick = () => { m.remove(); showLogin(); };
+    document.getElementById('adm-send-otp').onclick = () => sendOtp(m);
+    document.getElementById('adm-rec-email').addEventListener('keydown', e => { if (e.key === 'Enter') sendOtp(m); });
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  }
+
+  function sendOtp(modal) {
+    const emailInput = document.getElementById('adm-rec-email');
+    if (emailInput.value.trim().toLowerCase() !== RECOVERY_EMAIL.toLowerCase()) {
+      document.getElementById('adm-err').textContent = 'Email not recognized';
+      emailInput.classList.add('adm-shake');
+      setTimeout(() => emailInput.classList.remove('adm-shake'), 500);
+      return;
+    }
+    // Time-based 6-digit code, changes every 10 minutes
+    const slot = Math.floor(Date.now() / 600000);
+    const code = ((slot * 7919 + 31337) % 900000 + 100000).toString();
+    modal.remove();
+    showOtpEntry(code);
+  }
+
+  function showOtpEntry(code) {
+    const m = document.createElement('div');
+    m.id = 'adm-modal';
+    m.innerHTML = `
+      <div class="adm-box">
+        <div class="adm-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 14.88a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 4h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 11.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 20.92z"/></svg>
+          <span>Enter Access Code</span>
+        </div>
+        <p class="adm-hint" style="margin-bottom:.5rem">Your one-time code (valid 10 min):</p>
+        <div class="adm-otp-display">${code}</div>
+        <p class="adm-hint" style="margin:.6rem 0;font-size:.78rem;opacity:.6">Copy the code above and enter it below:</p>
+        <input id="adm-otp-input" type="text" placeholder="6-digit code" maxlength="6" autocomplete="off" inputmode="numeric" />
+        <p id="adm-err" class="adm-err"></p>
+        <div class="adm-btns">
+          <button id="adm-otp-cancel" class="adm-btn-ghost">Cancel</button>
+          <button id="adm-otp-verify" class="adm-btn-primary">Verify &amp; Enter</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    document.getElementById('adm-otp-input').focus();
+    document.getElementById('adm-otp-cancel').onclick = () => m.remove();
+    document.getElementById('adm-otp-verify').onclick = () => verifyOtp(m, code);
+    document.getElementById('adm-otp-input').addEventListener('keydown', e => { if (e.key === 'Enter') verifyOtp(m, code); });
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  }
+
+  function verifyOtp(modal, code) {
+    const entered = document.getElementById('adm-otp-input').value.trim();
+    if (entered === code) {
+      modal.remove();
+      activateAdmin();
+    } else {
+      document.getElementById('adm-err').textContent = 'Incorrect code — check the number above';
+      document.getElementById('adm-otp-input').classList.add('adm-shake');
+      setTimeout(() => document.getElementById('adm-otp-input')?.classList.remove('adm-shake'), 500);
+    }
+  }
+
   // ── Activate edit mode ─────────────────────────────────────
   function activateAdmin() {
     active = true;
@@ -75,6 +158,8 @@ window.__stopAurora = true;
         <span class="adm-hint">Click any <span style="color:#a78bfa">highlighted</span> field to edit</span>
       </div>
       <div class="adm-bar-r">
+        <button id="adm-add-exp"  class="adm-btn-add">＋ Experience</button>
+        <button id="adm-add-proj" class="adm-btn-add">＋ Project</button>
         <button id="adm-save" class="adm-btn-primary">Save &amp; Publish</button>
         <button id="adm-exit" class="adm-btn-ghost">Exit</button>
       </div>`;
@@ -87,8 +172,10 @@ window.__stopAurora = true;
       el.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); } });
     });
 
-    document.getElementById('adm-exit').onclick = deactivateAdmin;
-    document.getElementById('adm-save').onclick = saveToGitHub;
+    document.getElementById('adm-exit').onclick     = deactivateAdmin;
+    document.getElementById('adm-save').onclick     = saveToGitHub;
+    document.getElementById('adm-add-exp').onclick  = showAddExperience;
+    document.getElementById('adm-add-proj').onclick = showAddProject;
   }
 
   function deactivateAdmin() {
@@ -98,6 +185,241 @@ window.__stopAurora = true;
       el.contentEditable = 'false';
       el.classList.remove('adm-field');
     });
+  }
+
+  // ── Add Experience ─────────────────────────────────────────
+  const EXP_PRESETS = {
+    hpc: {
+      gc:'124,58,237', bar:'linear-gradient(90deg,#7c3aed,#4338ca)',
+      bc:'rgba(124,58,237,0.18)', bbd:'rgba(124,58,237,0.5)', bco:'#a78bfa',
+      icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 7V4M14 7V4M10 20v-3M14 20v-3M7 10H4M7 14H4M20 10h-3M20 14h-3"/></svg>`,
+    },
+    it: {
+      gc:'37,99,235', bar:'linear-gradient(90deg,#2563eb,#0891b2)',
+      bc:'rgba(37,99,235,0.18)', bbd:'rgba(37,99,235,0.5)', bco:'#60a5fa',
+      icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`,
+    },
+    edu: {
+      gc:'190,24,93', bar:'linear-gradient(90deg,#be185d,#7c3aed)',
+      bc:'rgba(190,24,93,0.18)', bbd:'rgba(190,24,93,0.5)', bco:'#f472b6',
+      icon:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M12 13L2 8l10-5 10 5-10 5z"/><path d="M6 10.6V16a6 6 0 0 0 12 0v-5.4"/></svg>`,
+    },
+  };
+
+  function showAddExperience() {
+    const m = document.createElement('div');
+    m.id = 'adm-modal';
+    m.innerHTML = `
+      <div class="adm-box adm-box--wide">
+        <div class="adm-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Experience</span>
+        </div>
+        <div class="adm-form-grid">
+          <label class="adm-label">Job Title
+            <input id="af-title" type="text" placeholder="AI HPC Engineer" />
+          </label>
+          <label class="adm-label">Company &amp; Location
+            <input id="af-company" type="text" placeholder="ACME Corp · City, ST" />
+          </label>
+          <label class="adm-label">Date Range
+            <input id="af-date" type="text" placeholder="Jan 2024 – Present" />
+          </label>
+          <label class="adm-label">Category
+            <select id="af-cat">
+              <option value="hpc">AI &amp; HPC</option>
+              <option value="it">IT Systems</option>
+              <option value="edu">Education</option>
+            </select>
+          </label>
+          <label class="adm-label" style="grid-column:1/-1">Brief Description
+            <textarea id="af-blurb" rows="2" placeholder="One-line summary shown on card..."></textarea>
+          </label>
+          <label class="adm-label" style="grid-column:1/-1">Tags (comma-separated)
+            <input id="af-tags" type="text" placeholder="Python, Kubernetes, InfiniBand" />
+          </label>
+          <label class="adm-label" style="grid-column:1/-1">Bullet Points (one per line)
+            <textarea id="af-bullets" rows="4" placeholder="Deployed GPU clusters&#10;Configured InfiniBand fabric"></textarea>
+          </label>
+        </div>
+        <p id="adm-err" class="adm-err"></p>
+        <div class="adm-btns">
+          <button id="af-cancel" class="adm-btn-ghost">Cancel</button>
+          <button id="af-add" class="adm-btn-primary">Add Card</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    document.getElementById('af-title').focus();
+    document.getElementById('af-cancel').onclick = () => m.remove();
+    document.getElementById('af-add').onclick = () => createExpCard(m);
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  }
+
+  function createExpCard(modal) {
+    const title     = document.getElementById('af-title').value.trim();
+    const company   = document.getElementById('af-company').value.trim();
+    const date      = document.getElementById('af-date').value.trim();
+    const cat       = document.getElementById('af-cat').value;
+    const blurb     = document.getElementById('af-blurb').value.trim();
+    const tagStr    = document.getElementById('af-tags').value.trim();
+    const bulletStr = document.getElementById('af-bullets').value.trim();
+
+    if (!title || !company) {
+      document.getElementById('adm-err').textContent = 'Title and company are required';
+      return;
+    }
+
+    const p = EXP_PRESETS[cat] || EXP_PRESETS.it;
+    const tags    = tagStr    ? tagStr.split(',').map(t => `<span>${t.trim()}</span>`).join('') : '';
+    const bullets = bulletStr ? bulletStr.split('\n').filter(Boolean).map(b => `<li>${b.replace(/^[•\-–]\s*/, '')}</li>`).join('') : '';
+    const expIdx  = document.querySelectorAll('.exp-bubble').length;
+
+    const html = `
+      <div class="exp-bubble" data-category="${cat}">
+        <div class="exp-bubble-glow" style="--gc:${p.gc}"></div>
+        <div class="exp-bubble-bar" style="--bar:${p.bar}"></div>
+        <div class="exp-bubble-inner">
+          <div class="exp-bubble-top">
+            <div class="exp-bubble-badge" style="--bc:${p.bc};--bbd:${p.bbd};--bco:${p.bco}">${p.icon}</div>
+            <span class="exp-bubble-date">${date}</span>
+          </div>
+          <h3 class="exp-bubble-title" data-admin-key="exp.${expIdx}.title" contenteditable="true" class="adm-field">${title}</h3>
+          <span class="exp-bubble-company" data-admin-key="exp.${expIdx}.company" contenteditable="true" class="adm-field">${company}</span>
+          ${blurb ? `<p class="exp-bubble-blurb" data-admin-key="exp.${expIdx}.blurb" contenteditable="true" class="adm-field">${blurb}</p>` : ''}
+          ${tags ? `<div class="exp-tags exp-tags--preview">${tags}</div>` : ''}
+          ${bullets ? `<button class="exp-expand-btn" aria-label="Toggle details">
+            <svg class="exp-expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            <span class="exp-expand-label">See all details</span>
+          </button>
+          <div class="exp-bubble-body"><ul class="exp-bullets">${bullets}</ul></div>` : ''}
+        </div>
+      </div>`;
+
+    const bento = document.querySelector('.exp-bento');
+    if (!bento) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html.trim();
+    const newCard = tmp.firstElementChild;
+    // Mark editable fields with the adm-field class
+    newCard.querySelectorAll('[data-admin-key]').forEach(el => {
+      el.classList.add('adm-field');
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); } });
+    });
+
+    // Insert before the edu card, or append
+    const eduCard = bento.querySelector('.exp-bubble--edu');
+    if (eduCard) bento.insertBefore(newCard, eduCard);
+    else bento.appendChild(newCard);
+
+    // Entrance animation
+    if (window.gsap) gsap.fromTo(newCard, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power3.out' });
+
+    // Wire up GSAP expand/collapse
+    if (window.admReinitExpCard) window.admReinitExpCard(newCard);
+
+    modal.remove();
+  }
+
+  // ── Add Project ────────────────────────────────────────────
+  const PROJ_GRADIENTS = {
+    ai:    'radial-gradient(ellipse at 60% 30%,rgba(139,92,246,.22) 0%,transparent 65%),radial-gradient(ellipse at 20% 70%,rgba(236,72,153,.14) 0%,transparent 55%)',
+    hpc:   'radial-gradient(ellipse at 70% 20%,rgba(96,165,250,.2) 0%,transparent 65%),radial-gradient(ellipse at 30% 80%,rgba(52,211,153,.12) 0%,transparent 55%)',
+    web:   'radial-gradient(ellipse at 50% 20%,rgba(251,191,36,.18) 0%,transparent 65%),radial-gradient(ellipse at 70% 80%,rgba(167,139,250,.14) 0%,transparent 55%)',
+    other: 'radial-gradient(ellipse at 50% 50%,rgba(100,100,100,.2) 0%,transparent 65%)',
+  };
+
+  function showAddProject() {
+    const m = document.createElement('div');
+    m.id = 'adm-modal';
+    m.innerHTML = `
+      <div class="adm-box adm-box--wide">
+        <div class="adm-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Project</span>
+        </div>
+        <div class="adm-form-grid">
+          <label class="adm-label">Project Name
+            <input id="pf-name" type="text" placeholder="My Awesome Project" />
+          </label>
+          <label class="adm-label">Icon (emoji)
+            <input id="pf-icon" type="text" placeholder="🚀" maxlength="4" />
+          </label>
+          <label class="adm-label">Type
+            <select id="pf-type">
+              <option value="ai">AI / ML</option>
+              <option value="hpc">HPC / Infrastructure</option>
+              <option value="web">Web</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label class="adm-label">GitHub Link
+            <input id="pf-link" type="url" placeholder="https://github.com/..." />
+          </label>
+          <label class="adm-label" style="grid-column:1/-1">Description
+            <textarea id="pf-desc" rows="3" placeholder="What does this project do?"></textarea>
+          </label>
+          <label class="adm-label" style="grid-column:1/-1">Tags (comma-separated)
+            <input id="pf-tags" type="text" placeholder="Python, React, Kubernetes" />
+          </label>
+        </div>
+        <p id="adm-err" class="adm-err"></p>
+        <div class="adm-btns">
+          <button id="pf-cancel" class="adm-btn-ghost">Cancel</button>
+          <button id="pf-add" class="adm-btn-primary">Add Project</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    document.getElementById('pf-name').focus();
+    document.getElementById('pf-cancel').onclick = () => m.remove();
+    document.getElementById('pf-add').onclick = () => createProjCard(m);
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  }
+
+  function createProjCard(modal) {
+    const name   = document.getElementById('pf-name').value.trim();
+    const icon   = document.getElementById('pf-icon').value.trim() || '📁';
+    const type   = document.getElementById('pf-type').value;
+    const link   = document.getElementById('pf-link').value.trim() || 'https://github.com/Hyderali1351';
+    const desc   = document.getElementById('pf-desc').value.trim();
+    const tagStr = document.getElementById('pf-tags').value.trim();
+
+    if (!name) { document.getElementById('adm-err').textContent = 'Project name is required'; return; }
+
+    const grad = PROJ_GRADIENTS[type] || PROJ_GRADIENTS.other;
+    const tags  = tagStr ? tagStr.split(',').map(t => `<span>${t.trim()}</span>`).join('') : '';
+    const delay = document.querySelectorAll('.project-card').length * 130;
+
+    const html = `
+      <div class="project-card" data-project="${type}" style="--delay:${delay}ms">
+        <div class="scratch-bg" style="background:${grad}"></div>
+        <canvas class="scratch-canvas"></canvas>
+        <div class="scratch-hint">✦ scratch to peek</div>
+        <div class="project-content">
+          <div class="project-top">
+            <span class="project-icon">${icon}</span>
+            <div class="project-links"><a href="${link}" target="_blank">&#60;/&#62;</a></div>
+          </div>
+          <h3>${name}</h3>
+          ${desc ? `<p>${desc}</p>` : ''}
+          ${tags ? `<div class="project-tags">${tags}</div>` : ''}
+        </div>
+      </div>`;
+
+    const grid = document.querySelector('.projects-grid');
+    if (!grid) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html.trim();
+    const newCard = tmp.firstElementChild;
+    grid.appendChild(newCard);
+
+    // Entrance animation
+    if (window.gsap) gsap.fromTo(newCard, { autoAlpha: 0, scale: 0.92, y: 20 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.55, ease: 'back.out(1.6)' });
+
+    // Wire up scratch + tilt
+    if (window.admReinitScratchCard) window.admReinitScratchCard(newCard);
+    if (window.admReinitTilt) window.admReinitTilt(newCard);
+
+    modal.remove();
   }
 
   // ── Save via GitHub API ────────────────────────────────────
@@ -112,8 +434,19 @@ window.__stopAurora = true;
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
             <span>GitHub Token</span>
           </div>
-          <p class="adm-hint" style="margin-bottom:.75rem">Paste a Personal Access Token with <strong>Contents: write</strong> permission for this repo. Stored in session only — clears on close.</p>
-          <input id="adm-pat" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+          <p class="adm-hint" style="margin-bottom:.5rem">Paste a fine-grained PAT with <strong>Contents: write</strong> for this repo. Stored in session only.</p>
+          <details class="adm-pat-guide">
+            <summary>How to create a token ▸</summary>
+            <ol>
+              <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">github.com/settings/tokens</a></li>
+              <li>Click <strong>Generate new token</strong></li>
+              <li>Name it (e.g. <em>Portfolio Admin</em>) and set an expiration</li>
+              <li><strong>Repository access</strong> → Only select repositories → <strong>Portfolio-2026</strong></li>
+              <li><strong>Permissions → Repository permissions → Contents</strong> → <em>Read and write</em></li>
+              <li>Click <strong>Generate token</strong>, copy it, paste below</li>
+            </ol>
+          </details>
+          <input id="adm-pat" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" style="margin-top:.75rem" />
           <p id="adm-err" class="adm-err"></p>
           <div class="adm-btns">
             <button id="adm-cancel" class="adm-btn-ghost">Cancel</button>
@@ -905,13 +1238,13 @@ puzzleInput.addEventListener('keydown', e => {
   });
 
   // ── Experience bento: hover = open, leave = close ──
-  document.querySelectorAll('.exp-bubble').forEach(bubble => {
+  // Exposed globally so admin mode can reinit newly-created cards
+  window.admReinitExpCard = function(bubble) {
     const badge   = bubble.querySelector('.exp-bubble-badge');
     const body    = bubble.querySelector('.exp-bubble-body');
     const icon    = bubble.querySelector('.exp-expand-icon');
     const bullets = bubble.querySelectorAll('.exp-bullets li');
 
-    // Cache natural height once while body is still in flow
     const naturalH = body ? body.scrollHeight : 0;
     if (body) gsap.set(body, { height: 0, opacity: 0 });
 
@@ -937,7 +1270,6 @@ puzzleInput.addEventListener('keydown', e => {
     }
 
     if (isTouch) {
-      // Touch: tap the expand button to toggle (hover doesn't exist on mobile)
       const btn = bubble.querySelector('.exp-expand-btn');
       if (btn) {
         let open = false;
@@ -951,7 +1283,8 @@ puzzleInput.addEventListener('keydown', e => {
       bubble.addEventListener('mouseenter', openCard);
       bubble.addEventListener('mouseleave', closeCard);
     }
-  });
+  };
+  document.querySelectorAll('.exp-bubble').forEach(b => window.admReinitExpCard(b));
 
   // ── 3D card tilt on hover ──
   function addTilt(selector, maxDeg) {
@@ -1100,7 +1433,8 @@ puzzleInput.addEventListener('keydown', e => {
   });
 
   // ── Project card scratch reveal ──
-  document.querySelectorAll('.project-card[data-project]').forEach(card => {
+  // Exposed globally so admin mode can reinit newly-created cards
+  window.admReinitScratchCard = function(card) {
     const canvas = card.querySelector('.scratch-canvas');
     const hint   = card.querySelector('.scratch-hint');
     if (!canvas) return;
@@ -1121,14 +1455,9 @@ puzzleInput.addEventListener('keydown', e => {
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = 'rgba(5, 2, 16, 0.86)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // Subtle purple pixel dust
       for (let i = 0; i < 700; i++) {
         ctx.fillStyle = `rgba(139,92,246,${Math.random() * 0.06})`;
-        ctx.fillRect(
-          Math.random() * canvas.width,
-          Math.random() * canvas.height,
-          1, 1
-        );
+        ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
       }
     }
 
@@ -1147,16 +1476,13 @@ puzzleInput.addEventListener('keydown', e => {
       ctx.globalCompositeOperation = 'source-over';
     }
 
-    // Init when card scrolls into view
     const io = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) { setTimeout(initCanvas, 80); io.disconnect(); }
     }, { threshold: 0.1 });
     io.observe(card);
 
-    // Mousedown + mousemove on the whole card (canvas has pointer-events:none)
     card.addEventListener('mousedown', e => {
-      initCanvas();
-      scratching = true;
+      initCanvas(); scratching = true;
       const r = canvas.getBoundingClientRect();
       scratchAt(e.clientX - r.left, e.clientY - r.top);
     });
@@ -1166,11 +1492,8 @@ puzzleInput.addEventListener('keydown', e => {
       scratchAt(e.clientX - r.left, e.clientY - r.top);
     });
     window.addEventListener('mouseup', () => { scratching = false; });
-
-    // Touch
     card.addEventListener('touchstart', e => {
-      initCanvas();
-      scratching = true;
+      initCanvas(); scratching = true;
       const r = canvas.getBoundingClientRect();
       const t = e.touches[0];
       scratchAt(t.clientX - r.left, t.clientY - r.top);
@@ -1182,6 +1505,20 @@ puzzleInput.addEventListener('keydown', e => {
       scratchAt(t.clientX - r.left, t.clientY - r.top);
     }, { passive: true });
     card.addEventListener('touchend', () => { scratching = false; });
-  });
+  };
+  document.querySelectorAll('.project-card[data-project]').forEach(c => window.admReinitScratchCard(c));
+
+  // Expose tilt reinit for admin-created project cards
+  window.admReinitTilt = function(card) {
+    card.addEventListener('mousemove', e => {
+      const r  = card.getBoundingClientRect();
+      const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+      const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+      gsap.to(card, { rotationY: dx * 10, rotationX: -dy * 7.5, transformPerspective: 900, scale: 1.04, ease: 'power2.out', duration: 0.4, overwrite: 'auto' });
+    });
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card, { rotationY: 0, rotationX: 0, scale: 1, ease: 'power3.out', duration: 0.65, overwrite: 'auto' });
+    });
+  };
 
 })();
