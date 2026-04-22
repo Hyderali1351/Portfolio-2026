@@ -3121,6 +3121,9 @@ body.cur-out .cur-ring { opacity: 0; }
   color: #7c3aed;
 }
 [data-theme="light"] .scratch-hint { color: rgba(124,58,237,0.5); }
+[data-theme="light"] [data-project="ai"]  .scratch-bg { background: linear-gradient(135deg, #ede9fe 0%, #dbeafe 60%, #e0f2fe 100%); }
+[data-theme="light"] [data-project="hpc"] .scratch-bg { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #e0f2fe 100%); }
+[data-theme="light"] [data-project="web"] .scratch-bg { background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 50%, #fce7f3 100%); }
 
 /* ── Experience ── */
 [data-theme="light"] .exp-filter {

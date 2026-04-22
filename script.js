@@ -996,22 +996,32 @@ if (!isTouch) (function () {
   const btn = document.getElementById('theme-toggle');
   if (!btn) return;
 
+  function applyTheme(isLight, store) {
+    if (isLight) {
+      document.documentElement.setAttribute('data-theme', 'light');
+      window.__lightMode = true;
+      if (store) localStorage.setItem('mha_theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      window.__lightMode = false;
+      if (store) localStorage.setItem('mha_theme', 'dark');
+    }
+    document.querySelectorAll('.scratch-canvas').forEach(c => { if (c._repaintScratch) c._repaintScratch(); });
+  }
+
   btn.addEventListener('click', () => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    if (isLight) {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('mha_theme', 'dark');
-      window.__lightMode = false;
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('mha_theme', 'light');
-      window.__lightMode = true;
-    }
-
-    // Quick pulse feedback
+    applyTheme(!isLight, true);
     btn.classList.add('theme-clicked');
     setTimeout(() => btn.classList.remove('theme-clicked'), 350);
   });
+
+  // Follow system preference changes when user has no stored override
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+      if (!localStorage.getItem('mha_theme')) applyTheme(e.matches, false);
+    });
+  }
 })();
 
 // ── RAF loop: ring lerp (desktop only) ──
@@ -1605,13 +1615,23 @@ puzzleInput.addEventListener('keydown', e => {
 
     function paintOverlay() {
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = 'rgba(5, 2, 16, 0.86)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < 700; i++) {
-        ctx.fillStyle = `rgba(139,92,246,${Math.random() * 0.06})`;
-        ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
+      if (window.__lightMode) {
+        ctx.fillStyle = 'rgba(220, 208, 255, 0.93)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < 700; i++) {
+          ctx.fillStyle = `rgba(124,58,237,${Math.random() * 0.04})`;
+          ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
+        }
+      } else {
+        ctx.fillStyle = 'rgba(5, 2, 16, 0.86)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < 700; i++) {
+          ctx.fillStyle = `rgba(139,92,246,${Math.random() * 0.06})`;
+          ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
+        }
       }
     }
+    canvas._repaintScratch = paintOverlay;
 
     function scratchAt(cx, cy) {
       if (hint) hint.style.opacity = '0';
