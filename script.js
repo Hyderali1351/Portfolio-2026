@@ -893,26 +893,41 @@ puzzleInput.addEventListener('keydown', e => {
     });
   });
 
+  // ── Gaming scene: activate RGB + fan on scroll (no zoom) ──
+  const sceneEl = document.getElementById('setup-scene');
+  if (sceneEl) {
+    let sceneActivated = false;
+    ScrollTrigger.create({
+      trigger: sceneEl,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        if (!sceneActivated) { sceneActivated = true; activateScene(); }
+      }
+    });
+  }
+
   // ── Experience bento expand / collapse ──
   document.querySelectorAll('.exp-bubble').forEach(bubble => {
-    const head = bubble.querySelector('.exp-bubble-head');
+    const btn  = bubble.querySelector('.exp-expand-btn');
     const body = bubble.querySelector('.exp-bubble-body');
     const plus = bubble.querySelector('.exp-plus');
+    if (!btn || !body) return;
 
     gsap.set(body, { height: 0, opacity: 0 });
 
-    head.addEventListener('click', () => {
+    btn.addEventListener('click', () => {
       const isOpen = bubble.classList.contains('open');
       if (isOpen) {
         bubble.classList.remove('open');
-        gsap.to(body, { height: 0, opacity: 0, paddingBottom: 0, duration: 0.38, ease: 'power2.inOut' });
+        gsap.to(body, { height: 0, opacity: 0, duration: 0.38, ease: 'power2.inOut' });
         gsap.to(plus, { rotation: 0, duration: 0.28, ease: 'power2.out' });
       } else {
         bubble.classList.add('open');
         const h = body.scrollHeight;
         gsap.fromTo(body,
-          { height: 0, opacity: 0, paddingBottom: 0 },
-          { height: h, opacity: 1, paddingBottom: 24, duration: 0.48, ease: 'power2.out' }
+          { height: 0, opacity: 0 },
+          { height: h, opacity: 1, duration: 0.48, ease: 'power2.out' }
         );
         gsap.to(plus, { rotation: 45, duration: 0.28, ease: 'power2.out' });
       }
