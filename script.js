@@ -290,14 +290,28 @@ if (!isTouch) (function () {
   fetch("https://api.counterapi.dev/v1/mirhyderali/visits/up")
     .then(r => r.json())
     .then(data => {
-      const el = document.getElementById("visitor-counter");
       const ct = document.getElementById("vc-count");
-      if (el && ct && data.count) {
-        ct.textContent = Number(data.count).toLocaleString();
-        el.style.display = "flex";
-      }
+      if (ct && data.count) ct.textContent = Number(data.count).toLocaleString();
     })
     .catch(() => {});
+})();
+
+// ── Clock widget ──
+(function () {
+  const DAYS  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function tick() {
+    const now = new Date();
+    const hh  = String(now.getHours()).padStart(2, '0');
+    const mm  = String(now.getMinutes()).padStart(2, '0');
+    const ss  = String(now.getSeconds()).padStart(2, '0');
+    const el  = document.getElementById('clock-time');
+    const de  = document.getElementById('clock-date');
+    if (el) el.textContent = `${hh}:${mm}:${ss}`;
+    if (de) de.textContent = `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()}`;
+  }
+  tick();
+  setInterval(tick, 1000);
 })();
 
 // ── RAF loop: ring lerp (desktop only) ──
@@ -408,7 +422,7 @@ if (intro && introCanvas) {
     return lit.slice(0, count);
   }
 
-  const NODE_COUNT = 180;
+  const NODE_COUNT = 300;
   const MAX_DIST   = Math.min(W, H) * 0.18;
   const targets    = getMHATargets(NODE_COUNT);
 
@@ -524,19 +538,21 @@ if (intro && introCanvas) {
       n.phase += n.spd * (formed ? 1 : 0.5);
       const g = (Math.sin(n.phase) + 1) * 0.5;
       if (formed || exploding) {
-        // Bright teal/green when MHA shape is formed
+        // Bright teal/green when MHA shape is formed — larger radius for readability
         ctx.shadowColor = '#00ffaa';
-        ctx.shadowBlur  = 6 + g * 12;
-        ctx.fillStyle   = `rgba(${80 + g*80},${210 + g*45},${170 + g*55},${0.8 + g * 0.2})`;
+        ctx.shadowBlur  = 8 + g * 14;
+        ctx.fillStyle   = `rgba(${80 + g*100},${220 + g*35},${180 + g*50},${0.85 + g * 0.15})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * 1.8 + g * 1.4, 0, Math.PI * 2);
       } else {
         // Purple during scatter/converge, brightening as they close in
         const br = blend * 80;
         ctx.shadowColor = `rgba(${130 + br},${90 + br * 0.5},250,0.8)`;
         ctx.shadowBlur  = 4 + g * 8;
         ctx.fillStyle   = `rgba(${140 + br},${100 + g*30},250,${0.45 + blend * 0.45})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + g * 0.9, 0, Math.PI * 2);
       }
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r + g * 0.9, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     });
@@ -1003,6 +1019,42 @@ puzzleInput.addEventListener('keydown', e => {
   }
   addTilt(".skill-card", 12);
   addTilt(".project-card", 10);
+
+  // ── Click sparks ──
+  const SPARK_COLORS = ['#a78bfa','#60a5fa','#f472b6','#34d399','#fbbf24','#00ff41','#c084fc'];
+  document.addEventListener('click', e => {
+    const count = 10 + Math.floor(Math.random() * 7);
+    for (let i = 0; i < count; i++) {
+      const spark = document.createElement('div');
+      const col   = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
+      const size  = 4 + Math.random() * 4;
+      Object.assign(spark.style, {
+        position:      'fixed',
+        left:          e.clientX + 'px',
+        top:           e.clientY + 'px',
+        width:         size + 'px',
+        height:        size + 'px',
+        borderRadius:  '50%',
+        background:    col,
+        boxShadow:     `0 0 ${size * 2}px ${col}, 0 0 ${size * 4}px ${col}80`,
+        pointerEvents: 'none',
+        zIndex:        '9999',
+        transform:     'translate(-50%,-50%)',
+      });
+      document.body.appendChild(spark);
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 45 + Math.random() * 90;
+      gsap.to(spark, {
+        x: Math.cos(angle) * dist,
+        y: Math.sin(angle) * dist,
+        opacity: 0,
+        scale: 0,
+        duration: 0.55 + Math.random() * 0.45,
+        ease: 'power2.out',
+        onComplete: () => spark.remove(),
+      });
+    }
+  });
 
   // ── Magnetic buttons ──
   if (!isTouch) {
