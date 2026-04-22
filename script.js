@@ -1,3 +1,6 @@
+// Stop aurora — GSAP blobs replace it
+window.__stopAurora = true;
+
 // ── Typing animation ──
 const titles = ["HPC Infrastructure Engineer", "AI Systems Builder", "Problem Solver", "Creative Coder"];
 let ti = 0, ci = 0, deleting = false;
@@ -196,6 +199,7 @@ if (!isTouch) (function () {
 
   let lastTs = 0;
   function drawWeb(ts) {
+    if (window.__killSpiderWeb) return; // Three.js scene is active — stop this loop
     requestAnimationFrame(drawWeb);
     if (ts - lastTs < 33) return;
     lastTs = ts;
@@ -350,7 +354,7 @@ async function handleSubmit(e) {
 }
 
 // ─────────────────────────────────────────
-// INTRO — Neural network background + hacker terminal
+// INTRO — Particle MHA formation + hacker terminal
 // ─────────────────────────────────────────────────────
 const intro       = document.getElementById("intro");
 const introCanvas = document.getElementById("intro-canvas");
@@ -361,94 +365,173 @@ if (intro && introCanvas) {
   const ctx = introCanvas.getContext("2d");
   const W = introCanvas.width, H = introCanvas.height;
 
-  // ── Neural network nodes ──────────────────────────
-  const NODE_COUNT = 72;
-  const MAX_DIST   = Math.min(W, H) * 0.21;
+  // Hide the SVG logo — canvas particles form MHA instead
+  const introLogo = document.getElementById('intro-logo');
+  if (introLogo) introLogo.style.display = 'none';
 
-  const nodes = Array.from({length: NODE_COUNT}, () => ({
-    x: Math.random() * W,
-    y: Math.random() * H,
-    vx: (Math.random() - 0.5) * 0.45,
-    vy: (Math.random() - 0.5) * 0.45,
-    r: Math.random() * 2.0 + 1.2,
-    phase: Math.random() * Math.PI * 2,
-    spd: Math.random() * 0.022 + 0.008,
-  }));
+  // ── Sample pixel positions of "MHA" text on offscreen canvas ──
+  function getMHATargets(count) {
+    const off = document.createElement('canvas');
+    const tw  = Math.min(W * 0.52, 400);
+    const th  = Math.round(tw * 0.38);
+    off.width = tw; off.height = th;
+    const oc = off.getContext('2d');
+    oc.fillStyle = '#fff';
+    oc.font = `900 ${Math.round(th * 0.82)}px sans-serif`;
+    oc.textAlign = 'center';
+    oc.textBaseline = 'middle';
+    oc.fillText('MHA', tw / 2, th / 2);
+    const data = oc.getImageData(0, 0, tw, th).data;
+    const lit  = [];
+    const step = Math.max(3, Math.floor(Math.sqrt((tw * th) / count)));
+    for (let py = 0; py < th; py += step) {
+      for (let px = 0; px < tw; px += step) {
+        if (data[(py * tw + px) * 4 + 3] > 60) {
+          lit.push({ x: W / 2 - tw / 2 + px, y: H * 0.30 - th / 2 + py });
+        }
+      }
+    }
+    for (let i = lit.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lit[i], lit[j]] = [lit[j], lit[i]];
+    }
+    return lit.slice(0, count);
+  }
 
-  // Pulse packets travelling along edges
+  const NODE_COUNT = 180;
+  const MAX_DIST   = Math.min(W, H) * 0.18;
+  const targets    = getMHATargets(NODE_COUNT);
+
+  const nodes = Array.from({ length: NODE_COUNT }, (_, i) => {
+    const tx = targets[i]?.x ?? W / 2 + (Math.random() - 0.5) * 60;
+    const ty = targets[i]?.y ?? H * 0.30 + (Math.random() - 0.5) * 30;
+    return {
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      r:  1.2 + Math.random() * 1.4,
+      phase: Math.random() * Math.PI * 2,
+      spd:   0.018 + Math.random() * 0.025,
+      tx, ty,
+      exVx: 0, exVy: 0,
+    };
+  });
+
+  // Pulse packets along neural net edges (scatter phase)
   const packets = [];
   let lastPacketMs = 0;
 
-  // Canvas fade overlay (driven by terminal sequence end)
+  // Animation state
+  let convergeT    = 0;      // 0→1 as particles approach MHA shape
+  let exploding    = false;
   let overlayAlpha = 0;
   let rafRunning   = true;
+  let startTs      = null;
+  const SCATTER_MS  = 500;   // free drift before converge starts
+  const CONVERGE_MS = 900;   // convergence duration
+
+  const easeInOut = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
   function rafLoop(ts) {
+    if (startTs === null) startTs = ts;
+    const elapsed = ts - startTs;
     ctx.clearRect(0, 0, W, H);
 
-    // Move nodes
+    if (!exploding && elapsed > SCATTER_MS) {
+      convergeT = Math.min((elapsed - SCATTER_MS) / CONVERGE_MS, 1);
+    }
+    const blend = easeInOut(Math.min(convergeT, 1));
+    const formed = blend > 0.88;
+
+    // ── Update node positions ──
     nodes.forEach(n => {
-      n.x += n.vx; n.y += n.vy;
-      if (n.x < 0 || n.x > W) n.vx *= -1;
-      if (n.y < 0 || n.y > H) n.vy *= -1;
+      if (exploding) {
+        n.exVx *= 1.07; n.exVy *= 1.07;
+        n.x += n.exVx;  n.y += n.exVy;
+      } else if (formed) {
+        // Tiny orbit around target — breathing
+        n.phase += n.spd;
+        n.x = n.tx + Math.sin(n.phase) * 1.4;
+        n.y = n.ty + Math.cos(n.phase * 0.7) * 1.4;
+      } else {
+        // Drift + lerp toward target
+        n.x += n.vx * (1 - blend);
+        n.y += n.vy * (1 - blend);
+        n.x += (n.tx - n.x) * blend * 0.09;
+        n.y += (n.ty - n.y) * blend * 0.09;
+        if (blend < 0.2) {
+          if (n.x < 0) n.x = W; if (n.x > W) n.x = 0;
+          if (n.y < 0) n.y = H; if (n.y > H) n.y = 0;
+        }
+      }
     });
 
-    // Spawn a new pulse packet periodically
-    if (ts - lastPacketMs > 110) {
-      const i = Math.floor(Math.random() * NODE_COUNT);
-      const j = Math.floor(Math.random() * NODE_COUNT);
-      if (i !== j) {
-        const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
-        if (Math.sqrt(dx*dx + dy*dy) < MAX_DIST) {
-          packets.push({ from: i, to: j, t: 0 });
-          lastPacketMs = ts;
+    // ── Neural net edges (fade out as converge starts) ──
+    if (blend < 0.4) {
+      const edgeFade = 1 - blend / 0.4;
+      for (let i = 0; i < NODE_COUNT; i++) {
+        for (let j = i + 1; j < NODE_COUNT; j++) {
+          const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < MAX_DIST) {
+            const s = (1 - d / MAX_DIST) * edgeFade;
+            ctx.strokeStyle = `rgba(139,92,246,${s * 0.25})`;
+            ctx.lineWidth   = s * 0.85;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
         }
+      }
+      // Pulse packets
+      if (ts - lastPacketMs > 110) {
+        const i = Math.floor(Math.random() * NODE_COUNT);
+        const j = Math.floor(Math.random() * NODE_COUNT);
+        if (i !== j) {
+          const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+          if (Math.sqrt(dx * dx + dy * dy) < MAX_DIST) {
+            packets.push({ from: i, to: j, t: 0 }); lastPacketMs = ts;
+          }
+        }
+      }
+      for (let p = packets.length - 1; p >= 0; p--) {
+        packets[p].t += 0.022;
+        if (packets[p].t >= 1) { packets.splice(p, 1); continue; }
+        const n1 = nodes[packets[p].from], n2 = nodes[packets[p].to];
+        const px = n1.x + (n2.x - n1.x) * packets[p].t;
+        const py = n1.y + (n2.y - n1.y) * packets[p].t;
+        ctx.shadowColor = '#00ff41'; ctx.shadowBlur = 8;
+        ctx.fillStyle   = `rgba(0,255,65,${(0.85 - packets[p].t * 0.4) * edgeFade})`;
+        ctx.beginPath(); ctx.arc(px, py, 2.2, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur  = 0;
       }
     }
 
-    // Draw edges
-    for (let i = 0; i < NODE_COUNT; i++) {
-      for (let j = i + 1; j < NODE_COUNT; j++) {
-        const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < MAX_DIST) {
-          const s = 1 - d / MAX_DIST;
-          ctx.strokeStyle = `rgba(139,92,246,${s * 0.26})`;
-          ctx.lineWidth   = s * 0.9;
-          ctx.beginPath();
-          ctx.moveTo(nodes[i].x, nodes[i].y);
-          ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Draw + advance packets
-    for (let p = packets.length - 1; p >= 0; p--) {
-      packets[p].t += 0.02;
-      if (packets[p].t >= 1) { packets.splice(p, 1); continue; }
-      const n1 = nodes[packets[p].from], n2 = nodes[packets[p].to];
-      const px = n1.x + (n2.x - n1.x) * packets[p].t;
-      const py = n1.y + (n2.y - n1.y) * packets[p].t;
-      ctx.shadowColor = '#00ff41';
-      ctx.shadowBlur  = 10;
-      ctx.fillStyle   = `rgba(0,255,65,${0.9 - packets[p].t * 0.4})`;
-      ctx.beginPath(); ctx.arc(px, py, 2.4, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur  = 0;
-    }
-
-    // Draw nodes with breathing glow
+    // ── Draw particles ──
     nodes.forEach(n => {
-      n.phase += n.spd;
+      n.phase += n.spd * (formed ? 1 : 0.5);
       const g = (Math.sin(n.phase) + 1) * 0.5;
-      ctx.shadowColor = 'rgba(139,92,246,0.85)';
-      ctx.shadowBlur  = 5 + g * 12;
-      ctx.fillStyle   = `rgba(${155 + g*40},${120 + g*30},250,${0.6 + g * 0.4})`;
-      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + g * 1.3, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur  = 0;
+      if (formed || exploding) {
+        // Bright teal/green when MHA shape is formed
+        ctx.shadowColor = '#00ffaa';
+        ctx.shadowBlur  = 6 + g * 12;
+        ctx.fillStyle   = `rgba(${80 + g*80},${210 + g*45},${170 + g*55},${0.8 + g * 0.2})`;
+      } else {
+        // Purple during scatter/converge, brightening as they close in
+        const br = blend * 80;
+        ctx.shadowColor = `rgba(${130 + br},${90 + br * 0.5},250,0.8)`;
+        ctx.shadowBlur  = 4 + g * 8;
+        ctx.fillStyle   = `rgba(${140 + br},${100 + g*30},250,${0.45 + blend * 0.45})`;
+      }
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r + g * 0.9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
     });
 
-    // Dark fade overlay (triggered at terminal end)
+    // Dark fade overlay
     if (overlayAlpha > 0) {
       ctx.fillStyle = `rgba(3,0,8,${overlayAlpha})`;
       ctx.fillRect(0, 0, W, H);
@@ -459,9 +542,9 @@ if (intro && introCanvas) {
   requestAnimationFrame(rafLoop);
 
   // ── Terminal typing sequence ──────────────────────
-  const termOut     = document.getElementById("term-out");
-  const termCur     = document.getElementById("term-cur");
-  const grantedEl   = document.getElementById("intro-granted");
+  const termOut  = document.getElementById("term-out");
+  const termCur  = document.getElementById("term-cur");
+  const grantedEl = document.getElementById("intro-granted");
 
   const pause = ms => new Promise(r => setTimeout(r, ms));
 
@@ -476,7 +559,7 @@ if (intro && introCanvas) {
   }
 
   async function runTerminal() {
-    await pause(620);
+    await pause(700);
 
     const lines = [
       { t: 'login: mirhyderali',   s: 55, p: 300, dim: false },
@@ -492,16 +575,24 @@ if (intro && introCanvas) {
       await pause(line.p);
     }
 
-    // Hide cursor, show ACCESS GRANTED
     termCur.style.display = 'none';
     grantedEl.classList.add('show');
     await pause(700);
 
-    // Ramp canvas to black over 400ms, then CSS-fade the whole intro
+    // Particles explode outward as canvas darkens
+    exploding = true;
+    nodes.forEach(n => {
+      const angle = Math.atan2(n.y - H * 0.30, n.x - W / 2);
+      const speed = 1.8 + Math.random() * 3.5;
+      n.exVx = Math.cos(angle) * speed;
+      n.exVy = Math.sin(angle) * speed;
+    });
+
+    // Ramp canvas to black over 420ms
     await new Promise(res => {
       let fp = 0;
       const iv = setInterval(() => {
-        fp = Math.min(fp + 0.05, 1);
+        fp = Math.min(fp + 0.048, 1);
         overlayAlpha = fp * fp;
         if (fp >= 1) { clearInterval(iv); res(); }
       }, 16);
@@ -514,7 +605,6 @@ if (intro && introCanvas) {
 
   const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
 
-  // Safety net — remove intro after 12s no matter what
   const safetyTimer = setTimeout(() => {
     if (intro.isConnected) {
       intro.classList.add('out');
@@ -524,7 +614,7 @@ if (intro && introCanvas) {
 
   runTerminal().then(() => {
     clearTimeout(safetyTimer);
-    setTimeout(fireIntroDone, 820); // after intro's 750ms CSS fade-out
+    setTimeout(fireIntroDone, 820);
   }).catch(() => {
     clearTimeout(safetyTimer);
     intro.classList.add('out');
@@ -662,8 +752,53 @@ puzzleInput.addEventListener('keydown', e => {
   if (typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
 
-  // Native scroll — aurora + spider-web canvases are already RAF-heavy,
-  // an extra smooth-scroll layer causes frame budget overrun on most machines.
+  // ── GSAP background blobs ──
+  document.querySelectorAll('.bg-blob').forEach((blob, i) => {
+    gsap.to(blob, {
+      x: `random(${-80 - i * 18}, ${80 + i * 18})`,
+      y: `random(${-60 - i * 14}, ${60 + i * 14})`,
+      scale: gsap.utils.random(0.86, 1.14),
+      duration: gsap.utils.random(11, 20),
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+      delay: i * 1.4,
+    });
+  });
+
+  // ── GSAP floating particles in hero ──
+  const heroEl = document.querySelector('.hero');
+  if (heroEl) {
+    const DOT_COLORS = ['#7c3aed','#2563eb','#be185d','#0891b2','#6d28d9','#a78bfa'];
+    for (let i = 0; i < 24; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'float-dot';
+      const size = 2 + Math.random() * 4;
+      const col  = DOT_COLORS[Math.floor(Math.random() * DOT_COLORS.length)];
+      Object.assign(dot.style, {
+        width:  size + 'px',
+        height: size + 'px',
+        left:   Math.random() * 100 + '%',
+        top:    (35 + Math.random() * 65) + '%',
+        background: col,
+        opacity: String(0.45 + Math.random() * 0.5),
+        boxShadow: `0 0 ${size * 2.5}px ${col}`,
+      });
+      heroEl.appendChild(dot);
+      gsap.to(dot, {
+        y: -(200 + Math.random() * 260),
+        x: (Math.random() - 0.5) * 90,
+        opacity: 0,
+        duration: 4.5 + Math.random() * 7,
+        repeat: -1,
+        delay: Math.random() * 7,
+        ease: 'power1.in',
+      });
+    }
+  }
+
+  // Native scroll — spider-web canvas is lightweight;
+  // no extra smooth-scroll layer to avoid RAF budget overrun.
 
   // ── Hero: set initial hidden state, reveal after intro ──
   const heroEls = [".hero-greeting", ".hero-name", ".hero-title", ".hero-sub", ".hero-cta"];
@@ -763,12 +898,13 @@ puzzleInput.addEventListener('keydown', e => {
   const sceneEl = document.getElementById('setup-scene');
   if (sceneEl) {
     let sceneActivated = false;
+    // Make element visible before animating (override any CSS opacity:0 from reveal classes)
+    gsap.set(sceneEl, { autoAlpha: 1 });
     ScrollTrigger.create({
-      trigger: '#interests',
-      start: 'top 55%',  // fire when section is well into view
+      trigger: sceneEl,
+      start: 'top 80%',
       once: true,
       onEnter: () => {
-        // fromTo: explicit start+end so CSS opacity:0 (reveal-right) can't interfere
         gsap.fromTo(sceneEl,
           { scale: 5.5, transformOrigin: '68% 47%', autoAlpha: 0 },
           {

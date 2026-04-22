@@ -4,14 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mir Hyder Ali — Portfolio</title>
-  <script type="importmap">
-  {
-    "imports": {
-      "three":          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -71,8 +63,15 @@
     </div>
   </div>
 
-  <!-- Aurora canvas background -->
-  <canvas id="bg-aurora"></canvas>
+  <!-- GSAP animated background blobs -->
+  <div class="bg-blob" id="blob-1"></div>
+  <div class="bg-blob" id="blob-2"></div>
+  <div class="bg-blob" id="blob-3"></div>
+  <div class="bg-blob" id="blob-4"></div>
+  <div class="bg-blob" id="blob-5"></div>
+
+  <!-- Aurora canvas background (hidden — GSAP blobs replace it) -->
+  <canvas id="bg-aurora" style="display:none"></canvas>
   <!-- Spider web particle layer -->
   <canvas id="web-canvas"></canvas>
   <div class="grain"></div>
@@ -650,6 +649,5 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="script.js"></script>
-  <script type="module" src="three-scene.js"></script>
 </body>
 </html>
