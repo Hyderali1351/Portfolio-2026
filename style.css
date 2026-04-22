@@ -152,6 +152,10 @@ a:hover { opacity: 0.75; }
   text-shadow: 0 0 10px rgba(196,181,253,1), 0 0 22px rgba(167,139,250,0.7),
                0 0 45px rgba(139,92,246,0.35);
 }
+.nav-links a.nav-active {
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(167,139,250,0.55);
+}
 
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.4rem; }
 

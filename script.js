@@ -24,20 +24,7 @@ document.addEventListener("click", (e) => {
   if (!nav.contains(e.target)) document.querySelector(".nav-links").classList.remove("open");
 });
 
-// ── Scroll reveal — bidirectional ──
-// Elements animate in when entering viewport from either direction,
-// and reset when they fully leave so they re-animate on next entry.
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("visible");
-    } else {
-      entry.target.classList.remove("visible");
-    }
-  });
-}, { threshold: 0.12 });
-document.querySelectorAll(".reveal, .reveal-left, .reveal-right, .reveal-scale")
-  .forEach(el => observer.observe(el));
+// Scroll reveals handled by GSAP ScrollTrigger (see bottom of file)
 
 // ── Nav bubble hover ──
 const navList = document.querySelector(".nav-links");
@@ -523,18 +510,23 @@ if (intro && introCanvas) {
     setTimeout(() => intro.remove(), 750);
   }
 
+  const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
+
   // Safety net — remove intro after 12s no matter what
   const safetyTimer = setTimeout(() => {
     if (intro.isConnected) {
       intro.classList.add('out');
-      setTimeout(() => intro.remove(), 750);
+      setTimeout(() => { intro.remove(); fireIntroDone(); }, 750);
     }
   }, 12000);
 
-  runTerminal().then(() => clearTimeout(safetyTimer)).catch(() => {
+  runTerminal().then(() => {
+    clearTimeout(safetyTimer);
+    setTimeout(fireIntroDone, 820); // after intro's 750ms CSS fade-out
+  }).catch(() => {
     clearTimeout(safetyTimer);
     intro.classList.add('out');
-    setTimeout(() => intro.remove(), 750);
+    setTimeout(() => { intro.remove(); fireIntroDone(); }, 750);
   });
 }
 
@@ -671,3 +663,158 @@ puzzleInput.addEventListener('keydown', e => {
 
   puzzleInput.focus();
 });
+
+// ─────────────────────────────────────────
+// GSAP PRO MAX ANIMATIONS
+// ─────────────────────────────────────────
+(function initProAnimations() {
+  if (typeof gsap === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ── Hero: set initial hidden state, reveal after intro ──
+  const heroEls = [".hero-greeting", ".hero-name", ".hero-title", ".hero-sub", ".hero-cta"];
+  gsap.set(heroEls, { autoAlpha: 0, y: 55 });
+  gsap.set(".code-window", {
+    autoAlpha: 0, x: 90,
+    transformPerspective: 1000, rotationY: -5, rotationX: 3
+  });
+
+  function animateHero() {
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+      .to(".hero-greeting", { autoAlpha: 1, y: 0, duration: 0.8 })
+      .to(".hero-name",     { autoAlpha: 1, y: 0, duration: 1.0, ease: "back.out(1.4)" }, "-=0.5")
+      .to(".hero-title",    { autoAlpha: 1, y: 0, duration: 0.75 }, "-=0.55")
+      .to(".hero-sub",      { autoAlpha: 1, y: 0, duration: 0.7  }, "-=0.45")
+      .to(".hero-cta",      { autoAlpha: 1, y: 0, duration: 0.6  }, "-=0.4")
+      .to(".code-window",   { autoAlpha: 1, x: 0, duration: 1.1, ease: "back.out(1.25)" }, "-=0.7");
+
+    gsap.to(".code-window", {
+      y: -16, duration: 3.8, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 1.4
+    });
+  }
+
+  if (document.getElementById('intro')) {
+    window.addEventListener('intro-done', animateHero, { once: true });
+  } else {
+    setTimeout(animateHero, 80);
+  }
+
+  // Code window hover: rotate to 0 on enter, restore on leave
+  const codeWin = document.querySelector(".code-window");
+  if (codeWin) {
+    codeWin.addEventListener("mouseenter", () =>
+      gsap.to(codeWin, { rotationY: 0, rotationX: 0, duration: 0.7, ease: "power3.out" })
+    );
+    codeWin.addEventListener("mouseleave", () =>
+      gsap.to(codeWin, { rotationY: -5, rotationX: 3, duration: 0.7, ease: "power3.out" })
+    );
+  }
+
+  // ── Scroll reveals (replace IntersectionObserver) ──────
+  gsap.utils.toArray(".reveal").forEach(el => {
+    const delay = parseFloat(el.style.getPropertyValue("--delay") || "0") / 1000;
+    gsap.fromTo(el,
+      { y: 60, autoAlpha: 0 },
+      { y: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", delay,
+        scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } }
+    );
+  });
+
+  gsap.utils.toArray(".reveal-left").forEach(el => {
+    const delay = parseFloat(el.style.getPropertyValue("--delay") || "0") / 1000;
+    gsap.fromTo(el,
+      { x: -70, autoAlpha: 0 },
+      { x: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", delay,
+        scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } }
+    );
+  });
+
+  gsap.utils.toArray(".reveal-right").forEach(el => {
+    const delay = parseFloat(el.style.getPropertyValue("--delay") || "0") / 1000;
+    gsap.fromTo(el,
+      { x: 70, autoAlpha: 0 },
+      { x: 0, autoAlpha: 1, duration: 0.85, ease: "power3.out", delay,
+        scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } }
+    );
+  });
+
+  gsap.utils.toArray(".reveal-scale").forEach(el => {
+    const delay = parseFloat(el.style.getPropertyValue("--delay") || "0") / 1000;
+    gsap.fromTo(el,
+      { scale: 0.82, y: 35, autoAlpha: 0 },
+      { scale: 1, y: 0, autoAlpha: 1, duration: 0.72, ease: "back.out(1.6)", delay,
+        scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } }
+    );
+  });
+
+  // ── Stat counter animation ──
+  gsap.utils.toArray(".stat-num").forEach(el => {
+    const raw = el.textContent.trim();
+    const match = raw.match(/[\d.]+/);
+    if (!match) return;
+    const end = parseFloat(match[0]);
+    const suffix = raw.slice(match[0].length);
+    const proxy = { val: 0 };
+    ScrollTrigger.create({
+      trigger: el, start: "top 85%", once: true,
+      onEnter: () => gsap.to(proxy, {
+        val: end, duration: 1.8, ease: "power2.out",
+        onUpdate() { el.textContent = Math.round(proxy.val) + suffix; }
+      })
+    });
+  });
+
+  // ── 3D card tilt on hover ──
+  function addTilt(selector, maxDeg) {
+    document.querySelectorAll(selector).forEach(card => {
+      card.addEventListener("mousemove", e => {
+        const r  = card.getBoundingClientRect();
+        const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+        const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+        gsap.to(card, {
+          rotationY: dx * maxDeg, rotationX: -dy * (maxDeg * 0.75),
+          transformPerspective: 900, scale: 1.04,
+          ease: "power2.out", duration: 0.4, overwrite: "auto"
+        });
+      });
+      card.addEventListener("mouseleave", () => {
+        gsap.to(card, {
+          rotationY: 0, rotationX: 0, scale: 1,
+          ease: "power3.out", duration: 0.65, overwrite: "auto"
+        });
+      });
+    });
+  }
+  addTilt(".skill-card", 12);
+  addTilt(".project-card", 10);
+
+  // ── Magnetic buttons ──
+  if (!isTouch) {
+    document.querySelectorAll(".btn").forEach(btn => {
+      btn.addEventListener("mousemove", e => {
+        const r  = btn.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width  / 2);
+        const dy = e.clientY - (r.top  + r.height / 2);
+        gsap.to(btn, { x: dx * 0.38, y: dy * 0.38, ease: "power2.out", duration: 0.35, overwrite: "auto" });
+      });
+      btn.addEventListener("mouseleave", () => {
+        gsap.to(btn, { x: 0, y: 0, ease: "elastic.out(1.1, 0.5)", duration: 0.85, overwrite: "auto" });
+      });
+    });
+  }
+
+  // ── Nav: highlight active section ──
+  const navAnchors = document.querySelectorAll(".nav-links a");
+  document.querySelectorAll("section[id]").forEach(sec => {
+    ScrollTrigger.create({
+      trigger: sec, start: "top 55%", end: "bottom 55%",
+      onToggle: ({ isActive }) => {
+        if (!isActive) return;
+        navAnchors.forEach(a => a.classList.remove("nav-active"));
+        const match = document.querySelector(`.nav-links a[href="#${sec.id}"]`);
+        if (match) match.classList.add("nav-active");
+      }
+    });
+  });
+
+})();
