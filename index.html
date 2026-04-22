@@ -18,7 +18,6 @@
 
   <!-- Intro splash -->
   <div id="intro">
-    <canvas id="intro-canvas"></canvas>
     <div id="intro-door-l"></div>
     <div id="intro-door-r"></div>
   </div>
@@ -76,10 +75,10 @@
   <!-- HERO -->
   <section class="hero" id="hero">
     <div class="hero-content">
-      <p class="hero-greeting">Hi, I'm</p>
-      <h1 class="hero-name">Mir Hyder Ali</h1>
+      <p class="hero-greeting" data-admin-key="hero.greeting">Hi, I'm</p>
+      <h1 class="hero-name" data-admin-key="hero.name">Mir Hyder Ali</h1>
       <h2 class="hero-title"><span class="typed"></span><span class="cursor">|</span></h2>
-      <p class="hero-sub">Building the infrastructure that powers tomorrow's AI — from bare metal to Kubernetes, one GPU cluster at a time.</p>
+      <p class="hero-sub" data-admin-key="hero.sub">Building the infrastructure that powers tomorrow's AI — from bare metal to Kubernetes, one GPU cluster at a time.</p>
       <div class="hero-cta">
         <a href="#projects" class="btn btn-primary">View My Work</a>
         <a href="#contact" class="btn btn-outline">Get in Touch</a>
@@ -115,7 +114,7 @@
           </div>
         </div>
         <div class="about-text reveal-right">
-          <p>I'm an AI HPC Infrastructure Engineer with 3+ years of experience deploying and managing large-scale GPU compute clusters for enterprise AI clients. I specialize in NVIDIA Blackwell (GB200 NVL72) and Hopper (H100) systems, InfiniBand fabric, and Kubernetes-based AI workloads.</p>
+          <p data-admin-key="about.bio">I'm an AI HPC Infrastructure Engineer with 3+ years of experience deploying and managing large-scale GPU compute clusters for enterprise AI clients. I specialize in NVIDIA Blackwell (GB200 NVL72) and Hopper (H100) systems, InfiniBand fabric, and Kubernetes-based AI workloads.</p>
           <p>Based in Irving, Texas. Currently building bleeding-edge AI infrastructure at Wistron. I hold an M.S. in Computer Science from Lewis University (2025) and am passionate about bridging advanced hardware with intelligent software automation.</p>
           <div class="about-stats">
             <div class="stat reveal-scale" style="--delay:0ms"><span class="stat-num">3+</span><span class="stat-label">Years Experience</span></div>
@@ -207,9 +206,9 @@
               </div>
               <span class="exp-bubble-date">May 2023 – Present</span>
             </div>
-            <h3 class="exp-bubble-title">AI HPC Infrastructure<br>Lead Engineer</h3>
-            <span class="exp-bubble-company">Wistron Corporation · Irving, TX</span>
-            <p class="exp-bubble-blurb">Deploying NVIDIA GB200 NVL72 &amp; H100 GPU clusters for Fortune 500 AI clients — full rack lifecycle, InfiniBand fabric, and automated monitoring.</p>
+            <h3 class="exp-bubble-title" data-admin-key="exp.0.title">AI HPC Infrastructure<br>Lead Engineer</h3>
+            <span class="exp-bubble-company" data-admin-key="exp.0.company">Wistron Corporation · Irving, TX</span>
+            <p class="exp-bubble-blurb" data-admin-key="exp.0.blurb">Deploying NVIDIA GB200 NVL72 &amp; H100 GPU clusters for Fortune 500 AI clients — full rack lifecycle, InfiniBand fabric, and automated monitoring.</p>
             <div class="exp-tags exp-tags--preview">
               <span>NVIDIA GB200</span><span>InfiniBand</span><span>Kubernetes</span><span>Slurm</span>
             </div>
@@ -240,8 +239,8 @@
               </div>
               <span class="exp-bubble-date">Jan – May 2023</span>
             </div>
-            <h3 class="exp-bubble-title">IT Graduate Assistant</h3>
-            <span class="exp-bubble-company">Lewis University · Romeoville, IL</span>
+            <h3 class="exp-bubble-title" data-admin-key="exp.1.title">IT Graduate Assistant</h3>
+            <span class="exp-bubble-company" data-admin-key="exp.1.company">Lewis University · Romeoville, IL</span>
             <div class="exp-tags exp-tags--preview">
               <span>Windows Server</span><span>VMware</span><span>Active Directory</span>
             </div>

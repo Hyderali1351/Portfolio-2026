@@ -1,6 +1,195 @@
 // Stop aurora — GSAP blobs replace it
 window.__stopAurora = true;
 
+// ──────────────────────────────────────────────────────────────
+// ADMIN MODE  — type  :admin  anywhere on the page to unlock
+// Password: MHA@2026   (SHA-256 hash stored below — change both)
+// ──────────────────────────────────────────────────────────────
+(function () {
+  const ADMIN_HASH = '5f538cfec35d8773084a5ced1429dddca8fa2411643836fab1a88e8450dfd7ec';
+  const OWNER = 'Hyderali1351', REPO = 'Portfolio-2026', FILE = 'index.html';
+
+  let active = false;
+  let buf = '';
+
+  // Listen for :admin typed anywhere (not in inputs)
+  document.addEventListener('keydown', e => {
+    if (active) return;
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    buf = (buf + e.key).slice(-6);
+    if (buf === ':admin') { buf = ''; showLogin(); }
+  });
+
+  // ── Login modal ────────────────────────────────────────────
+  function showLogin() {
+    if (document.getElementById('adm-modal')) return;
+    const m = document.createElement('div');
+    m.id = 'adm-modal';
+    m.innerHTML = `
+      <div class="adm-box">
+        <div class="adm-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Admin Access</span>
+        </div>
+        <input id="adm-pw" type="password" placeholder="Password" autocomplete="off" />
+        <p id="adm-err" class="adm-err"></p>
+        <div class="adm-btns">
+          <button id="adm-cancel" class="adm-btn-ghost">Cancel</button>
+          <button id="adm-enter" class="adm-btn-primary">Unlock</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    const pw = document.getElementById('adm-pw');
+    pw.focus();
+    document.getElementById('adm-cancel').onclick = () => m.remove();
+    document.getElementById('adm-enter').onclick  = () => tryLogin(m, pw.value);
+    pw.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(m, pw.value); });
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  }
+
+  async function tryLogin(modal, pw) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+    const hash = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    if (hash === ADMIN_HASH) {
+      modal.remove();
+      activateAdmin();
+    } else {
+      const err = document.getElementById('adm-err');
+      err.textContent = 'Incorrect password';
+      document.getElementById('adm-pw').classList.add('adm-shake');
+      setTimeout(() => document.getElementById('adm-pw')?.classList.remove('adm-shake'), 500);
+    }
+  }
+
+  // ── Activate edit mode ─────────────────────────────────────
+  function activateAdmin() {
+    active = true;
+
+    // Build toolbar
+    const bar = document.createElement('div');
+    bar.id = 'adm-bar';
+    bar.innerHTML = `
+      <div class="adm-bar-l">
+        <span class="adm-badge">⚡ Admin</span>
+        <span class="adm-hint">Click any <span style="color:#a78bfa">highlighted</span> field to edit</span>
+      </div>
+      <div class="adm-bar-r">
+        <button id="adm-save" class="adm-btn-primary">Save &amp; Publish</button>
+        <button id="adm-exit" class="adm-btn-ghost">Exit</button>
+      </div>`;
+    document.body.appendChild(bar);
+
+    // Make tagged elements editable
+    document.querySelectorAll('[data-admin-key]').forEach(el => {
+      el.contentEditable = 'true';
+      el.classList.add('adm-field');
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); } });
+    });
+
+    document.getElementById('adm-exit').onclick = deactivateAdmin;
+    document.getElementById('adm-save').onclick = saveToGitHub;
+  }
+
+  function deactivateAdmin() {
+    active = false;
+    document.getElementById('adm-bar')?.remove();
+    document.querySelectorAll('[data-admin-key]').forEach(el => {
+      el.contentEditable = 'false';
+      el.classList.remove('adm-field');
+    });
+  }
+
+  // ── Save via GitHub API ────────────────────────────────────
+  async function saveToGitHub() {
+    let pat = sessionStorage.getItem('adm_pat');
+    if (!pat) {
+      const m = document.createElement('div');
+      m.id = 'adm-modal';
+      m.innerHTML = `
+        <div class="adm-box">
+          <div class="adm-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            <span>GitHub Token</span>
+          </div>
+          <p class="adm-hint" style="margin-bottom:.75rem">Paste a Personal Access Token with <strong>Contents: write</strong> permission for this repo. Stored in session only — clears on close.</p>
+          <input id="adm-pat" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+          <p id="adm-err" class="adm-err"></p>
+          <div class="adm-btns">
+            <button id="adm-cancel" class="adm-btn-ghost">Cancel</button>
+            <button id="adm-pat-ok" class="adm-btn-primary">Continue</button>
+          </div>
+        </div>`;
+      document.body.appendChild(m);
+      document.getElementById('adm-pat').focus();
+      document.getElementById('adm-cancel').onclick = () => m.remove();
+      document.getElementById('adm-pat-ok').onclick = () => {
+        const v = document.getElementById('adm-pat').value.trim();
+        if (!v) { document.getElementById('adm-err').textContent = 'Token required'; return; }
+        sessionStorage.setItem('adm_pat', v);
+        m.remove();
+        saveToGitHub();
+      };
+      document.getElementById('adm-pat').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('adm-pat-ok').click();
+      });
+      return;
+    }
+
+    const btn = document.getElementById('adm-save');
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+
+    try {
+      // Temporarily strip admin markup before capturing HTML
+      document.querySelectorAll('[data-admin-key]').forEach(el => {
+        el.contentEditable = 'false';
+        el.classList.remove('adm-field');
+      });
+      const bar = document.getElementById('adm-bar');
+      bar.style.display = 'none';
+
+      // Capture clean HTML
+      const rawHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+      // Restore
+      bar.style.display = '';
+      document.querySelectorAll('[data-admin-key]').forEach(el => {
+        el.contentEditable = 'true';
+        el.classList.add('adm-field');
+      });
+
+      // Get current file SHA from GitHub
+      const headers = { 'Authorization': `Bearer ${pat}`, 'Accept': 'application/vnd.github+json' };
+      const meta = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`, { headers });
+      if (!meta.ok) throw new Error(`GitHub API ${meta.status}`);
+      const { sha } = await meta.json();
+
+      // Encode and commit
+      const content = btoa(unescape(encodeURIComponent(rawHtml)));
+      const put = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`, {
+        method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'Update portfolio content via admin', content, sha }),
+      });
+
+      if (!put.ok) {
+        const body = await put.json().catch(() => ({}));
+        if (put.status === 401) { sessionStorage.removeItem('adm_pat'); throw new Error('Token rejected — re-enter it next save'); }
+        throw new Error(body.message || `HTTP ${put.status}`);
+      }
+
+      btn.textContent = '✓ Published!';
+      btn.style.background = 'rgba(34,197,94,0.22)';
+      setTimeout(() => { btn.textContent = 'Save & Publish'; btn.disabled = false; btn.style.background = ''; }, 3500);
+
+    } catch (err) {
+      btn.textContent = `Error: ${err.message}`;
+      btn.disabled = false;
+      setTimeout(() => { btn.textContent = 'Save & Publish'; }, 4000);
+    }
+  }
+})();
+
 // ── Typing animation ──
 const titles = ["HPC Infrastructure Engineer", "AI Systems Builder", "Problem Solver", "Creative Coder"];
 let ti = 0, ci = 0, deleting = false;
@@ -394,226 +583,25 @@ async function handleSubmit(e) {
 }
 
 // ─────────────────────────────────────────
-// INTRO — Particle MHA formation + hacker terminal
+// INTRO — Clean door reveal (no canvas)
 // ─────────────────────────────────────────────────────
-const intro       = document.getElementById("intro");
-const introCanvas = document.getElementById("intro-canvas");
-
-if (intro && introCanvas) {
-  introCanvas.width  = window.innerWidth;
-  introCanvas.height = window.innerHeight;
-  const ctx = introCanvas.getContext("2d");
-  const W = introCanvas.width, H = introCanvas.height;
-
-  // Hide the SVG logo — canvas particles form MHA instead
-  const introLogo = document.getElementById('intro-logo');
-  if (introLogo) introLogo.style.display = 'none';
-
-  // ── Sample pixel positions of "MHA" text on offscreen canvas ──
-  function getMHATargets(count) {
-    const off = document.createElement('canvas');
-    // Larger canvas = thicker strokes = easier to sample
-    const tw  = Math.min(W * 0.65, 520);
-    const th  = Math.round(tw * 0.38);
-    off.width = tw; off.height = th;
-    const oc = off.getContext('2d');
-    oc.fillStyle = '#fff';
-    // Arial loads synchronously — no font-loading race condition
-    oc.font = `900 ${Math.round(th * 0.82)}px Arial, sans-serif`;
-    oc.textAlign = 'center';
-    oc.textBaseline = 'middle';
-    oc.fillText('MHA', tw / 2, th / 2);
-    const data = oc.getImageData(0, 0, tw, th).data;
-    const lit  = [];
-    const STEP = 4; // dense grid — catches strokes as narrow as 4px
-    for (let py = 0; py < th; py += STEP) {
-      for (let px = 0; px < tw; px += STEP) {
-        if (data[(py * tw + px) * 4 + 3] > 15) {
-          lit.push({ x: W / 2 - tw / 2 + px, y: H * 0.30 - th / 2 + py });
-        }
-      }
-    }
-    // Shuffle
-    for (let i = lit.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [lit[i], lit[j]] = [lit[j], lit[i]];
-    }
-    // If canvas text failed (e.g. sandboxed env), spread across a readable area
-    if (lit.length < 20) {
-      return Array.from({ length: count }, () => ({
-        x: W / 2 + (Math.random() - 0.5) * Math.min(W * 0.55, 440),
-        y: H * 0.30 + (Math.random() - 0.5) * 80,
-      }));
-    }
-    return lit.slice(0, count);
-  }
-
-  const NODE_COUNT = 300;
-  const MAX_DIST   = Math.min(W, H) * 0.18;
-  const targets    = getMHATargets(NODE_COUNT);
-
-  const nodes = Array.from({ length: NODE_COUNT }, (_, i) => {
-    const tx = targets[i]?.x ?? W / 2 + (Math.random() - 0.5) * 60;
-    const ty = targets[i]?.y ?? H * 0.30 + (Math.random() - 0.5) * 30;
-    return {
-      x:  Math.random() * W,
-      y:  Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.6,
-      r:  1.2 + Math.random() * 1.4,
-      phase: Math.random() * Math.PI * 2,
-      spd:   0.018 + Math.random() * 0.025,
-      tx, ty,
-      exVx: 0, exVy: 0,
-    };
-  });
-
-  // Pulse packets along neural net edges (scatter phase)
-  const packets = [];
-  let lastPacketMs = 0;
-
-  // Animation state
-  let convergeT    = 0;      // 0→1 as particles approach MHA shape
-  let exploding    = false;
-  let overlayAlpha = 0;
-  let rafRunning   = true;
-  let startTs      = null;
-  const SCATTER_MS  = 120;   // free drift before converge starts
-  const CONVERGE_MS = 480;   // convergence duration
-
-  const easeInOut = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
-  function rafLoop(ts) {
-    if (startTs === null) startTs = ts;
-    const elapsed = ts - startTs;
-    ctx.clearRect(0, 0, W, H);
-
-    if (!exploding && elapsed > SCATTER_MS) {
-      convergeT = Math.min((elapsed - SCATTER_MS) / CONVERGE_MS, 1);
-    }
-    const blend = easeInOut(Math.min(convergeT, 1));
-    const formed = blend > 0.88;
-
-    // ── Update node positions ──
-    nodes.forEach(n => {
-      if (exploding) {
-        n.exVx *= 1.07; n.exVy *= 1.07;
-        n.x += n.exVx;  n.y += n.exVy;
-      } else if (formed) {
-        // Tiny orbit around target — breathing
-        n.phase += n.spd;
-        n.x = n.tx + Math.sin(n.phase) * 1.4;
-        n.y = n.ty + Math.cos(n.phase * 0.7) * 1.4;
-      } else {
-        // Drift + lerp toward target
-        n.x += n.vx * (1 - blend);
-        n.y += n.vy * (1 - blend);
-        n.x += (n.tx - n.x) * blend * 0.09;
-        n.y += (n.ty - n.y) * blend * 0.09;
-        if (blend < 0.2) {
-          if (n.x < 0) n.x = W; if (n.x > W) n.x = 0;
-          if (n.y < 0) n.y = H; if (n.y > H) n.y = 0;
-        }
-      }
-    });
-
-    // ── Neural net edges (fade out as converge starts) ──
-    if (blend < 0.4) {
-      const edgeFade = 1 - blend / 0.4;
-      for (let i = 0; i < NODE_COUNT; i++) {
-        for (let j = i + 1; j < NODE_COUNT; j++) {
-          const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
-          const d  = Math.sqrt(dx * dx + dy * dy);
-          if (d < MAX_DIST) {
-            const s = (1 - d / MAX_DIST) * edgeFade;
-            ctx.strokeStyle = `rgba(139,92,246,${s * 0.25})`;
-            ctx.lineWidth   = s * 0.85;
-            ctx.beginPath();
-            ctx.moveTo(nodes[i].x, nodes[i].y);
-            ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-      // Pulse packets
-      if (ts - lastPacketMs > 110) {
-        const i = Math.floor(Math.random() * NODE_COUNT);
-        const j = Math.floor(Math.random() * NODE_COUNT);
-        if (i !== j) {
-          const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
-          if (Math.sqrt(dx * dx + dy * dy) < MAX_DIST) {
-            packets.push({ from: i, to: j, t: 0 }); lastPacketMs = ts;
-          }
-        }
-      }
-      for (let p = packets.length - 1; p >= 0; p--) {
-        packets[p].t += 0.022;
-        if (packets[p].t >= 1) { packets.splice(p, 1); continue; }
-        const n1 = nodes[packets[p].from], n2 = nodes[packets[p].to];
-        const px = n1.x + (n2.x - n1.x) * packets[p].t;
-        const py = n1.y + (n2.y - n1.y) * packets[p].t;
-        ctx.shadowColor = '#00ff41'; ctx.shadowBlur = 8;
-        ctx.fillStyle   = `rgba(0,255,65,${(0.85 - packets[p].t * 0.4) * edgeFade})`;
-        ctx.beginPath(); ctx.arc(px, py, 2.2, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur  = 0;
-      }
-    }
-
-    // ── Draw particles ──
-    nodes.forEach(n => {
-      n.phase += n.spd * (formed ? 1 : 0.5);
-      const g = (Math.sin(n.phase) + 1) * 0.5;
-      if (formed || exploding) {
-        // Bright teal/green when MHA shape is formed — larger radius for readability
-        ctx.shadowColor = '#00ffaa';
-        ctx.shadowBlur  = 8 + g * 14;
-        ctx.fillStyle   = `rgba(${80 + g*100},${220 + g*35},${180 + g*50},${0.85 + g * 0.15})`;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r * 1.8 + g * 1.4, 0, Math.PI * 2);
-      } else {
-        // Purple during scatter/converge, brightening as they close in
-        const br = blend * 80;
-        ctx.shadowColor = `rgba(${130 + br},${90 + br * 0.5},250,0.8)`;
-        ctx.shadowBlur  = 4 + g * 8;
-        ctx.fillStyle   = `rgba(${140 + br},${100 + g*30},250,${0.45 + blend * 0.45})`;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r + g * 0.9, 0, Math.PI * 2);
-      }
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    });
-
-    // Dark fade overlay
-    if (overlayAlpha > 0) {
-      ctx.fillStyle = `rgba(3,0,8,${overlayAlpha})`;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    if (rafRunning) requestAnimationFrame(rafLoop);
-  }
-  requestAnimationFrame(rafLoop);
-
-  const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
-
-  // After particles form MHA, open the doors
-  const HOLD_MS = 60;
-  const doorTimer = setTimeout(() => {
-    rafRunning = false;
-    intro.classList.add('door-open');
+{
+  const intro = document.getElementById("intro");
+  if (intro) {
+    const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
+    // Brief pause so the scan animation shows, then doors split open
     setTimeout(() => {
-      intro.remove();
-      fireIntroDone();
-    }, 680);
-  }, SCATTER_MS + CONVERGE_MS + HOLD_MS);
-
-  // Safety fallback
-  setTimeout(() => {
-    if (intro && intro.isConnected) {
-      clearTimeout(doorTimer);
       intro.classList.add('door-open');
       setTimeout(() => { intro.remove(); fireIntroDone(); }, 680);
-    }
-  }, 5000);
+    }, 700);
+    // Hard safety fallback
+    setTimeout(() => {
+      if (intro.isConnected) {
+        intro.classList.add('door-open');
+        setTimeout(() => { intro.remove(); fireIntroDone(); }, 680);
+      }
+    }, 4000);
+  }
 }
 
 // ── Gaming / desk scene activation ──
