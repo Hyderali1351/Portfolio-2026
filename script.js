@@ -812,22 +812,15 @@ if (!isTouch) (function () {
   const ct = document.getElementById("vc-count");
   if (!ct) return;
 
-  // Seed so the counter looks organic from day one
-  const SEED = 847;
-  const LOCAL_KEY   = "mha_vc";
-  const SESSION_KEY = "mha_vs";
+  // hitscounter.dev: free, CORS-enabled, persists across all devices
+  // OFFSET bridges the gap between the live API count and the ~484 already shown
+  const API_URL     = 'https://hitscounter.dev/api/hit?url=mirhyderali.com%2Fportfolio';
+  const OFFSET      = 481;  // displayed = OFFSET + live API count (starts ≈484)
+  const LOCAL_KEY   = 'mha_vc_live';
+  const SESSION_KEY = 'mha_vs';
 
-  // Increment once per browser session (not on every page-load)
-  let local = parseInt(localStorage.getItem(LOCAL_KEY) || "0", 10);
-  if (!sessionStorage.getItem(SESSION_KEY)) {
-    local++;
-    localStorage.setItem(LOCAL_KEY, local);
-    sessionStorage.setItem(SESSION_KEY, "1");
-  }
-
-  // Animate count up from slightly below target
   function animateTo(target) {
-    const from = Math.max(target - 10, 0);
+    const from = Math.max(target - 8, 0);
     let cur = from;
     ct.textContent = from.toLocaleString();
     const iv = setInterval(() => {
@@ -837,8 +830,34 @@ if (!isTouch) (function () {
     }, 55);
   }
 
-  // Show immediately — always works
-  animateTo(SEED + local);
+  // Show last-known value immediately so there's no blank flash
+  const cached = parseInt(localStorage.getItem(LOCAL_KEY) || '0', 10);
+  if (cached) animateTo(cached);
+
+  const isNewSession = !sessionStorage.getItem(SESSION_KEY);
+  if (isNewSession) sessionStorage.setItem(SESSION_KEY, '1');
+
+  if (isNewSession) {
+    // New browser session → call API (increments counter server-side), read total
+    fetch(API_URL, { cache: 'no-cache' })
+      .then(r => r.text())
+      .then(svg => {
+        // SVG title format: "<title>today / total</title>"
+        const m = svg.match(/<title>([\d,]+)\s*\/\s*([\d,]+)<\/title>/);
+        if (!m) throw new Error('parse fail');
+        const apiTotal = parseInt(m[2].replace(/,/g, ''), 10);
+        const display  = OFFSET + apiTotal;
+        localStorage.setItem(LOCAL_KEY, display);
+        animateTo(display);
+      })
+      .catch(() => {
+        // API down — fall back to cached or seed
+        if (!cached) animateTo(OFFSET);
+      });
+  } else {
+    // Same session — don't re-increment; cached value already shown above
+    if (!cached) animateTo(OFFSET);
+  }
 })();
 
 // ── Clock widget ──
