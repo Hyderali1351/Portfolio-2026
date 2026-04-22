@@ -931,56 +931,53 @@ puzzleInput.addEventListener('keydown', e => {
     }
   });
 
-  // ── Experience bento: hover — badge spin + card lift ──
+  // ── Experience bento: hover = open, leave = close ──
   document.querySelectorAll('.exp-bubble').forEach(bubble => {
-    const badge = bubble.querySelector('.exp-bubble-badge');
-
-    bubble.addEventListener('mouseenter', () => {
-      gsap.to(bubble,  { y: -6, scale: 1.012, boxShadow: '0 20px 50px rgba(0,0,0,0.7)', duration: 0.4, ease: 'power2.out' });
-      gsap.to(badge,   { rotation: 12, scale: 1.12, duration: 0.45, ease: 'back.out(2.5)' });
-    });
-    bubble.addEventListener('mouseleave', () => {
-      gsap.to(bubble,  { y: 0, scale: 1, boxShadow: 'none', duration: 0.55, ease: 'power3.out' });
-      gsap.to(badge,   { rotation: 0, scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
-    });
-  });
-
-  // ── Experience bento: expand / collapse ──
-  document.querySelectorAll('.exp-bubble').forEach(bubble => {
-    const btn     = bubble.querySelector('.exp-expand-btn');
+    const badge   = bubble.querySelector('.exp-bubble-badge');
     const body    = bubble.querySelector('.exp-bubble-body');
     const icon    = bubble.querySelector('.exp-expand-icon');
     const bullets = bubble.querySelectorAll('.exp-bullets li');
-    if (!btn || !body) return;
 
-    gsap.set(body, { height: 0, opacity: 0 });
+    // Cache natural height once while body is still in flow
+    const naturalH = body ? body.scrollHeight : 0;
+    if (body) gsap.set(body, { height: 0, opacity: 0 });
 
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = bubble.classList.contains('open');
+    function openCard() {
+      gsap.to(bubble, { y: -6, scale: 1.012, boxShadow: '0 22px 52px rgba(0,0,0,0.72)', duration: 0.38, ease: 'power2.out' });
+      gsap.to(badge,  { rotation: 12, scale: 1.12, duration: 0.42, ease: 'back.out(2.5)' });
+      if (!body || naturalH === 0) return;
+      gsap.to(body,   { height: naturalH, opacity: 1, duration: 0.48, ease: 'power3.out' });
+      if (icon) gsap.to(icon, { rotation: 180, duration: 0.36, ease: 'back.out(1.8)' });
+      gsap.fromTo(bullets,
+        { opacity: 0, x: -14 },
+        { opacity: 1, x: 0, duration: 0.35, stagger: 0.06, ease: 'power2.out', delay: 0.2 }
+      );
+    }
 
-      if (isOpen) {
-        // ── Collapse ──
-        bubble.classList.remove('open');
-        gsap.to(bullets, { opacity: 0, x: -10, duration: 0.2, stagger: 0.04, ease: 'power2.in' });
-        gsap.to(body,    { height: 0, opacity: 0, duration: 0.42, ease: 'power3.inOut', delay: 0.1 });
-        gsap.to(icon,    { rotation: 0, duration: 0.35, ease: 'back.out(2)' });
-      } else {
-        // ── Expand ──
-        bubble.classList.add('open');
-        const h = body.scrollHeight;
-        gsap.fromTo(body,
-          { height: 0, opacity: 0 },
-          { height: h, opacity: 1, duration: 0.5, ease: 'power3.out' }
-        );
-        gsap.to(icon, { rotation: 180, duration: 0.38, ease: 'back.out(1.8)' });
-        // Stagger bullets in after body opens
-        gsap.fromTo(bullets,
-          { opacity: 0, x: -14 },
-          { opacity: 1, x: 0, duration: 0.38, stagger: 0.07, ease: 'power2.out', delay: 0.22 }
-        );
+    function closeCard() {
+      gsap.to(bubble, { y: 0, scale: 1, boxShadow: '0 8px 32px rgba(0,0,0,0.55)', duration: 0.5, ease: 'power3.out' });
+      gsap.to(badge,  { rotation: 0, scale: 1, duration: 0.55, ease: 'elastic.out(1, 0.5)' });
+      if (!body || naturalH === 0) return;
+      gsap.to(bullets, { opacity: 0, x: -10, duration: 0.18, stagger: 0.03, ease: 'power2.in' });
+      gsap.to(body,    { height: 0, opacity: 0, duration: 0.38, ease: 'power3.inOut', delay: 0.08 });
+      if (icon) gsap.to(icon, { rotation: 0, duration: 0.32, ease: 'power2.out' });
+    }
+
+    if (isTouch) {
+      // Touch: tap the expand button to toggle (hover doesn't exist on mobile)
+      const btn = bubble.querySelector('.exp-expand-btn');
+      if (btn) {
+        let open = false;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          open ? closeCard() : openCard();
+          open = !open;
+        });
       }
-    });
+    } else {
+      bubble.addEventListener('mouseenter', openCard);
+      bubble.addEventListener('mouseleave', closeCard);
+    }
   });
 
   // ── 3D card tilt on hover ──
