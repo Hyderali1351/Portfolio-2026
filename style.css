@@ -1185,6 +1185,7 @@ body.cur-out .cur-ring { opacity: 0; }
   will-change: transform;
   transition: box-shadow 0.3s;
 }
+.exp-bubble-badge svg { display: block; }
 .exp-bubble:hover .exp-bubble-badge {
   box-shadow: 0 0 18px rgba(var(--gc),0.45);
 }

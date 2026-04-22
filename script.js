@@ -372,28 +372,38 @@ if (intro && introCanvas) {
   // ── Sample pixel positions of "MHA" text on offscreen canvas ──
   function getMHATargets(count) {
     const off = document.createElement('canvas');
-    const tw  = Math.min(W * 0.52, 400);
+    // Larger canvas = thicker strokes = easier to sample
+    const tw  = Math.min(W * 0.65, 520);
     const th  = Math.round(tw * 0.38);
     off.width = tw; off.height = th;
     const oc = off.getContext('2d');
     oc.fillStyle = '#fff';
-    oc.font = `900 ${Math.round(th * 0.82)}px sans-serif`;
+    // Arial loads synchronously — no font-loading race condition
+    oc.font = `900 ${Math.round(th * 0.82)}px Arial, sans-serif`;
     oc.textAlign = 'center';
     oc.textBaseline = 'middle';
     oc.fillText('MHA', tw / 2, th / 2);
     const data = oc.getImageData(0, 0, tw, th).data;
     const lit  = [];
-    const step = Math.max(3, Math.floor(Math.sqrt((tw * th) / count)));
-    for (let py = 0; py < th; py += step) {
-      for (let px = 0; px < tw; px += step) {
-        if (data[(py * tw + px) * 4 + 3] > 60) {
+    const STEP = 4; // dense grid — catches strokes as narrow as 4px
+    for (let py = 0; py < th; py += STEP) {
+      for (let px = 0; px < tw; px += STEP) {
+        if (data[(py * tw + px) * 4 + 3] > 15) {
           lit.push({ x: W / 2 - tw / 2 + px, y: H * 0.30 - th / 2 + py });
         }
       }
     }
+    // Shuffle
     for (let i = lit.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [lit[i], lit[j]] = [lit[j], lit[i]];
+    }
+    // If canvas text failed (e.g. sandboxed env), spread across a readable area
+    if (lit.length < 20) {
+      return Array.from({ length: count }, () => ({
+        x: W / 2 + (Math.random() - 0.5) * Math.min(W * 0.55, 440),
+        y: H * 0.30 + (Math.random() - 0.5) * 80,
+      }));
     }
     return lit.slice(0, count);
   }
