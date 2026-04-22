@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Mir Hyder Ali — Portfolio</title>
-  <script>(function(){var s=localStorage.getItem('mha_theme');if(s==='light'){document.documentElement.setAttribute('data-theme','light');}else if(!s&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.setAttribute('data-theme','light');}})()</script>
+  <script>(function(){var s=localStorage.getItem('mha_theme');var sys=window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches;if(s==='light'){document.documentElement.setAttribute('data-theme','light');}else if(s==='dark'&&sys){/* stale override now matches system — clear it */localStorage.removeItem('mha_theme');}else if(!s&&sys){document.documentElement.setAttribute('data-theme','light');}})()</script>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

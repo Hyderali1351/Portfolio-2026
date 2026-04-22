@@ -661,96 +661,67 @@ window.__lightMode = document.documentElement.getAttribute('data-theme') === 'li
   }
 })();
 
-// ── Photo bubble — hover/tap on profile photo ──────────────
-(function initPhotoBubble() {
-  const overlay = document.createElement('div');
-  overlay.id = 'photo-bubble';
-  overlay.innerHTML = `
-    <div class="pb-wrap">
-      <div class="pb-glow"></div>
-      <img class="pb-img" src="photo.PNG" alt="Mir Hyder Ali" />
-      <div class="pb-ring"></div>
+// ── Photo lightbox — click profile photo for full-size view ──
+(function initPhotoLightbox() {
+  const lb = document.createElement('div');
+  lb.id = 'photo-lightbox';
+  lb.innerHTML = `
+    <div class="plb-backdrop"></div>
+    <div class="plb-container">
+      <img class="plb-img" src="photo.PNG" alt="Mir Hyder Ali" />
+      <button class="plb-close" aria-label="Close photo">✕</button>
     </div>`;
-  document.body.appendChild(overlay);
+  document.body.appendChild(lb);
 
-  const pbImg = overlay.querySelector('.pb-img');
-  let hideTimer = null;
+  const plbImg       = lb.querySelector('.plb-img');
+  const plbContainer = lb.querySelector('.plb-container');
 
-  function showAt(sourceEl) {
-    clearTimeout(hideTimer);
+  function openLightbox(sourceEl) {
     const src = sourceEl.src || sourceEl.getAttribute('src');
-    if (src) pbImg.src = src;
-
-    const rect = sourceEl.getBoundingClientRect();
-    const bw = 260, bh = 260, pad = 16;
-
-    let left = rect.right + pad;
-    if (left + bw > window.innerWidth - pad) left = rect.left - bw - pad;
-    left = Math.max(pad, Math.min(left, window.innerWidth - bw - pad));
-
-    let top = rect.top + rect.height / 2 - bh / 2;
-    top = Math.max(pad, Math.min(top, window.innerHeight - bh - pad));
-
-    overlay.style.left = left + 'px';
-    overlay.style.top  = top  + 'px';
-
-    // transform-origin = the source photo's center relative to bubble
-    const ox = ((rect.left + rect.width  / 2 - left) / bw * 100).toFixed(1) + '%';
-    const oy = ((rect.top  + rect.height / 2 - top ) / bh * 100).toFixed(1) + '%';
-    overlay.style.transformOrigin = ox + ' ' + oy;
-
-    overlay.style.display = 'block';
+    if (src) plbImg.src = src;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
     if (window.gsap) {
-      gsap.killTweensOf(overlay);
-      gsap.fromTo(overlay,
-        { scale: 0.08, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.48, ease: 'back.out(1.9)' }
+      gsap.killTweensOf(plbContainer);
+      gsap.fromTo(plbContainer,
+        { scale: 0.55, opacity: 0, y: 40 },
+        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.6)' }
       );
-    } else {
-      overlay.style.opacity = '1';
-      overlay.style.transform = 'scale(1)';
     }
   }
 
-  function hide(instant) {
-    clearTimeout(hideTimer);
-    const doHide = () => {
-      if (window.gsap) {
-        gsap.to(overlay, {
-          scale: 0.15, opacity: 0, duration: 0.22, ease: 'power2.in',
-          onComplete: () => { overlay.style.display = 'none'; }
-        });
-      } else {
-        overlay.style.display = 'none';
-      }
-    };
-    if (instant) doHide();
-    else hideTimer = setTimeout(doHide, 90);
+  function closeLightbox() {
+    if (!lb.classList.contains('open')) return;
+    if (window.gsap) {
+      gsap.to(plbContainer, {
+        scale: 0.78, opacity: 0, y: 24, duration: 0.28, ease: 'power3.in',
+        onComplete: () => {
+          lb.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      });
+    } else {
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+    }
   }
 
-  function bindPhoto(el) {
-    el.addEventListener('mouseenter', () => showAt(el));
-    el.addEventListener('mouseleave', () => hide(false));
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      if (overlay.style.display === 'block') hide(true);
-      else showAt(el);
-    });
-  }
-
-  document.querySelectorAll('.avatar-photo, .li-badge-photo').forEach(bindPhoto);
-
-  // Hovering the bubble itself keeps it open
-  overlay.addEventListener('mouseenter', () => clearTimeout(hideTimer));
-  overlay.addEventListener('mouseleave', () => hide(false));
-
-  // Tap outside closes
-  document.addEventListener('click', e => {
-    if (overlay.style.display === 'block' && !overlay.contains(e.target)) hide(true);
+  // Bind clicks on source photos
+  document.querySelectorAll('.avatar-photo, .li-badge-photo').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openLightbox(el); });
   });
 
-  // Admin can call this after uploading a new photo
-  window.updatePhotoBubbleSrc = newSrc => { pbImg.src = newSrc; };
+  // Close on backdrop click or × button
+  lb.querySelector('.plb-backdrop').addEventListener('click', closeLightbox);
+  lb.querySelector('.plb-close').addEventListener('click', closeLightbox);
+
+  // Close on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  // Admin photo updates propagate here
+  window.updatePhotoBubbleSrc = newSrc => { plbImg.src = newSrc; };
 })();
 
 // ── Typing animation ──
@@ -1223,15 +1194,25 @@ if (!isTouch) (function () {
   const btn = document.getElementById('theme-toggle');
   if (!btn) return;
 
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+
   function applyTheme(isLight, store) {
     if (isLight) {
       document.documentElement.setAttribute('data-theme', 'light');
       window.__lightMode = true;
-      if (store) localStorage.setItem('mha_theme', 'light');
     } else {
       document.documentElement.removeAttribute('data-theme');
       window.__lightMode = false;
-      if (store) localStorage.setItem('mha_theme', 'dark');
+    }
+    if (store) {
+      // Only store override when user's choice DIFFERS from system preference.
+      // If it matches system, clear the override so system changes take effect automatically.
+      const systemIsLight = mql ? mql.matches : false;
+      if (isLight !== systemIsLight) {
+        localStorage.setItem('mha_theme', isLight ? 'light' : 'dark');
+      } else {
+        localStorage.removeItem('mha_theme');
+      }
     }
     document.querySelectorAll('.scratch-canvas').forEach(c => { if (c._repaintScratch) c._repaintScratch(); });
   }
@@ -1243,12 +1224,20 @@ if (!isTouch) (function () {
     setTimeout(() => btn.classList.remove('theme-clicked'), 350);
   });
 
-  // Follow system preference changes when user has no stored override
-  if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+  // Follow system preference changes (fires on most browsers)
+  if (mql) {
+    mql.addEventListener('change', e => {
       if (!localStorage.getItem('mha_theme')) applyTheme(e.matches, false);
     });
   }
+
+  // iOS Safari fix: prefers-color-scheme 'change' doesn't always fire when app
+  // is backgrounded and system theme changes. Re-check on visibilitychange instead.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !localStorage.getItem('mha_theme') && mql) {
+      applyTheme(mql.matches, false);
+    }
+  });
 })();
 
 // ── RAF loop: ring lerp (desktop only) ──
