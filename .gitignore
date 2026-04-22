@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Local Claude Code session data
+temp_claude/
+
+# Build artifacts / local tools
+my-portfolio/
+install.cmd
+ollama.log
+package.json
+package-lock.json
+
+# Misc
+Portfolio_2.0
+Resume_4_0 (1).pdf

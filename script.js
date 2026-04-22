@@ -1,6 +1,9 @@
 // Stop aurora — GSAP blobs replace it
 window.__stopAurora = true;
 
+// Track light mode state (set early from DOM so other code can read it)
+window.__lightMode = document.documentElement.getAttribute('data-theme') === 'light';
+
 // ──────────────────────────────────────────────────────────────
 // ADMIN MODE  — type  :admin  anywhere on the page to unlock
 // Password: MHA@2026   (SHA-256 hash stored below — change both)
@@ -723,6 +726,7 @@ if (!isTouch) (function () {
   function drawWeb(ts) {
     if (window.__killSpiderWeb) return; // Three.js scene is active — stop this loop
     requestAnimationFrame(drawWeb);
+    if (window.__lightMode) { wCtx.clearRect(0, 0, wc.width, wc.height); return; }
     if (ts - lastTs < 33) return;
     lastTs = ts;
 
@@ -807,6 +811,112 @@ if (!isTouch) (function () {
   requestAnimationFrame(drawWeb);
 })();
 
+// ── Light mode bubble canvas ──
+(function initBubbleCanvas() {
+  const bc = document.getElementById('bubble-canvas');
+  if (!bc) return;
+  const bCtx = bc.getContext('2d');
+
+  const COLORS = [
+    [167, 139, 250], // lavender
+    [252, 129, 109], // coral
+    [110, 231, 183], // mint
+    [147, 197, 253], // sky blue
+    [244, 114, 182], // rose
+    [251, 191,  36], // amber
+    [253, 186, 116], // peach
+    [196, 181, 253], // soft violet
+    [134, 239, 172], // light green
+    [165, 243, 252], // cyan
+  ];
+
+  function resize() {
+    bc.width  = window.innerWidth;
+    bc.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+
+  function mkBubble(startRandom) {
+    const r = 3 + Math.random() * 19;
+    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+    return {
+      x:      Math.random() * window.innerWidth,
+      y:      startRandom ? Math.random() * window.innerHeight : window.innerHeight + r + 12,
+      r,
+      color:  c,
+      alpha:  0.18 + Math.random() * 0.28,
+      speed:  0.22 + Math.random() * 0.72,
+      drift:  (Math.random() - 0.5) * 0.38,
+      phase:  Math.random() * Math.PI * 2,
+      wobble: 0.18 + Math.random() * 0.48,
+    };
+  }
+
+  const bubbles = Array.from({ length: 55 }, () => mkBubble(true));
+
+  let lastBubbleTs = 0;
+  function drawBubbles(ts) {
+    requestAnimationFrame(drawBubbles);
+    if (!window.__lightMode) { bCtx.clearRect(0, 0, bc.width, bc.height); return; }
+    if (ts - lastBubbleTs < 33) return;
+    lastBubbleTs = ts;
+
+    const W = bc.width, H = bc.height;
+    bCtx.clearRect(0, 0, W, H);
+
+    bubbles.forEach(b => {
+      b.y -= b.speed;
+      b.x += Math.sin(ts * 0.0008 * b.wobble + b.phase) * b.drift;
+
+      if (b.y + b.r < 0) {
+        Object.assign(b, mkBubble(false));
+        b.x = Math.random() * W;
+      }
+
+      // Fade in near bottom, fade out near top
+      const fade = H * 0.13;
+      let a = b.alpha;
+      if (b.y > H - fade) a *= (H - b.y) / fade;
+      if (b.y < fade)     a *= b.y / fade;
+      if (a < 0.01) return;
+
+      const [r, g, bl] = b.color;
+
+      // Soft outer glow
+      const glow = bCtx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 2.8);
+      glow.addColorStop(0, `rgba(${r},${g},${bl},${(a * 0.28).toFixed(3)})`);
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      bCtx.beginPath();
+      bCtx.arc(b.x, b.y, b.r * 2.8, 0, Math.PI * 2);
+      bCtx.fillStyle = glow;
+      bCtx.fill();
+
+      // Main bubble with sphere gradient (highlight top-left → colored fill → transparent edge)
+      const grad = bCtx.createRadialGradient(
+        b.x - b.r * 0.32, b.y - b.r * 0.32, b.r * 0.05,
+        b.x, b.y, b.r
+      );
+      grad.addColorStop(0,    `rgba(255,255,255,${(a * 0.72).toFixed(3)})`);
+      grad.addColorStop(0.38, `rgba(${r},${g},${bl},${(a * 0.92).toFixed(3)})`);
+      grad.addColorStop(1,    `rgba(${r},${g},${bl},${(a * 0.22).toFixed(3)})`);
+      bCtx.beginPath();
+      bCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      bCtx.fillStyle = grad;
+      bCtx.fill();
+
+      // Small specular dot
+      if (b.r > 5) {
+        bCtx.beginPath();
+        bCtx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.18, 0, Math.PI * 2);
+        bCtx.fillStyle = `rgba(255,255,255,${(a * 0.52).toFixed(3)})`;
+        bCtx.fill();
+      }
+    });
+  }
+  requestAnimationFrame(drawBubbles);
+})();
+
 // ── Visitor counter ──
 (function () {
   const ct = document.getElementById("vc-count");
@@ -879,6 +989,29 @@ if (!isTouch) (function () {
   }
   tick();
   setInterval(tick, 1000);
+})();
+
+// ── Theme toggle ──
+(function () {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('mha_theme', 'dark');
+      window.__lightMode = false;
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('mha_theme', 'light');
+      window.__lightMode = true;
+    }
+
+    // Quick pulse feedback
+    btn.classList.add('theme-clicked');
+    setTimeout(() => btn.classList.remove('theme-clicked'), 350);
+  });
 })();
 
 // ── RAF loop: ring lerp (desktop only) ──
@@ -1501,6 +1634,7 @@ puzzleInput.addEventListener('keydown', e => {
     io.observe(card);
 
     card.addEventListener('mousedown', e => {
+      e.preventDefault();
       initCanvas(); scratching = true;
       const r = canvas.getBoundingClientRect();
       scratchAt(e.clientX - r.left, e.clientY - r.top);
