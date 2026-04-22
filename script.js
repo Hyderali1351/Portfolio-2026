@@ -161,10 +161,11 @@ window.__lightMode = document.documentElement.getAttribute('data-theme') === 'li
         <span class="adm-hint">Click any <span style="color:#a78bfa">highlighted</span> field to edit</span>
       </div>
       <div class="adm-bar-r">
-        <button id="adm-add-exp"  class="adm-btn-add">＋ Experience</button>
-        <button id="adm-add-proj" class="adm-btn-add">＋ Project</button>
-        <button id="adm-save" class="adm-btn-primary">Save &amp; Publish</button>
-        <button id="adm-exit" class="adm-btn-ghost">Exit</button>
+        <button id="adm-add-exp"      class="adm-btn-add">＋ Experience</button>
+        <button id="adm-add-proj"     class="adm-btn-add">＋ Project</button>
+        <button id="adm-change-photo" class="adm-btn-add">📷 Photo</button>
+        <button id="adm-save"         class="adm-btn-primary">Save &amp; Publish</button>
+        <button id="adm-exit"         class="adm-btn-ghost">Exit</button>
       </div>`;
     document.body.appendChild(bar);
 
@@ -175,10 +176,11 @@ window.__lightMode = document.documentElement.getAttribute('data-theme') === 'li
       el.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); } });
     });
 
-    document.getElementById('adm-exit').onclick     = deactivateAdmin;
-    document.getElementById('adm-save').onclick     = saveToGitHub;
-    document.getElementById('adm-add-exp').onclick  = showAddExperience;
-    document.getElementById('adm-add-proj').onclick = showAddProject;
+    document.getElementById('adm-exit').onclick         = deactivateAdmin;
+    document.getElementById('adm-save').onclick         = saveToGitHub;
+    document.getElementById('adm-add-exp').onclick      = showAddExperience;
+    document.getElementById('adm-add-proj').onclick     = showAddProject;
+    document.getElementById('adm-change-photo').onclick = showChangePhoto;
   }
 
   function deactivateAdmin() {
@@ -425,6 +427,139 @@ window.__lightMode = document.documentElement.getAttribute('data-theme') === 'li
     modal.remove();
   }
 
+  // ── Change Photo ──────────────────────────────────────────
+  function showChangePhoto() {
+    const m = document.createElement('div');
+    m.id = 'adm-modal';
+    m.innerHTML = `
+      <div class="adm-box">
+        <div class="adm-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>Change Profile Photo</span>
+        </div>
+        <div class="adm-photo-preview">
+          <div class="adm-photo-current">
+            <p class="adm-hint" style="text-align:center">Current</p>
+            <img id="adm-cur-photo" src="photo.PNG" class="adm-photo-thumb" alt="Current" />
+          </div>
+          <div class="adm-photo-arrow">→</div>
+          <div class="adm-photo-new">
+            <p class="adm-hint" style="text-align:center">New</p>
+            <div class="adm-photo-drop" id="adm-drop-zone">
+              <input type="file" id="adm-photo-file" accept="image/*" style="display:none" />
+              <span id="adm-drop-label" style="padding:0 6px;pointer-events:none">Click or<br>drag &amp; drop</span>
+              <img id="adm-photo-preview-img" class="adm-photo-thumb" style="display:none" alt="Preview" />
+            </div>
+          </div>
+        </div>
+        <p id="adm-err" class="adm-err"></p>
+        <div class="adm-btns">
+          <button id="adm-photo-cancel" class="adm-btn-ghost">Cancel</button>
+          <button id="adm-photo-upload" class="adm-btn-primary" disabled>Upload &amp; Apply</button>
+        </div>
+        <p class="adm-hint" style="text-align:center;font-size:.75rem;opacity:.65">Replaces photo.PNG in your GitHub repo. Live in ~1 min after deploy.</p>
+      </div>`;
+    document.body.appendChild(m);
+
+    const fileInput  = m.querySelector('#adm-photo-file');
+    const dropZone   = m.querySelector('#adm-drop-zone');
+    const previewImg = m.querySelector('#adm-photo-preview-img');
+    const dropLabel  = m.querySelector('#adm-drop-label');
+    const uploadBtn  = m.querySelector('#adm-photo-upload');
+    let selectedFile = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) {
+        m.querySelector('#adm-err').textContent = 'Please select an image file';
+        return;
+      }
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        previewImg.src = ev.target.result;
+        previewImg.style.display = 'block';
+        dropLabel.style.display  = 'none';
+        uploadBtn.disabled = false;
+        m.querySelector('#adm-err').textContent = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    m.querySelector('#adm-photo-cancel').onclick = () => m.remove();
+    uploadBtn.onclick = () => uploadPhotoToGitHub(m, selectedFile);
+    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  }
+
+  async function uploadPhotoToGitHub(modal, file) {
+    if (!file) return;
+
+    let pat = sessionStorage.getItem('adm_pat');
+    if (!pat) {
+      modal.querySelector('#adm-err').textContent = 'Use Save & Publish first to store your GitHub token, then retry.';
+      return;
+    }
+
+    const uploadBtn = modal.querySelector('#adm-photo-upload');
+    uploadBtn.textContent = 'Uploading…';
+    uploadBtn.disabled = true;
+
+    try {
+      // Convert file to base64 (raw, not data URL)
+      const ab    = await file.arrayBuffer();
+      const bytes = new Uint8Array(ab);
+      let binary  = '';
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      const base64 = btoa(binary);
+
+      const headers = { 'Authorization': `Bearer ${pat}`, 'Accept': 'application/vnd.github+json' };
+
+      // Get current SHA of photo.PNG (needed to overwrite)
+      const metaRes = await fetch(
+        `https://api.github.com/repos/${OWNER}/${REPO}/contents/photo.PNG`, { headers }
+      );
+      const body = { message: 'Update profile photo via admin', content: base64 };
+      if (metaRes.ok) body.sha = (await metaRes.json()).sha;
+
+      const putRes = await fetch(
+        `https://api.github.com/repos/${OWNER}/${REPO}/contents/photo.PNG`,
+        { method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      );
+
+      if (!putRes.ok) {
+        const err = await putRes.json().catch(() => ({}));
+        if (putRes.status === 401) { sessionStorage.removeItem('adm_pat'); }
+        throw new Error(err.message || `HTTP ${putRes.status}`);
+      }
+
+      // Live-update all photos on the page immediately using the data URL
+      const dataUrl = modal.querySelector('#adm-photo-preview-img').src;
+      document.querySelectorAll('.avatar-photo, .li-badge-photo').forEach(img => { img.src = dataUrl; });
+      if (window.updatePhotoBubbleSrc) window.updatePhotoBubbleSrc(dataUrl);
+
+      uploadBtn.textContent = '✓ Uploaded!';
+      uploadBtn.style.background = 'rgba(34,197,94,0.22)';
+      setTimeout(() => modal.remove(), 1800);
+
+    } catch (err) {
+      uploadBtn.textContent = `Error: ${err.message}`;
+      uploadBtn.disabled = false;
+      setTimeout(() => { uploadBtn.textContent = 'Upload & Apply'; uploadBtn.style.background = ''; }, 4000);
+    }
+  }
+
   // ── Save via GitHub API ────────────────────────────────────
   async function saveToGitHub() {
     let pat = sessionStorage.getItem('adm_pat');
@@ -524,6 +659,98 @@ window.__lightMode = document.documentElement.getAttribute('data-theme') === 'li
       setTimeout(() => { btn.textContent = 'Save & Publish'; }, 4000);
     }
   }
+})();
+
+// ── Photo bubble — hover/tap on profile photo ──────────────
+(function initPhotoBubble() {
+  const overlay = document.createElement('div');
+  overlay.id = 'photo-bubble';
+  overlay.innerHTML = `
+    <div class="pb-wrap">
+      <div class="pb-glow"></div>
+      <img class="pb-img" src="photo.PNG" alt="Mir Hyder Ali" />
+      <div class="pb-ring"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const pbImg = overlay.querySelector('.pb-img');
+  let hideTimer = null;
+
+  function showAt(sourceEl) {
+    clearTimeout(hideTimer);
+    const src = sourceEl.src || sourceEl.getAttribute('src');
+    if (src) pbImg.src = src;
+
+    const rect = sourceEl.getBoundingClientRect();
+    const bw = 260, bh = 260, pad = 16;
+
+    let left = rect.right + pad;
+    if (left + bw > window.innerWidth - pad) left = rect.left - bw - pad;
+    left = Math.max(pad, Math.min(left, window.innerWidth - bw - pad));
+
+    let top = rect.top + rect.height / 2 - bh / 2;
+    top = Math.max(pad, Math.min(top, window.innerHeight - bh - pad));
+
+    overlay.style.left = left + 'px';
+    overlay.style.top  = top  + 'px';
+
+    // transform-origin = the source photo's center relative to bubble
+    const ox = ((rect.left + rect.width  / 2 - left) / bw * 100).toFixed(1) + '%';
+    const oy = ((rect.top  + rect.height / 2 - top ) / bh * 100).toFixed(1) + '%';
+    overlay.style.transformOrigin = ox + ' ' + oy;
+
+    overlay.style.display = 'block';
+    if (window.gsap) {
+      gsap.killTweensOf(overlay);
+      gsap.fromTo(overlay,
+        { scale: 0.08, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.48, ease: 'back.out(1.9)' }
+      );
+    } else {
+      overlay.style.opacity = '1';
+      overlay.style.transform = 'scale(1)';
+    }
+  }
+
+  function hide(instant) {
+    clearTimeout(hideTimer);
+    const doHide = () => {
+      if (window.gsap) {
+        gsap.to(overlay, {
+          scale: 0.15, opacity: 0, duration: 0.22, ease: 'power2.in',
+          onComplete: () => { overlay.style.display = 'none'; }
+        });
+      } else {
+        overlay.style.display = 'none';
+      }
+    };
+    if (instant) doHide();
+    else hideTimer = setTimeout(doHide, 90);
+  }
+
+  function bindPhoto(el) {
+    el.addEventListener('mouseenter', () => showAt(el));
+    el.addEventListener('mouseleave', () => hide(false));
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (overlay.style.display === 'block') hide(true);
+      else showAt(el);
+    });
+  }
+
+  document.querySelectorAll('.avatar-photo, .li-badge-photo').forEach(bindPhoto);
+
+  // Hovering the bubble itself keeps it open
+  overlay.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  overlay.addEventListener('mouseleave', () => hide(false));
+
+  // Tap outside closes
+  document.addEventListener('click', e => {
+    if (overlay.style.display === 'block' && !overlay.contains(e.target)) hide(true);
+  });
+
+  // Admin can call this after uploading a new photo
+  window.updatePhotoBubbleSrc = newSrc => { pbImg.src = newSrc; };
 })();
 
 // ── Typing animation ──
@@ -926,7 +1153,7 @@ if (!isTouch) (function () {
   // OFFSET bridges the gap between the live API count and the ~484 already shown
   const API_URL     = 'https://hitscounter.dev/api/hit?url=mirhyderali.com%2Fportfolio';
   const OFFSET      = 481;  // displayed = OFFSET + live API count (starts ≈484)
-  const LOCAL_KEY   = 'mha_vc_live';
+  const LOCAL_KEY   = 'mha_vc_live_v2'; // v2: busts stale 481-stuck cache
   const SESSION_KEY = 'mha_vs';
 
   function animateTo(target) {
@@ -1084,18 +1311,18 @@ async function handleSubmit(e) {
   const intro = document.getElementById("intro");
   if (intro) {
     const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
-    // Brief pause so the scan animation shows, then doors split open
+    // Short pause so scan animation shows, then doors split — reduced from 700→400ms
     setTimeout(() => {
       intro.classList.add('door-open');
-      setTimeout(() => { intro.remove(); fireIntroDone(); }, 680);
-    }, 700);
+      setTimeout(() => { intro.remove(); fireIntroDone(); }, 620);
+    }, 400);
     // Hard safety fallback
     setTimeout(() => {
       if (intro.isConnected) {
         intro.classList.add('door-open');
-        setTimeout(() => { intro.remove(); fireIntroDone(); }, 680);
+        setTimeout(() => { intro.remove(); fireIntroDone(); }, 620);
       }
-    }, 4000);
+    }, 2800);
   }
 }
 
@@ -1229,19 +1456,22 @@ puzzleInput.addEventListener('keydown', e => {
   if (typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
 
-  // ── GSAP background blobs ──
-  document.querySelectorAll('.bg-blob').forEach((blob, i) => {
-    gsap.to(blob, {
-      x: `random(${-80 - i * 18}, ${80 + i * 18})`,
-      y: `random(${-60 - i * 14}, ${60 + i * 14})`,
-      scale: gsap.utils.random(0.86, 1.14),
-      duration: gsap.utils.random(11, 20),
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-      delay: i * 1.4,
+  // ── GSAP background blobs — skip on touch/mobile (blur(90px) on large divs kills perf) ──
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (!isTouchDevice) {
+    document.querySelectorAll('.bg-blob').forEach((blob, i) => {
+      gsap.to(blob, {
+        x: `random(${-80 - i * 18}, ${80 + i * 18})`,
+        y: `random(${-60 - i * 14}, ${60 + i * 14})`,
+        scale: gsap.utils.random(0.86, 1.14),
+        duration: gsap.utils.random(11, 20),
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: i * 1.4,
+      });
     });
-  });
+  }
 
   // ── GSAP floating particles in hero ──
   const heroEl = document.querySelector('.hero');

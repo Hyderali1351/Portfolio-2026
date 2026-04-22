@@ -32,6 +32,7 @@ body {
   color: var(--text);
   line-height: 1.7;
   overflow-x: hidden;
+  overscroll-behavior-x: none;
   min-height: 100vh;
   min-height: 100dvh;
   /* Remove blue flash on tap for all elements */
@@ -247,6 +248,16 @@ a:hover { opacity: 0.75; }
 }
 
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.4rem; }
+
+.nav-brand {
+  display: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  flex-shrink: 0;
+  user-select: none;
+}
 
 /* ── Scroll progress ring button ── */
 #scroll-ring-btn {
@@ -2301,6 +2312,10 @@ body.cur-out .cur-ring { opacity: 0; }
   .cur-dot, .cur-ring { display: none !important; }
   /* Spider web reacts to mouse — hide on touch since there's no pointer */
   #web-canvas { display: none; }
+  /* Reduce expensive blur filter on large blobs for mobile GPU */
+  .bg-blob { filter: blur(55px); }
+  /* Prevent iOS horizontal bounce that causes layout jank */
+  html { overscroll-behavior-x: none; }
 }
 
 /* ══════════════════════════════════════
@@ -2331,13 +2346,22 @@ body.cur-out .cur-ring { opacity: 0; }
    PHONE  ≤ 600px
    ══════════════════════════════════════ */
 @media (max-width: 600px) {
-  /* Nav — hamburger */
-  .nav { padding: 0.45rem 0.75rem; width: 92vw; gap: 0; justify-content: space-between; }
+  /* Nav — hamburger: left-align the pill so it never overlaps the fixed theme toggle */
+  .nav {
+    left: max(0.75rem, env(safe-area-inset-left));
+    right: calc(max(0.75rem, env(safe-area-inset-right)) + 3.5rem);
+    transform: none;
+    width: auto;
+    padding: 0.45rem 0.85rem;
+    gap: 0;
+    justify-content: space-between;
+  }
+  .nav-brand { display: block; }
   .nav-links {
     display: none;
     position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0;
     flex-direction: column;
-    background: rgba(10,5,25,0.92);
+    background: rgba(10,5,25,0.95);
     backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: var(--radius);
@@ -2346,8 +2370,10 @@ body.cur-out .cur-ring { opacity: 0; }
   }
   .nav-links.open { display: flex; }
   .nav-links a { border-radius: 10px; padding: 0.65rem 1rem; color: var(--text-muted); }
-  .nav-bubble { display: none; } /* bubble doesn't work in stacked nav */
+  .nav-bubble { display: none; }
   .nav-toggle { display: block; }
+  /* Reduce blur cost on mobile */
+  :root { --blur: blur(14px) saturate(160%); }
 
   /* Hero */
   .hero { padding: 5.5rem 1.25rem 2rem; }
@@ -2802,6 +2828,118 @@ body.cur-out .cur-ring { opacity: 0; }
 }
 .adm-pat-guide a { color: #60a5fa; text-underline-offset: 2px; }
 .adm-pat-guide strong { color: var(--text); font-weight: 600; }
+
+/* ══════════════════════════════════════════════════════
+   PHOTO BUBBLE — hover/tap on profile photo
+══════════════════════════════════════════════════════ */
+#photo-bubble {
+  position: fixed;
+  z-index: 8000;
+  display: none;
+  pointer-events: auto;
+  will-change: transform, opacity;
+}
+.pb-wrap {
+  position: relative;
+  width: 260px;
+  height: 260px;
+}
+.pb-glow {
+  position: absolute;
+  inset: -28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139,92,246,0.38) 0%, transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+  animation: pb-pulse 3s ease-in-out infinite;
+}
+@keyframes pb-pulse {
+  0%,100% { opacity: 0.8; transform: scale(1); }
+  50%     { opacity: 1;   transform: scale(1.06); }
+}
+.pb-img {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  position: relative;
+  z-index: 1;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.pb-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(167,139,250,0.65);
+  box-shadow:
+    0 0 0 6px rgba(139,92,246,0.1),
+    0 0 40px rgba(139,92,246,0.42),
+    0 28px 72px rgba(0,0,0,0.52);
+  z-index: 2;
+  pointer-events: none;
+}
+/* make the source photo feel interactive */
+.avatar-photo, .li-badge-photo { cursor: pointer; }
+
+/* Admin photo modal pieces */
+.adm-photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.adm-photo-current, .adm-photo-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.adm-photo-thumb {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 2px solid rgba(167,139,250,0.35);
+}
+.adm-photo-arrow {
+  font-size: 1.4rem;
+  color: var(--accent);
+  opacity: 0.7;
+}
+.adm-photo-drop {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px dashed rgba(167,139,250,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.7rem;
+  text-align: center;
+  color: var(--text-muted);
+  line-height: 1.4;
+  transition: border-color 0.2s, background 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+.adm-photo-drop:hover, .adm-photo-drop.drag-over {
+  border-color: rgba(167,139,250,0.75);
+  background: rgba(139,92,246,0.08);
+}
+.adm-photo-drop .adm-photo-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 50%;
+}
 
 /* ══════════════════════════════════════════════════════
    LIGHT MODE BUBBLE CANVAS
