@@ -660,17 +660,8 @@ puzzleInput.addEventListener('keydown', e => {
   if (typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
 
-  // ── Lenis smooth scroll ─────────────────────────────
-  if (typeof Lenis !== 'undefined') {
-    const lenis = new Lenis({
-      lerp: 0.07,
-      smoothWheel: true,
-      smoothTouch: false,
-    });
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-  }
+  // Native scroll — aurora + spider-web canvases are already RAF-heavy,
+  // an extra smooth-scroll layer causes frame budget overrun on most machines.
 
   // ── Hero: set initial hidden state, reveal after intro ──
   const heroEls = [".hero-greeting", ".hero-name", ".hero-title", ".hero-sub", ".hero-cta"];
