@@ -287,14 +287,26 @@ if (!isTouch) (function () {
 
 // ── Visitor counter ──
 (function () {
-  fetch("https://api.counterapi.dev/v1/mirhyderali/visits/up")
-    .then(r => r.json())
+  const ct = document.getElementById("vc-count");
+  // Try counterapi.dev (namespace/key must be pre-created at counterapi.dev)
+  fetch("https://api.counterapi.dev/v1/mirhyderali/visits/up", { cache: "no-store" })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(data => {
-      const ct  = document.getElementById("vc-count");
-      const raw = data?.count ?? data?.value ?? data?.hits;
+      const raw = data?.count ?? data?.value ?? data?.hits ?? data?.views;
       if (ct && raw != null) ct.textContent = Number(raw).toLocaleString();
     })
-    .catch(() => {});
+    .catch(() => {
+      // Fallback: countapi.dev v2 endpoint
+      fetch("https://api.countapi.xyz/hit/mirhyderali.com/visits", { cache: "no-store" })
+        .then(r => r.json())
+        .then(data => {
+          const raw = data?.value ?? data?.count;
+          if (ct && raw != null) ct.textContent = Number(raw).toLocaleString();
+        })
+        .catch(() => {
+          if (ct) ct.textContent = "—";
+        });
+    });
 })();
 
 // ── Clock widget ──
@@ -456,8 +468,8 @@ if (intro && introCanvas) {
   let overlayAlpha = 0;
   let rafRunning   = true;
   let startTs      = null;
-  const SCATTER_MS  = 500;   // free drift before converge starts
-  const CONVERGE_MS = 900;   // convergence duration
+  const SCATTER_MS  = 120;   // free drift before converge starts
+  const CONVERGE_MS = 480;   // convergence duration
 
   const easeInOut = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
@@ -574,15 +586,14 @@ if (intro && introCanvas) {
   const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
 
   // After particles form MHA, open the doors
-  const HOLD_MS = 380;
+  const HOLD_MS = 60;
   const doorTimer = setTimeout(() => {
     rafRunning = false;
     intro.classList.add('door-open');
-    // Remove intro after door transition completes
     setTimeout(() => {
       intro.remove();
       fireIntroDone();
-    }, 920);
+    }, 680);
   }, SCATTER_MS + CONVERGE_MS + HOLD_MS);
 
   // Safety fallback
@@ -590,9 +601,9 @@ if (intro && introCanvas) {
     if (intro && intro.isConnected) {
       clearTimeout(doorTimer);
       intro.classList.add('door-open');
-      setTimeout(() => { intro.remove(); fireIntroDone(); }, 920);
+      setTimeout(() => { intro.remove(); fireIntroDone(); }, 680);
     }
-  }, 8000);
+  }, 5000);
 }
 
 // ── Gaming / desk scene activation ──

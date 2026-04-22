@@ -95,7 +95,7 @@ a:hover { opacity: 0.75; }
   position: fixed;
   bottom: 1.2rem;
   right: 1.2rem;
-  z-index: 50;
+  z-index: 510;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -230,7 +230,7 @@ a:hover { opacity: 0.75; }
 /* ── Scroll progress ring button ── */
 #scroll-ring-btn {
   position: fixed;
-  bottom: 2rem; right: 2rem;
+  bottom: 5rem; right: 2rem;
   width: 50px; height: 50px;
   background: rgba(10,4,28,0.88);
   backdrop-filter: blur(14px);
@@ -1129,7 +1129,29 @@ body.cur-out .cur-ring { opacity: 0; }
   background-size: 48px 48px;
   z-index: 2;
   will-change: transform;
-  transition: transform 0.88s cubic-bezier(0.77,0,0.18,1);
+  transition: transform 0.62s cubic-bezier(0.77,0,0.18,1);
+  overflow: hidden;
+}
+
+/* Scan line sweep — makes doors look alive while loading */
+#intro-door-l::before,
+#intro-door-r::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba(139,92,246,0.07) 40%,
+    rgba(167,139,250,0.12) 50%,
+    rgba(139,92,246,0.07) 60%,
+    transparent);
+  animation: door-scan 1.8s linear infinite;
+  pointer-events: none;
+}
+@keyframes door-scan {
+  0%   { top: -120px; }
+  100% { top: 100%; }
 }
 #intro-door-l {
   left: 0;
