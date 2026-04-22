@@ -114,6 +114,7 @@ const aCanvas = document.getElementById("bg-aurora");
 const aCtx    = aCanvas.getContext("2d");
 
 function resizeAurora() {
+  if (window.__stopAurora) return; // Three.js owns the canvas
   aCanvas.width  = window.innerWidth;
   aCanvas.height = window.innerHeight;
 }
@@ -135,6 +136,7 @@ const sources = [
 
 let lastAuroraTs = 0;
 function drawAurora(ts) {
+  if (window.__stopAurora) return; // Three.js took over — stop loop
   requestAnimationFrame(drawAurora);
   if (ts - lastAuroraTs < 33) return; // ~30fps
   lastAuroraTs = ts;
