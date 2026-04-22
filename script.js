@@ -907,29 +907,68 @@ puzzleInput.addEventListener('keydown', e => {
     });
   }
 
-  // ── Experience bento expand / collapse ──
+  // ── Experience bento: entrance stagger ──
+  gsap.set('.exp-bubble', { autoAlpha: 0, y: 50, scale: 0.96 });
+  ScrollTrigger.create({
+    trigger: '#experience',
+    start: 'top 72%',
+    once: true,
+    onEnter: () => {
+      gsap.to('.exp-bubble', {
+        autoAlpha: 1, y: 0, scale: 1,
+        duration: 0.75, ease: 'power3.out', stagger: 0.14,
+      });
+    }
+  });
+
+  // ── Experience bento: hover — badge spin + card lift ──
   document.querySelectorAll('.exp-bubble').forEach(bubble => {
-    const btn  = bubble.querySelector('.exp-expand-btn');
-    const body = bubble.querySelector('.exp-bubble-body');
-    const plus = bubble.querySelector('.exp-plus');
+    const badge = bubble.querySelector('.exp-bubble-badge');
+
+    bubble.addEventListener('mouseenter', () => {
+      gsap.to(bubble,  { y: -6, scale: 1.012, boxShadow: '0 20px 50px rgba(0,0,0,0.7)', duration: 0.4, ease: 'power2.out' });
+      gsap.to(badge,   { rotation: 12, scale: 1.12, duration: 0.45, ease: 'back.out(2.5)' });
+    });
+    bubble.addEventListener('mouseleave', () => {
+      gsap.to(bubble,  { y: 0, scale: 1, boxShadow: 'none', duration: 0.55, ease: 'power3.out' });
+      gsap.to(badge,   { rotation: 0, scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+    });
+  });
+
+  // ── Experience bento: expand / collapse ──
+  document.querySelectorAll('.exp-bubble').forEach(bubble => {
+    const btn     = bubble.querySelector('.exp-expand-btn');
+    const body    = bubble.querySelector('.exp-bubble-body');
+    const icon    = bubble.querySelector('.exp-expand-icon');
+    const bullets = bubble.querySelectorAll('.exp-bullets li');
     if (!btn || !body) return;
 
     gsap.set(body, { height: 0, opacity: 0 });
 
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const isOpen = bubble.classList.contains('open');
+
       if (isOpen) {
+        // ── Collapse ──
         bubble.classList.remove('open');
-        gsap.to(body, { height: 0, opacity: 0, duration: 0.38, ease: 'power2.inOut' });
-        gsap.to(plus, { rotation: 0, duration: 0.28, ease: 'power2.out' });
+        gsap.to(bullets, { opacity: 0, x: -10, duration: 0.2, stagger: 0.04, ease: 'power2.in' });
+        gsap.to(body,    { height: 0, opacity: 0, duration: 0.42, ease: 'power3.inOut', delay: 0.1 });
+        gsap.to(icon,    { rotation: 0, duration: 0.35, ease: 'back.out(2)' });
       } else {
+        // ── Expand ──
         bubble.classList.add('open');
         const h = body.scrollHeight;
         gsap.fromTo(body,
           { height: 0, opacity: 0 },
-          { height: h, opacity: 1, duration: 0.48, ease: 'power2.out' }
+          { height: h, opacity: 1, duration: 0.5, ease: 'power3.out' }
         );
-        gsap.to(plus, { rotation: 45, duration: 0.28, ease: 'power2.out' });
+        gsap.to(icon, { rotation: 180, duration: 0.38, ease: 'back.out(1.8)' });
+        // Stagger bullets in after body opens
+        gsap.fromTo(bullets,
+          { opacity: 0, x: -14 },
+          { opacity: 1, x: 0, duration: 0.38, stagger: 0.07, ease: 'power2.out', delay: 0.22 }
+        );
       }
     });
   });

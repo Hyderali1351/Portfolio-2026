@@ -1119,43 +1119,51 @@ body.cur-out .cur-ring { opacity: 0; }
   gap: 1.25rem;
   align-items: start;
 }
-
-/* Featured card spans both rows on the left */
 .exp-bubble--featured {
   grid-column: 1;
   grid-row: 1 / 3;
 }
 
 .exp-bubble {
-  background: linear-gradient(145deg, rgba(16,8,36,0.96), rgba(6,3,16,0.98));
-  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(145deg, rgba(14,7,32,0.97), rgba(5,2,14,0.99));
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 22px;
   overflow: hidden;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
   position: relative;
-}
-.exp-bubble:hover {
-  border-color: rgba(167,139,250,0.22);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(167,139,250,0.08);
-  transform: translateY(-2px);
+  /* initial state set by GSAP */
+  will-change: transform, opacity;
 }
 
-/* Colored top accent bar */
+/* Ambient glow behind card — animated on hover via GSAP */
+.exp-bubble-glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(ellipse at 30% 30%, rgba(var(--gc),0.18) 0%, transparent 65%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 0;
+}
+.exp-bubble:hover .exp-bubble-glow { opacity: 1; }
+
+/* Gradient accent bar */
 .exp-bubble-bar {
   height: 3px;
   background: var(--bar, #7c3aed);
-  opacity: 0.85;
+  position: relative;
+  z-index: 1;
 }
 
 .exp-bubble-inner {
-  padding: 1.6rem;
+  padding: 1.65rem;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* Top row: badge + date */
+/* Top row: animated badge + date pill */
 .exp-bubble-top {
   display: flex;
   align-items: center;
@@ -1164,69 +1172,72 @@ body.cur-out .cur-ring { opacity: 0; }
 }
 
 .exp-bubble-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--bc, rgba(124,58,237,0.18));
+  border: 1px solid var(--bbd, rgba(124,58,237,0.4));
+  color: var(--bco, #a78bfa);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 1.05rem;
   flex-shrink: 0;
+  will-change: transform;
+  transition: box-shadow 0.3s;
+}
+.exp-bubble:hover .exp-bubble-badge {
+  box-shadow: 0 0 18px rgba(var(--gc),0.45);
 }
 
 .exp-bubble-date {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-family: 'JetBrains Mono', monospace;
   color: var(--text-dim);
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: 20px;
-  padding: 0.2rem 0.65rem;
+  padding: 0.2rem 0.7rem;
   white-space: nowrap;
 }
 
 .exp-bubble-title {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text);
-  line-height: 1.28;
+  line-height: 1.25;
   margin: 0;
 }
+.exp-bubble--featured .exp-bubble-title { font-size: 1.35rem; }
 
 .exp-bubble-company {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.78rem;
   color: var(--text-muted);
   display: block;
 }
 
 .exp-bubble-blurb {
-  font-size: 0.83rem;
+  font-size: 0.84rem;
   color: var(--text-dim);
-  line-height: 1.6;
+  line-height: 1.62;
   margin: 0;
 }
 
 /* Tags */
-.exp-tags {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
+.exp-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .exp-tags span {
   background: rgba(167,139,250,0.09);
   border: 1px solid rgba(167,139,250,0.2);
   color: var(--accent);
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   font-family: 'JetBrains Mono', monospace;
-  padding: 0.18rem 0.55rem;
+  padding: 0.17rem 0.55rem;
   border-radius: 6px;
+  transition: background 0.25s, border-color 0.25s;
 }
+.exp-tags span:hover { background: rgba(167,139,250,0.18); border-color: rgba(167,139,250,0.4); }
 .exp-tags--preview span {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.09);
   color: var(--text-muted);
 }
 
@@ -1234,60 +1245,58 @@ body.cur-out .cur-ring { opacity: 0; }
 .exp-expand-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  background: rgba(167,139,250,0.08);
+  gap: 0.35rem;
+  background: rgba(167,139,250,0.07);
   border: 1px solid rgba(167,139,250,0.18);
   border-radius: 20px;
-  padding: 0.3rem 0.85rem 0.3rem 0.7rem;
+  padding: 0.28rem 0.8rem;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.25s, border-color 0.25s, transform 0.2s;
   align-self: flex-start;
 }
-.exp-expand-btn:hover { background: rgba(167,139,250,0.16); border-color: rgba(167,139,250,0.35); }
-
+.exp-expand-btn:hover {
+  background: rgba(167,139,250,0.15);
+  border-color: rgba(167,139,250,0.38);
+  transform: translateY(-1px);
+}
 .exp-expand-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--accent);
   font-family: 'JetBrains Mono', monospace;
 }
-
-.exp-plus {
+.exp-expand-icon {
   color: var(--accent);
-  font-size: 1rem;
-  font-weight: 300;
-  line-height: 1;
   display: block;
+  will-change: transform;
 }
 
 /* Collapsible body */
-.exp-bubble-body {
-  height: 0;
-  overflow: hidden;
-  opacity: 0;
-}
+.exp-bubble-body { height: 0; overflow: hidden; opacity: 0; }
 
 /* Bullet list */
 .exp-bullets {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  margin: 0 0 1rem;
+  gap: 0.5rem;
+  margin: 0.4rem 0 1rem;
 }
 .exp-bullets li {
   color: var(--text-muted);
-  font-size: 0.84rem;
+  font-size: 0.83rem;
   line-height: 1.65;
   padding-left: 1.1rem;
   position: relative;
+  opacity: 0; /* GSAP staggers these in */
+  transform: translateX(-10px);
 }
 .exp-bullets li::before {
   content: '▸';
   position: absolute;
   left: 0;
   color: var(--accent);
-  font-size: 0.66rem;
-  top: 0.2em;
+  font-size: 0.65rem;
+  top: 0.22em;
 }
 
 /* Education card items */
@@ -1299,7 +1308,7 @@ body.cur-out .cur-ring { opacity: 0; }
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .edu-degree { font-size: 0.9rem; font-weight: 600; color: var(--text); }
-.edu-school  { font-size: 0.78rem; color: var(--text-muted); }
+.edu-school  { font-size: 0.77rem; color: var(--text-muted); }
 
 /* ═══════════════════════════════
    RESEARCH SECTION

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mir Hyder Ali — Portfolio</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -209,12 +210,15 @@
       <h2 class="section-title reveal">Work <span class="accent">Experience</span></h2>
       <div class="exp-bento">
 
-        <!-- Wistron — tall card, left column, spans 2 rows -->
-        <div class="exp-bubble exp-bubble--featured reveal">
-          <div class="exp-bubble-bar" style="--bar:#7c3aed"></div>
+        <!-- Wistron — tall featured card (left, spans 2 rows) -->
+        <div class="exp-bubble exp-bubble--featured">
+          <div class="exp-bubble-glow" style="--gc:124,58,237"></div>
+          <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#7c3aed,#4338ca)"></div>
           <div class="exp-bubble-inner">
             <div class="exp-bubble-top">
-              <div class="exp-bubble-badge" style="background:rgba(124,58,237,0.18);border-color:rgba(124,58,237,0.4);color:#a78bfa">W</div>
+              <div class="exp-bubble-badge" style="--bc:rgba(124,58,237,0.18);--bbd:rgba(124,58,237,0.5);--bco:#a78bfa">
+                <iconify-icon icon="isax:cpu" width="22" height="22"></iconify-icon>
+              </div>
               <span class="exp-bubble-date">May 2023 – Present</span>
             </div>
             <h3 class="exp-bubble-title">AI HPC Infrastructure<br>Lead Engineer</h3>
@@ -224,8 +228,8 @@
               <span>NVIDIA GB200</span><span>InfiniBand</span><span>Kubernetes</span><span>Slurm</span>
             </div>
             <button class="exp-expand-btn" aria-label="Toggle details">
-              <span class="exp-expand-label">All details</span>
-              <span class="exp-plus">+</span>
+              <iconify-icon icon="isax:arrow-down" class="exp-expand-icon" width="15" height="15"></iconify-icon>
+              <span class="exp-expand-label">See all details</span>
             </button>
             <div class="exp-bubble-body">
               <ul class="exp-bullets">
@@ -234,19 +238,20 @@
                 <li>Automate cluster health monitoring, GPU utilization dashboards, and failure alerting with Python, Bash, Prometheus, and Grafana.</li>
                 <li>Coordinate with NVIDIA field engineers on firmware, driver, and OFED stack qualification for production AI workloads.</li>
               </ul>
-              <div class="exp-tags">
-                <span>Python</span><span>Linux</span><span>Prometheus</span><span>Grafana</span>
-              </div>
+              <div class="exp-tags"><span>Python</span><span>Linux</span><span>Prometheus</span><span>Grafana</span></div>
             </div>
           </div>
         </div>
 
         <!-- Lewis University — top right -->
-        <div class="exp-bubble reveal" style="--delay:80ms">
-          <div class="exp-bubble-bar" style="--bar:#2563eb"></div>
+        <div class="exp-bubble">
+          <div class="exp-bubble-glow" style="--gc:37,99,235"></div>
+          <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#2563eb,#0891b2)"></div>
           <div class="exp-bubble-inner">
             <div class="exp-bubble-top">
-              <div class="exp-bubble-badge" style="background:rgba(37,99,235,0.18);border-color:rgba(37,99,235,0.4);color:#60a5fa">L</div>
+              <div class="exp-bubble-badge" style="--bc:rgba(37,99,235,0.18);--bbd:rgba(37,99,235,0.5);--bco:#60a5fa">
+                <iconify-icon icon="isax:monitor" width="22" height="22"></iconify-icon>
+              </div>
               <span class="exp-bubble-date">Jan – May 2023</span>
             </div>
             <h3 class="exp-bubble-title">IT Graduate Assistant</h3>
@@ -255,37 +260,38 @@
               <span>Windows Server</span><span>VMware</span><span>Active Directory</span>
             </div>
             <button class="exp-expand-btn" aria-label="Toggle details">
-              <span class="exp-expand-label">All details</span>
-              <span class="exp-plus">+</span>
+              <iconify-icon icon="isax:arrow-down" class="exp-expand-icon" width="15" height="15"></iconify-icon>
+              <span class="exp-expand-label">See all details</span>
             </button>
             <div class="exp-bubble-body">
               <ul class="exp-bullets">
                 <li>Administered campus network infrastructure including Windows Server, Active Directory, and VMware virtualisation environments.</li>
                 <li>Provided Tier 2 technical support for faculty and students; resolved hardware, software, and network issues.</li>
               </ul>
-              <div class="exp-tags">
-                <span>Networking</span><span>Tier 2 Support</span>
-              </div>
+              <div class="exp-tags"><span>Networking</span><span>Tier 2 Support</span></div>
             </div>
           </div>
         </div>
 
         <!-- Education — bottom right -->
-        <div class="exp-bubble exp-bubble--edu reveal" style="--delay:160ms">
-          <div class="exp-bubble-bar" style="--bar:#be185d"></div>
+        <div class="exp-bubble exp-bubble--edu">
+          <div class="exp-bubble-glow" style="--gc:190,24,93"></div>
+          <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#be185d,#7c3aed)"></div>
           <div class="exp-bubble-inner">
             <div class="exp-bubble-top">
-              <div class="exp-bubble-badge" style="background:rgba(190,24,93,0.18);border-color:rgba(190,24,93,0.4);color:#f472b6;font-size:1.1rem">🎓</div>
+              <div class="exp-bubble-badge" style="--bc:rgba(190,24,93,0.18);--bbd:rgba(190,24,93,0.5);--bco:#f472b6">
+                <iconify-icon icon="isax:teacher" width="22" height="22"></iconify-icon>
+              </div>
               <span class="exp-bubble-date">2019 – 2025</span>
             </div>
             <h3 class="exp-bubble-title">Education</h3>
             <div class="edu-bento-item">
               <span class="edu-degree">M.S. Computer Science</span>
-              <span class="edu-school">Lewis University · 2023–2025</span>
+              <span class="edu-school">Lewis University · 2023 – 2025</span>
             </div>
             <div class="edu-bento-item" style="border-bottom:none;padding-bottom:0">
               <span class="edu-degree">B.E. Computer Science</span>
-              <span class="edu-school">Lords Institute · 2019–2022</span>
+              <span class="edu-school">Lords Institute of Engineering · 2019 – 2022</span>
             </div>
           </div>
         </div>
