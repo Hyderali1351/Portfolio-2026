@@ -571,85 +571,28 @@ if (intro && introCanvas) {
   }
   requestAnimationFrame(rafLoop);
 
-  // ── Terminal typing sequence ──────────────────────
-  const termOut  = document.getElementById("term-out");
-  const termCur  = document.getElementById("term-cur");
-  const grantedEl = document.getElementById("intro-granted");
-
-  const pause = ms => new Promise(r => setTimeout(r, ms));
-
-  function typeInto(el, text, speed) {
-    return new Promise(res => {
-      let i = 0;
-      const iv = setInterval(() => {
-        el.textContent += text[i++];
-        if (i >= text.length) { clearInterval(iv); res(); }
-      }, speed);
-    });
-  }
-
-  async function runTerminal() {
-    await pause(700);
-
-    const lines = [
-      { t: 'login: mirhyderali',   s: 55, p: 300, dim: false },
-      { t: 'password: ••••••••••', s: 60, p: 400, dim: true  },
-    ];
-
-    for (const line of lines) {
-      const el = document.createElement('div');
-      el.className = 'tline' + (line.dim ? ' tline-dim' : '');
-      termOut.appendChild(el);
-      termOut.parentElement.scrollTop = termOut.parentElement.scrollHeight;
-      await typeInto(el, line.t, line.s);
-      await pause(line.p);
-    }
-
-    termCur.style.display = 'none';
-    grantedEl.classList.add('show');
-    await pause(700);
-
-    // Particles explode outward as canvas darkens
-    exploding = true;
-    nodes.forEach(n => {
-      const angle = Math.atan2(n.y - H * 0.30, n.x - W / 2);
-      const speed = 1.8 + Math.random() * 3.5;
-      n.exVx = Math.cos(angle) * speed;
-      n.exVy = Math.sin(angle) * speed;
-    });
-
-    // Ramp canvas to black over 420ms
-    await new Promise(res => {
-      let fp = 0;
-      const iv = setInterval(() => {
-        fp = Math.min(fp + 0.048, 1);
-        overlayAlpha = fp * fp;
-        if (fp >= 1) { clearInterval(iv); res(); }
-      }, 16);
-    });
-
-    rafRunning = false;
-    intro.classList.add('out');
-    setTimeout(() => intro.remove(), 750);
-  }
-
   const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
 
-  const safetyTimer = setTimeout(() => {
-    if (intro.isConnected) {
-      intro.classList.add('out');
-      setTimeout(() => { intro.remove(); fireIntroDone(); }, 750);
-    }
-  }, 12000);
+  // After particles form MHA, open the doors
+  const HOLD_MS = 380;
+  const doorTimer = setTimeout(() => {
+    rafRunning = false;
+    intro.classList.add('door-open');
+    // Remove intro after door transition completes
+    setTimeout(() => {
+      intro.remove();
+      fireIntroDone();
+    }, 920);
+  }, SCATTER_MS + CONVERGE_MS + HOLD_MS);
 
-  runTerminal().then(() => {
-    clearTimeout(safetyTimer);
-    setTimeout(fireIntroDone, 820);
-  }).catch(() => {
-    clearTimeout(safetyTimer);
-    intro.classList.add('out');
-    setTimeout(() => { intro.remove(); fireIntroDone(); }, 750);
-  });
+  // Safety fallback
+  setTimeout(() => {
+    if (intro && intro.isConnected) {
+      clearTimeout(doorTimer);
+      intro.classList.add('door-open');
+      setTimeout(() => { intro.remove(); fireIntroDone(); }, 920);
+    }
+  }, 8000);
 }
 
 // ── Gaming / desk scene activation ──
@@ -909,9 +852,10 @@ puzzleInput.addEventListener('keydown', e => {
   // ── Stat counter animation ──
   gsap.utils.toArray(".stat-num").forEach(el => {
     const raw = el.textContent.trim();
-    const match = raw.match(/[\d.]+/);
+    const match = raw.match(/\d+\.?\d*/);
     if (!match) return;
     const end = parseFloat(match[0]);
+    if (isNaN(end)) return;
     const suffix = raw.slice(match[0].length);
     const proxy = { val: 0 };
     ScrollTrigger.create({
