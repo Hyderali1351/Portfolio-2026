@@ -1220,22 +1220,17 @@ async function handleSubmit(e) {
 }
 
 // ─────────────────────────────────────────
-// INTRO — Neon sign boot, then door reveal
+// INTRO — doors open on load
 // ─────────────────────────────────────────────────────
 {
   const intro = document.getElementById("intro");
   if (intro) {
     const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
-    // Wait for neon sequence (~3s), then open doors
     const openDoors = () => {
       intro.classList.add('door-open');
       setTimeout(() => { intro.remove(); fireIntroDone(); }, 650);
     };
-    // Neon script signals when ready; hard fallback at 5s
-    window.addEventListener('neon-ready', openDoors, { once: true });
-    setTimeout(() => {
-      if (intro.isConnected) openDoors();
-    }, 5000);
+    setTimeout(openDoors, 700);
   }
 }
 

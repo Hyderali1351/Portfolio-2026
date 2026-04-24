@@ -1154,12 +1154,6 @@ body.cur-out .cur-ring { opacity: 0; }
   z-index: 1;
 }
 
-#neon-canvas {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-}
 
 /* Two door halves that slide apart */
 #intro-door-l,
@@ -1926,27 +1920,41 @@ body.cur-out .cur-ring { opacity: 0; }
   box-shadow: 0 0 35px rgba(0,210,255,0.4), 0 0 90px rgba(0,180,255,0.15);
 }
 
-#hologram-canvas {
+/* Monitor text display */
+.s-mon-text {
   position: absolute;
   inset: 0;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18em;
+  font-family: 'JetBrains Mono', monospace;
+  pointer-events: none;
   z-index: 2;
 }
-
-/* CSS scanline overlay on top of the 3D canvas */
-.s-holo-scanlines {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 2px,
-    rgba(0,0,0,0.18) 2px,
-    rgba(0,0,0,0.18) 4px
-  );
-  mix-blend-mode: multiply;
+.s-mon-label {
+  font-size: clamp(0.38rem, 1.1vw, 0.52rem);
+  letter-spacing: 0.22em;
+  color: rgba(0, 200, 255, 0.55);
+  text-transform: uppercase;
+}
+.s-mon-name {
+  font-size: clamp(0.55rem, 1.6vw, 0.78rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #00d4ff;
+  text-shadow: 0 0 6px rgba(0,212,255,0.9), 0 0 18px rgba(0,180,255,0.5);
+}
+.s-mon-cursor {
+  font-size: clamp(0.55rem, 1.6vw, 0.78rem);
+  color: #00d4ff;
+  opacity: 0.8;
+  animation: monBlink 1.1s step-end infinite;
+}
+@keyframes monBlink {
+  0%, 100% { opacity: 0.8; }
+  50%       { opacity: 0;   }
 }
 .r-bezel:has(.r-screen.on) {
   border-color: #1e3866;
