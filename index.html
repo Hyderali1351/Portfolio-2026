@@ -302,6 +302,10 @@
           <div class="exp-bubble-glow" style="--gc:190,24,93"></div>
           <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#be185d,#7c3aed)"></div>
           <div class="exp-bubble-inner">
+            <div class="edu-grad-wrap" id="grad-canvas-wrap">
+              <canvas id="grad-canvas"></canvas>
+              <span class="edu-grad-badge">Lewis University · M.S. 2025</span>
+            </div>
             <div class="exp-bubble-top">
               <div class="exp-bubble-badge" style="--bc:rgba(190,24,93,0.18);--bbd:rgba(190,24,93,0.5);--bco:#f472b6">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M12 13L2 8l10-5 10 5-10 5z"/><path d="M6 10.6V16a6 6 0 0 0 12 0v-5.4"/></svg>
@@ -320,6 +324,90 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="section" id="projects">
+    <div class="container">
+      <h2 class="section-title reveal">My <span class="accent">Projects</span></h2>
+      <div class="projects-grid">
+        <div class="project-card reveal-scale" data-project="3d" style="--delay:0ms">
+          <div class="scratch-bg"></div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint">✦ scratch to peek</div>
+          <div class="project-content">
+            <div class="project-top">
+              <span class="project-icon">🧊</span>
+              <div class="project-links">
+                <a href="https://studio.tripo3d.ai/workspace/generate/7bd004d5-816a-4b12-9ead-73a6a7024a66" target="_blank" rel="noopener">&#60;/&#62;</a>
+              </div>
+            </div>
+            <h3>NVIDIA GB200 NVL72 — 3D Models</h3>
+            <p>Generated and optimised four production-accurate 3D models of NVIDIA GB200 NVL72 hardware using Tripo3D AI — including the BIANCA compute modules (with and without ConnectX-7), the NVL72 rack chassis, and the full compute tray with cabling. Draco-compressed for web delivery (55 MB → ~6 MB each) and integrated into an interactive Three.js viewer.</p>
+            <div class="project-tags">
+              <span>Tripo3D AI</span><span>Three.js</span><span>Draco</span><span>GLTF</span><span>NVIDIA GB200</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card reveal-scale" data-project="web" style="--delay:130ms">
+          <div class="scratch-bg"></div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint">✦ scratch to peek</div>
+          <div class="project-content">
+            <div class="project-top">
+              <span class="project-icon">🌐</span>
+              <div class="project-links">
+                <a href="https://github.com/Hyderali1351/Portfolio-2026" target="_blank">&#60;/&#62;</a>
+              </div>
+            </div>
+            <h3>Portfolio 2026</h3>
+            <p>This site — built from scratch with vanilla HTML, CSS, and JS. Features a WebGL-inspired aurora canvas background, glassmorphism design system, and an interactive 3D hardware viewer showcasing NVIDIA GB200 NVL72 hardware. The BIANCA compute module models were generated using Tripo3D AI and compressed for web with Draco.</p>
+            <div class="project-tags">
+              <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Canvas API</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card reveal-scale" data-project="ai" style="--delay:260ms">
+          <div class="scratch-bg"></div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint">✦ scratch to peek</div>
+          <div class="project-content">
+            <div class="project-top">
+              <span class="project-icon">🔬</span>
+              <div class="project-links">
+                <a href="https://github.com/Hyderali1351/genai-software-testing" target="_blank">&#60;/&#62;</a>
+              </div>
+            </div>
+            <h3>Generative AI for Software Testing</h3>
+            <p>Co-authored research paper exploring LLM-based automated test case generation. Evaluated GPT-4 and CodeLlama on real-world codebases, achieving 78% valid test coverage with minimal human input.</p>
+            <div class="project-tags">
+              <span>Python</span><span>OpenAI API</span><span>LangChain</span><span>Research</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card reveal-scale" data-project="hpc" style="--delay:390ms">
+          <div class="scratch-bg"></div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint">✦ scratch to peek</div>
+          <div class="project-content">
+            <div class="project-top">
+              <span class="project-icon">📊</span>
+              <div class="project-links">
+                <a href="https://github.com/Hyderali1351/hpc-cluster-monitor" target="_blank">&#60;/&#62;</a>
+              </div>
+            </div>
+            <h3>HPC Cluster Health Monitor</h3>
+            <p>Real-time dashboard tracking GPU utilization, temperature, InfiniBand link health, and job queues across 100+ nodes. Reduced mean-time-to-detect hardware failures from hours to minutes.</p>
+            <div class="project-tags">
+              <span>Python</span><span>Prometheus</span><span>Grafana</span><span>Bash</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:2.5rem;">
+        <a href="https://github.com/Hyderali1351" target="_blank" class="btn btn-outline">See All on GitHub</a>
       </div>
     </div>
   </section>
@@ -521,94 +609,6 @@
           </div>
 
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section class="section" id="projects">
-    <div class="container">
-      <h2 class="section-title reveal">My <span class="accent">Projects</span></h2>
-      <div class="projects-grid">
-        <div class="project-card reveal-scale" data-project="ai" style="--delay:0ms">
-          <div class="scratch-bg"></div>
-          <canvas class="scratch-canvas"></canvas>
-          <div class="scratch-hint">✦ scratch to peek</div>
-          <div class="project-content">
-            <div class="project-top">
-              <span class="project-icon">🔬</span>
-              <div class="project-links">
-                <a href="https://github.com/Hyderali1351/genai-software-testing" target="_blank">&#60;/&#62;</a>
-              </div>
-            </div>
-            <h3>Generative AI for Software Testing</h3>
-            <p>Co-authored research paper exploring LLM-based automated test case generation. Evaluated GPT-4 and CodeLlama on real-world codebases, achieving 78% valid test coverage with minimal human input.</p>
-            <div class="project-tags">
-              <span>Python</span><span>OpenAI API</span><span>LangChain</span><span>Research</span>
-            </div>
-          </div>
-        </div>
-        <div class="project-card reveal-scale" data-project="hpc" style="--delay:130ms">
-          <div class="scratch-bg"></div>
-          <canvas class="scratch-canvas"></canvas>
-          <div class="scratch-hint">✦ scratch to peek</div>
-          <div class="project-content">
-            <div class="project-top">
-              <span class="project-icon">📊</span>
-              <div class="project-links">
-                <a href="https://github.com/Hyderali1351/hpc-cluster-monitor" target="_blank">&#60;/&#62;</a>
-              </div>
-            </div>
-            <h3>HPC Cluster Health Monitor</h3>
-            <p>Real-time dashboard tracking GPU utilization, temperature, InfiniBand link health, and job queues across 100+ nodes. Reduced mean-time-to-detect hardware failures from hours to minutes.</p>
-            <div class="project-tags">
-              <span>Python</span><span>Prometheus</span><span>Grafana</span><span>Bash</span>
-            </div>
-          </div>
-        </div>
-        <div class="project-card reveal-scale" data-project="3d" style="--delay:260ms">
-          <div class="scratch-bg"></div>
-          <canvas class="scratch-canvas"></canvas>
-          <div class="scratch-hint">✦ scratch to peek</div>
-          <div class="project-content">
-            <div class="card-avatar-wrap" id="avatar-canvas-wrap">
-              <canvas id="avatar-canvas"></canvas>
-              <span class="card-avatar-badge">Tripo3D AI · Interactive</span>
-            </div>
-            <div class="project-top">
-              <span class="project-icon">🧊</span>
-              <div class="project-links">
-                <a href="https://studio.tripo3d.ai/workspace/generate/7bd004d5-816a-4b12-9ead-73a6a7024a66" target="_blank" rel="noopener">&#60;/&#62;</a>
-              </div>
-            </div>
-            <h3>NVIDIA GB200 NVL72 — 3D Models</h3>
-            <p>Generated and optimised four production-accurate 3D models of NVIDIA GB200 NVL72 hardware using Tripo3D AI — including the BIANCA compute modules (with and without ConnectX-7), the NVL72 rack chassis, and the full compute tray with cabling. Draco-compressed for web delivery (55 MB → ~6 MB each) and integrated into an interactive Three.js viewer.</p>
-            <div class="project-tags">
-              <span>Tripo3D AI</span><span>Three.js</span><span>Draco</span><span>GLTF</span><span>NVIDIA GB200</span>
-            </div>
-          </div>
-        </div>
-        <div class="project-card reveal-scale" data-project="web" style="--delay:390ms">
-          <div class="scratch-bg"></div>
-          <canvas class="scratch-canvas"></canvas>
-          <div class="scratch-hint">✦ scratch to peek</div>
-          <div class="project-content">
-            <div class="project-top">
-              <span class="project-icon">🌐</span>
-              <div class="project-links">
-                <a href="https://github.com/Hyderali1351/Portfolio-2026" target="_blank">&#60;/&#62;</a>
-              </div>
-            </div>
-            <h3>Portfolio 2026</h3>
-            <p>This site — built from scratch with vanilla HTML, CSS, and JS. Features a WebGL-inspired aurora canvas background, glassmorphism design system, and an interactive 3D hardware viewer showcasing NVIDIA GB200 NVL72 hardware. The BIANCA compute module models were generated using Tripo3D AI and compressed for web with Draco.</p>
-            <div class="project-tags">
-              <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Canvas API</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:2.5rem;">
-        <a href="https://github.com/Hyderali1351" target="_blank" class="btn btn-outline">See All on GitHub</a>
       </div>
     </div>
   </section>
@@ -1039,50 +1039,51 @@
     window.addEventListener('resize', onResize);
   </script>
 
-  <!-- ── Avatar showcase in 3D project card ── -->
+  <!-- ── Graduation model in Education bubble ── -->
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
     (() => {
-      const wrap   = document.getElementById('avatar-canvas-wrap');
-      const canvas = document.getElementById('avatar-canvas');
+      const wrap   = document.getElementById('grad-canvas-wrap');
+      const canvas = document.getElementById('grad-canvas');
       if (!wrap || !canvas) return;
 
-      let renderer, scene, camera, avatarGroup, mixer, clock, animId;
+      let renderer, scene, camera, modelGroup, mixer, clock, animId;
       let loaded = false;
 
       function getSize() {
         const r = wrap.getBoundingClientRect();
-        return { w: Math.round(r.width) || 300, h: Math.round(r.height) || 180 };
+        return { w: Math.round(r.width) || 280, h: Math.round(r.height) || 150 };
       }
 
       function init() {
         if (renderer) return;
         const { w, h } = getSize();
+        if (w < 2) return;
 
         renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setClearColor(0x000000, 0);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping      = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.25;
+        renderer.toneMappingExposure = 1.3;
         renderer.setSize(w, h);
 
         scene  = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(36, w / h, 0.01, 100);
-        camera.position.set(0, 0.8, 3.2);
-        camera.lookAt(0, 0.4, 0);
+        camera = new THREE.PerspectiveCamera(38, w / h, 0.01, 100);
+        camera.position.set(0, 0.8, 3.0);
+        camera.lookAt(0, 0.3, 0);
 
-        scene.add(new THREE.AmbientLight(0xfff5e0, 0.9));
-        const key = new THREE.DirectionalLight(0xffffff, 2.4);
+        scene.add(new THREE.AmbientLight(0xfff8e8, 1.0));
+        const key = new THREE.DirectionalLight(0xffffff, 2.2);
         key.position.set(2, 5, 4);
         scene.add(key);
-        const rim = new THREE.DirectionalLight(0x7c3aed, 1.6);
-        rim.position.set(-3, 2, -2);
+        const rim = new THREE.DirectionalLight(0xbe185d, 1.4);
+        rim.position.set(-3, 1, -2);
         scene.add(rim);
-        const fill = new THREE.PointLight(0x60a5fa, 0.5, 14);
+        const fill = new THREE.PointLight(0x7c3aed, 0.6, 12);
         fill.position.set(0, -2, 2);
         scene.add(fill);
 
@@ -1093,19 +1094,16 @@
         const loader = new GLTFLoader();
         loader.setDRACOLoader(draco);
 
-        loader.load('models/mir-avatar.glb', (gltf) => {
+        loader.load('models/graduation.glb', (gltf) => {
           const model = gltf.scene;
           const box   = new THREE.Box3().setFromObject(model);
           const cen   = box.getCenter(new THREE.Vector3());
           const siz   = box.getSize(new THREE.Vector3());
-
           model.position.sub(cen);
-          model.scale.setScalar(2.8 / siz.y);
-
-          avatarGroup = new THREE.Group();
-          avatarGroup.add(model);
-          scene.add(avatarGroup);
-
+          model.scale.setScalar(2.6 / siz.y);
+          modelGroup = new THREE.Group();
+          modelGroup.add(model);
+          scene.add(modelGroup);
           if (gltf.animations?.length) {
             mixer = new THREE.AnimationMixer(model);
             mixer.clipAction(gltf.animations[0]).play();
@@ -1126,17 +1124,13 @@
         animId = requestAnimationFrame(tick);
         if (!loaded) return;
         if (mixer) mixer.update(clock.getDelta());
-        if (avatarGroup) avatarGroup.rotation.y += 0.006;
+        if (modelGroup) modelGroup.rotation.y += 0.006;
         renderer.render(scene, camera);
       }
 
       new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          init();
-          if (!animId) tick();
-        } else {
-          if (animId) { cancelAnimationFrame(animId); animId = null; }
-        }
+        if (entries[0].isIntersecting) { init(); if (!animId) tick(); }
+        else { if (animId) { cancelAnimationFrame(animId); animId = null; } }
       }, { threshold: 0.05 }).observe(wrap);
     })();
   </script>

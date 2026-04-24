@@ -803,30 +803,6 @@ a:hover { opacity: 0.75; }
   flex: 1;
 }
 
-/* ── 3D card avatar showcase ── */
-.card-avatar-wrap {
-  position: relative;
-  width: calc(100% + 0px);
-  height: 190px;
-  border-radius: 10px;
-  overflow: hidden;
-  background: radial-gradient(ellipse at 50% 60%, rgba(124,58,237,0.22) 0%, rgba(8,5,20,0.85) 65%);
-  border: 1px solid rgba(124,58,237,0.18);
-  flex-shrink: 0;
-}
-#avatar-canvas {
-  display: block;
-}
-.card-avatar-badge {
-  position: absolute;
-  bottom: 0.55rem;
-  right: 0.7rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  color: rgba(167,139,250,0.55);
-  pointer-events: none;
-}
 
 /* ── Contact ── */
 .contact-sub { text-align: center; color: var(--text-muted); margin-bottom: 3rem; font-size: 1.05rem; }
@@ -1511,6 +1487,28 @@ body.cur-out .cur-ring { opacity: 0; }
 }
 .edu-degree { font-size: 0.9rem; font-weight: 600; color: var(--text); }
 .edu-school  { font-size: 0.77rem; color: var(--text-muted); }
+
+/* Graduation 3D model preview inside education bubble */
+.edu-grad-wrap {
+  position: relative;
+  height: 155px;
+  margin: -1.65rem -1.65rem 0;
+  overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: radial-gradient(ellipse at 50% 70%, rgba(190,24,93,0.18) 0%, rgba(8,3,18,0.9) 65%);
+  flex-shrink: 0;
+}
+#grad-canvas { display: block; }
+.edu-grad-badge {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: rgba(244,114,182,0.6);
+  pointer-events: none;
+}
 
 /* ═══════════════════════════════
    RESEARCH SECTION
