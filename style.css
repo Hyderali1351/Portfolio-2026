@@ -1491,8 +1491,8 @@ body.cur-out .cur-ring { opacity: 0; }
 .edu-grad-hero {
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;
-  max-height: 440px;
+  aspect-ratio: unset;
+  height: 240px;
   border-radius: var(--radius);
   overflow: hidden;
   background: radial-gradient(ellipse at 50% 65%, rgba(190,24,93,0.22) 0%, rgba(8,3,18,0.92) 68%);
