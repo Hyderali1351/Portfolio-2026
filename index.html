@@ -11,6 +11,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <!-- Three.js importmap — pinned version, never breaks on CDN updates -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+    }
+  }
+  </script>
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" as="script" crossorigin />
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" as="script" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -216,6 +226,19 @@
             <h3 class="exp-bubble-title" data-admin-key="exp.0.title">AI HPC Infrastructure<br>Lead Engineer</h3>
             <span class="exp-bubble-company" data-admin-key="exp.0.company">Wistron Corporation · Irving, TX</span>
             <p class="exp-bubble-blurb" data-admin-key="exp.0.blurb">Deploying NVIDIA GB200 NVL72 &amp; H100 GPU clusters for Fortune 500 AI clients — full rack lifecycle, InfiniBand fabric, and automated monitoring.</p>
+
+            <!-- GB200 board teaser — click to open 3D viewer -->
+            <div class="board-teaser" data-open-board-modal role="button" tabindex="0" aria-label="Explore the NVIDIA GB200 board in 3D">
+              <img src="images/gb200-front.png" alt="NVIDIA GB200 NVL72 AI compute board" class="board-teaser-img" loading="lazy" />
+              <div class="board-teaser-overlay">
+                <span class="board-teaser-badge">NVIDIA GB200 NVL72</span>
+                <span class="board-teaser-cta">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  Explore in 3D
+                </span>
+              </div>
+            </div>
+
             <div class="exp-tags exp-tags--preview">
               <span>NVIDIA GB200</span><span>InfiniBand</span><span>Kubernetes</span><span>Slurm</span>
             </div>
@@ -678,8 +701,187 @@
     </div>
   </div>
 
+  <!-- GB200 3D Board Modal -->
+  <div id="board-modal" class="board-modal-overlay" hidden role="dialog" aria-modal="true" aria-label="NVIDIA GB200 NVL72 3D Viewer">
+    <div class="board-modal-inner">
+      <button class="board-modal-close" id="board-modal-close" aria-label="Close 3D viewer">&times;</button>
+      <div class="board-modal-header">
+        <h3>NVIDIA GB200 NVL72</h3>
+        <p>Blackwell Architecture · AI Compute Board · Wistron Production Infrastructure</p>
+      </div>
+      <div id="board-canvas-wrap" class="board-canvas-wrap"></div>
+      <p class="board-hint">Drag to rotate &nbsp;·&nbsp; Scroll to zoom &nbsp;·&nbsp; Right-drag to pan</p>
+      <div class="board-specs">
+        <span>Blackwell Architecture</span>
+        <span>2× GB200 GPUs</span>
+        <span>NVLink 5th Gen</span>
+        <span>HBM3e Memory</span>
+        <span>NVSwitch Fabric</span>
+        <span>1000W TDP</span>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="script.js"></script>
+
+  <!-- Three.js GB200 3D Board Viewer — isolated ES module -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const overlay    = document.getElementById('board-modal');
+    const closeBtn   = document.getElementById('board-modal-close');
+    const canvasWrap = document.getElementById('board-canvas-wrap');
+    const triggers   = document.querySelectorAll('[data-open-board-modal]');
+
+    let renderer, scene, camera, controls, board, animId;
+    let initialized = false;
+    let rendering   = false;
+    let autoSpin    = true;
+
+    function init() {
+      if (initialized) return;
+      initialized = true;
+
+      const W = canvasWrap.clientWidth  || 800;
+      const H = canvasWrap.clientHeight || 420;
+
+      /* Renderer */
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(W, H);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      canvasWrap.appendChild(renderer.domElement);
+
+      /* Scene */
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x04020a);
+
+      /* Camera */
+      camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 50);
+      camera.position.set(0, 0.15, 3.6);
+
+      /* Lights */
+      const ambient = new THREE.AmbientLight(0xffffff, 0.65);
+      scene.add(ambient);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+      keyLight.position.set(3, 4, 5);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0x7c3aed, 0.55);
+      rimLight.position.set(-3, -1, -3);
+      scene.add(rimLight);
+
+      const fillLight = new THREE.PointLight(0x60a5fa, 0.7, 12);
+      fillLight.position.set(0, 3, 2);
+      scene.add(fillLight);
+
+      /* Textures */
+      const loader = new THREE.TextureLoader();
+
+      const frontTex = loader.load(
+        'images/gb200-front.png',
+        undefined, undefined,
+        () => { frontMat.color.set(0x1a1a2e); } // fallback if load fails
+      );
+      const backTex = loader.load(
+        'images/gb200-back.png',
+        undefined, undefined,
+        () => { backMat.color.set(0x1a1a2e); }
+      );
+      frontTex.colorSpace = THREE.SRGBColorSpace;
+      backTex.colorSpace  = THREE.SRGBColorSpace;
+
+      /* Materials */
+      const edgeMat  = new THREE.MeshStandardMaterial({ color: 0x1a1428, roughness: 0.75, metalness: 0.25 });
+      const frontMat = new THREE.MeshStandardMaterial({ map: frontTex, roughness: 0.35, metalness: 0.3 });
+      const backMat  = new THREE.MeshStandardMaterial({ map: backTex,  roughness: 0.45, metalness: 0.2 });
+
+      /* Board geometry — board photo is roughly 3:2 */
+      const geo = new THREE.BoxGeometry(2.55, 1.7, 0.07);
+
+      /* BoxGeometry face order: +X, -X, +Y, -Y, +Z (front), -Z (back) */
+      board = new THREE.Mesh(geo, [edgeMat, edgeMat, edgeMat, edgeMat, frontMat, backMat]);
+      board.rotation.y = 0.25; /* start slightly rotated so 3D depth is obvious */
+      scene.add(board);
+
+      /* OrbitControls */
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping  = true;
+      controls.dampingFactor  = 0.055;
+      controls.rotateSpeed    = 0.75;
+      controls.zoomSpeed      = 0.85;
+      controls.minDistance    = 1.5;
+      controls.maxDistance    = 8;
+      controls.enablePan      = true;
+
+      /* Stop auto-spin the moment the user grabs the board */
+      controls.addEventListener('start', () => { autoSpin = false; });
+    }
+
+    function animate() {
+      if (!rendering) return;
+      animId = requestAnimationFrame(animate);
+      if (autoSpin) board.rotation.y += 0.004;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function openModal() {
+      autoSpin = true;
+      /* Cancel any lingering frame from a previous close so loops don't stack */
+      if (animId) { cancelAnimationFrame(animId); animId = null; }
+      rendering = false;
+      overlay.removeAttribute('hidden');
+      /* One rAF gap so the browser registers the display change before opacity transitions */
+      requestAnimationFrame(() => {
+        overlay.classList.add('is-open');
+        init();
+        onResize();
+        rendering = true;
+        animate();
+      });
+    }
+
+    function closeModal() {
+      overlay.classList.remove('is-open');
+      rendering = false;
+      overlay.addEventListener('transitionend', () => {
+        overlay.setAttribute('hidden', '');
+      }, { once: true });
+    }
+
+    function onResize() {
+      if (!renderer) return;
+      const W = canvasWrap.clientWidth  || 800;
+      const H = canvasWrap.clientHeight || 420;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+    }
+
+    /* Wire up triggers */
+    triggers.forEach(el => {
+      el.addEventListener('click', openModal);
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !overlay.hasAttribute('hidden')) closeModal();
+    });
+
+    window.addEventListener('resize', onResize);
+  </script>
 </body>
 </html>
