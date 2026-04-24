@@ -1319,9 +1319,10 @@
 
     async function startConversation() {
       await botTyping("Hey! 👋 I'm <b>Kai</b>, Mir's little assistant.", 700);
-      await botTyping("Want to send Mir a direct message? I'll make sure he gets it!", 1000);
+      await botTyping("Got a message for Mir? Maybe an opportunity, a question — or even an idea or concern about this website? He reads everything and will make changes! Drop it here and I'll forward it straight to his inbox. 📬", 1200);
       addQuickReplies([
-        { label: '💬 Yes, send a message', value: 'yes' },
+        { label: '💬 Send a message', value: 'yes' },
+        { label: '💡 Share site feedback', value: 'yes' },
         { label: '👋 Just browsing', value: 'no' },
       ]);
     }
@@ -1336,7 +1337,7 @@
           state = STATE.AWAIT_EMAIL;
           await botTyping("What's your email address? Mir will reply to you there.", 800);
         } else {
-          await botTyping("No worries! Feel free to explore the site 😊 Click any social card to connect with Mir directly.", 800);
+          await botTyping("No worries! Feel free to explore 😊 And if you ever have a site suggestion or idea for Mir — I'm always here, just click me again!", 800);
           state = STATE.DONE;
         }
         return;
