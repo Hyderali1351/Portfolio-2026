@@ -1009,110 +1009,110 @@ if (!isTouch) (function () {
   requestAnimationFrame(drawWeb);
 })();
 
-// ── Light mode bubble canvas ──
-(function initBubbleCanvas() {
+// ── Light mode: PCB circuit grid ──
+(function initPCBCanvas() {
   const bc = document.getElementById('bubble-canvas');
   if (!bc) return;
-  const bCtx = bc.getContext('2d');
+  const ctx = bc.getContext('2d');
 
-  const COLORS = [
-    [167, 139, 250], // lavender
-    [252, 129, 109], // coral
-    [110, 231, 183], // mint
-    [147, 197, 253], // sky blue
-    [244, 114, 182], // rose
-    [251, 191,  36], // amber
-    [253, 186, 116], // peach
-    [196, 181, 253], // soft violet
-    [134, 239, 172], // light green
-    [165, 243, 252], // cyan
-  ];
+  const SPACING = 58;
+  const DOT_R   = 2.2;
+  const PR      = [100, 60, 220]; // purple-indigo
+
+  let nodes = [], edges = [], pulses = [];
+
+  function build() {
+    nodes = []; edges = [];
+    const cols = Math.ceil(bc.width  / SPACING) + 2;
+    const rows = Math.ceil(bc.height / SPACING) + 2;
+    const rng  = () => (Math.random() - 0.5) * 14;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        nodes.push({
+          x: c * SPACING + rng(),
+          y: r * SPACING + rng(),
+          phase: Math.random() * Math.PI * 2,
+          i: r * cols + c,
+        });
+      }
+    }
+
+    /* Connect ~40% of orthogonal neighbours */
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c;
+        if (c < cols - 1 && Math.random() < 0.42) edges.push([i, r * cols + c + 1]);
+        if (r < rows - 1 && Math.random() < 0.42) edges.push([i, (r + 1) * cols + c]);
+      }
+    }
+  }
 
   function resize() {
     bc.width  = window.innerWidth;
     bc.height = window.innerHeight;
+    build();
   }
   window.addEventListener('resize', resize, { passive: true });
   resize();
 
-  function mkBubble(startRandom) {
-    const r = 3 + Math.random() * 19;
-    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
-    return {
-      x:      Math.random() * window.innerWidth,
-      y:      startRandom ? Math.random() * window.innerHeight : window.innerHeight + r + 12,
-      r,
-      color:  c,
-      alpha:  0.18 + Math.random() * 0.28,
-      speed:  0.22 + Math.random() * 0.72,
-      drift:  (Math.random() - 0.5) * 0.38,
-      phase:  Math.random() * Math.PI * 2,
-      wobble: 0.18 + Math.random() * 0.48,
-    };
+  let lastSpawn = 0;
+  function spawnPulse() {
+    if (!edges.length) return;
+    const e = edges[Math.floor(Math.random() * edges.length)];
+    pulses.push({ from: e[0], to: e[1], t: 0, speed: 0.007 + Math.random() * 0.007 });
   }
 
-  const bubbles = Array.from({ length: 55 }, () => mkBubble(true));
+  function draw(ts) {
+    requestAnimationFrame(draw);
+    if (!window.__lightMode) { ctx.clearRect(0, 0, bc.width, bc.height); return; }
 
-  let lastBubbleTs = 0;
-  function drawBubbles(ts) {
-    requestAnimationFrame(drawBubbles);
-    if (!window.__lightMode) { bCtx.clearRect(0, 0, bc.width, bc.height); return; }
-    if (ts - lastBubbleTs < 33) return;
-    lastBubbleTs = ts;
+    ctx.clearRect(0, 0, bc.width, bc.height);
+    const [R, G, B] = PR;
 
-    const W = bc.width, H = bc.height;
-    bCtx.clearRect(0, 0, W, H);
+    /* Edges */
+    ctx.lineWidth = 0.7;
+    for (const [i, j] of edges) {
+      const a = nodes[i], b = nodes[j];
+      if (!a || !b) continue;
+      ctx.strokeStyle = `rgba(${R},${G},${B},0.09)`;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
 
-    bubbles.forEach(b => {
-      b.y -= b.speed;
-      b.x += Math.sin(ts * 0.0008 * b.wobble + b.phase) * b.drift;
+    /* Nodes — gentle pulse */
+    for (const n of nodes) {
+      const a = 0.14 + Math.sin(ts * 0.0012 + n.phase) * 0.06;
+      ctx.fillStyle = `rgba(${R},${G},${B},${a.toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(n.x, n.y, DOT_R, 0, Math.PI * 2); ctx.fill();
+    }
 
-      if (b.y + b.r < 0) {
-        Object.assign(b, mkBubble(false));
-        b.x = Math.random() * W;
-      }
+    /* Spawn signal pulses */
+    if (ts - lastSpawn > 700 && pulses.length < 18) { spawnPulse(); lastSpawn = ts; }
 
-      // Fade in near bottom, fade out near top
-      const fade = H * 0.13;
-      let a = b.alpha;
-      if (b.y > H - fade) a *= (H - b.y) / fade;
-      if (b.y < fade)     a *= b.y / fade;
-      if (a < 0.01) return;
+    /* Draw & advance pulses */
+    pulses = pulses.filter(p => {
+      p.t += p.speed;
+      if (p.t >= 1) return false;
+      const a = nodes[p.from], b = nodes[p.to];
+      if (!a || !b) return false;
+      const x = a.x + (b.x - a.x) * p.t;
+      const y = a.y + (b.y - a.y) * p.t;
+      const alpha = Math.sin(p.t * Math.PI);
 
-      const [r, g, bl] = b.color;
+      /* Glow halo */
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, 9);
+      grd.addColorStop(0, `rgba(${R},${G},${B},${(alpha * 0.38).toFixed(3)})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
 
-      // Soft outer glow
-      const glow = bCtx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 2.8);
-      glow.addColorStop(0, `rgba(${r},${g},${bl},${(a * 0.28).toFixed(3)})`);
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
-      bCtx.beginPath();
-      bCtx.arc(b.x, b.y, b.r * 2.8, 0, Math.PI * 2);
-      bCtx.fillStyle = glow;
-      bCtx.fill();
-
-      // Main bubble with sphere gradient (highlight top-left → colored fill → transparent edge)
-      const grad = bCtx.createRadialGradient(
-        b.x - b.r * 0.32, b.y - b.r * 0.32, b.r * 0.05,
-        b.x, b.y, b.r
-      );
-      grad.addColorStop(0,    `rgba(255,255,255,${(a * 0.72).toFixed(3)})`);
-      grad.addColorStop(0.38, `rgba(${r},${g},${bl},${(a * 0.92).toFixed(3)})`);
-      grad.addColorStop(1,    `rgba(${r},${g},${bl},${(a * 0.22).toFixed(3)})`);
-      bCtx.beginPath();
-      bCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-      bCtx.fillStyle = grad;
-      bCtx.fill();
-
-      // Small specular dot
-      if (b.r > 5) {
-        bCtx.beginPath();
-        bCtx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.18, 0, Math.PI * 2);
-        bCtx.fillStyle = `rgba(255,255,255,${(a * 0.52).toFixed(3)})`;
-        bCtx.fill();
-      }
+      /* Core dot */
+      ctx.fillStyle = `rgba(${R},${G},${B},${(alpha * 0.85).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(x, y, 2.8, 0, Math.PI * 2); ctx.fill();
+      return true;
     });
   }
-  requestAnimationFrame(drawBubbles);
+  requestAnimationFrame(draw);
 })();
 
 // ── Clock widget ──

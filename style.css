@@ -3250,14 +3250,21 @@ body.cur-out .cur-ring { opacity: 0; }
 
 /* ── Experience ── */
 [data-theme="light"] .exp-filter {
-  background: rgba(255,255,255,0.75);
-  border-color: rgba(124,58,237,0.13);
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(124,58,237,0.18);
 }
-[data-theme="light"] .exp-filter-btn:hover:not(.active) { color: rgba(124,58,237,0.8); }
+[data-theme="light"] .exp-filter-btn {
+  color: rgba(30,27,75,0.5);
+}
+[data-theme="light"] .exp-filter-btn.active {
+  color: #1e1b4b;
+  font-weight: 600;
+}
+[data-theme="light"] .exp-filter-btn:hover:not(.active) { color: rgba(124,58,237,0.85); }
 [data-theme="light"] .exp-filter-track {
-  background: rgba(124,58,237,0.13);
-  border-color: rgba(124,58,237,0.28);
-  box-shadow: 0 0 14px rgba(124,58,237,0.1), inset 0 1px 0 rgba(255,255,255,0.4);
+  background: rgba(124,58,237,0.14);
+  border-color: rgba(124,58,237,0.32);
+  box-shadow: 0 2px 14px rgba(124,58,237,0.12), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 [data-theme="light"] .exp-bubble {
   background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(244,241,255,0.98));
