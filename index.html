@@ -731,6 +731,7 @@
     import * as THREE from 'three';
     import { OrbitControls }  from 'three/addons/controls/OrbitControls.js';
     import { GLTFLoader }     from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader }    from 'three/addons/loaders/DRACOLoader.js';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
     const overlay    = document.getElementById('board-modal');
@@ -841,9 +842,12 @@
       controls.enablePan      = true;
       controls.addEventListener('start', () => { autoSpin = false; });
 
-      /* Load GLB */
+      /* Load GLB — DRACOLoader decodes the compressed geometry */
       showLoader();
+      const draco = new DRACOLoader();
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/');
       const loader = new GLTFLoader();
+      loader.setDRACOLoader(draco);
       loader.load(
         'models/gb200-board.glb',
         (gltf) => {
