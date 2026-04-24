@@ -1038,150 +1038,130 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
-    const canvas = document.getElementById('hologram-canvas');
-    const screen = document.getElementById('s-screen');
-    if (!canvas || !screen) throw new Error('hologram: missing elements');
+    const canvas    = document.getElementById('hologram-canvas');
+    const screenEl  = document.getElementById('s-screen');
+    if (!canvas || !screenEl) return;
 
-    /* ── Renderer ── */
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    /* ── Defer init until the screen element has real layout dimensions ── */
+    function getSize() {
+      const r = screenEl.getBoundingClientRect();
+      return { w: r.width || screenEl.offsetWidth || 188, h: r.height || screenEl.offsetHeight || 114 };
+    }
 
-    const W = () => screen.offsetWidth  || 188;
-    const H = () => screen.offsetHeight || 114;
-    renderer.setSize(W(), H());
+    let renderer, scene, camera, holoMat, holoGroup;
+    let inited = false;
 
-    /* ── Scene ── */
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, W() / H(), 0.01, 100);
-    camera.position.set(0, 0.3, 4.2);
+    function init() {
+      if (inited) return;
+      const { w, h } = getSize();
+      if (w < 2) return;   // not laid out yet — observer will retry
+      inited = true;
 
-    /* ── Hologram shader material ── */
-    const holoMat = new THREE.ShaderMaterial({
-      transparent: true,
-      depthWrite:  false,
-      side:        THREE.DoubleSide,
-      uniforms: {
-        uTime:    { value: 0 },
-        uFlicker: { value: 1 },
-      },
-      vertexShader: `
-        varying vec3 vNormal;
-        varying vec3 vWorldPos;
-        void main() {
-          vNormal   = normalize(normalMatrix * normal);
-          vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vNormal;
-        varying vec3 vWorldPos;
-        uniform float uTime;
-        uniform float uFlicker;
+      /* Renderer */
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setSize(w, h);
 
-        void main() {
-          /* Scanline bands scrolling upward */
-          float scan = sin(vWorldPos.y * 55.0 - uTime * 2.5) * 0.5 + 0.5;
-          scan = 0.72 + scan * 0.28;
+      /* Scene + camera */
+      scene  = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(38, w / h, 0.01, 100);
+      camera.position.set(0, 0.2, 3.8);
 
-          /* Fresnel rim — glow at silhouette edges */
-          vec3 viewDir = normalize(cameraPosition - vWorldPos);
-          float rim = 1.0 - abs(dot(normalize(vNormal), viewDir));
-          rim = pow(rim, 1.8);
-
-          /* Hologram cyan-teal colour */
-          vec3 col = mix(vec3(0.0, 0.55, 0.9), vec3(0.0, 0.95, 1.0), rim);
-
-          /* Subtle vertical data-stripe flicker */
-          float stripe = sin(vWorldPos.y * 180.0 + uTime * 8.0);
-          stripe = smoothstep(0.92, 1.0, stripe) * 0.18;
-
-          float alpha = (0.28 + rim * 0.55 + stripe) * scan * uFlicker;
-          alpha = clamp(alpha, 0.0, 0.88);
-
-          gl_FragColor = vec4(col, alpha);
-        }
-      `,
-    });
-
-    /* Wireframe layer on top */
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0x00d4ff,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.06,
-    });
-
-    /* ── Load model ── */
-    const draco = new DRACOLoader();
-    draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/');
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(draco);
-
-    let holoGroup = null;
-
-    loader.load('models/mir-hologram.glb', (gltf) => {
-      const model = gltf.scene;
-
-      /* Fit model into a unit sphere */
-      const box = new THREE.Box3().setFromObject(model);
-      const cen = box.getCenter(new THREE.Vector3());
-      const siz = box.getSize(new THREE.Vector3()).length();
-      model.position.sub(cen);
-      model.scale.setScalar(2.2 / siz);
-
-      /* Apply hologram material to every mesh */
-      model.traverse(child => {
-        if (!child.isMesh) return;
-        child.material = holoMat;
-        /* Wireframe clone */
-        const wire = new THREE.Mesh(child.geometry, wireMat);
-        child.add(wire);
+      /* Hologram shader */
+      holoMat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite:  false,
+        side:        THREE.DoubleSide,
+        uniforms: { uTime: { value: 0 }, uFlicker: { value: 1 } },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vWorldPos;
+          void main() {
+            vNormal   = normalize(normalMatrix * normal);
+            vWorldPos = (modelMatrix * vec4(position,1.0)).xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          }`,
+        fragmentShader: `
+          varying vec3 vNormal;
+          varying vec3 vWorldPos;
+          uniform float uTime;
+          uniform float uFlicker;
+          void main() {
+            float scan = sin(vWorldPos.y * 55.0 - uTime * 2.5) * 0.5 + 0.5;
+            scan = 0.72 + scan * 0.28;
+            vec3 viewDir = normalize(cameraPosition - vWorldPos);
+            float rim = 1.0 - abs(dot(normalize(vNormal), viewDir));
+            rim = pow(rim, 1.8);
+            vec3 col = mix(vec3(0.0,0.55,0.9), vec3(0.0,0.95,1.0), rim);
+            float stripe = smoothstep(0.92,1.0, sin(vWorldPos.y*180.0+uTime*8.0)) * 0.18;
+            float alpha  = clamp((0.28 + rim*0.55 + stripe) * scan * uFlicker, 0.0, 0.88);
+            gl_FragColor = vec4(col, alpha);
+          }`,
       });
 
-      holoGroup = new THREE.Group();
-      holoGroup.add(model);
-      scene.add(holoGroup);
-    });
+      const wireMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.07 });
 
-    /* ── Resize observer ── */
-    new ResizeObserver(() => {
-      renderer.setSize(W(), H());
-      camera.aspect = W() / H();
-      camera.updateProjectionMatrix();
-    }).observe(screen);
+      /* Load model */
+      const draco = new DRACOLoader();
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/');
+      const loader = new GLTFLoader();
+      loader.setDRACOLoader(draco);
 
-    /* ── Animate ── */
-    let lastT = 0;
-    let flickerNext = 0;
-    let flickerVal  = 1;
+      loader.load('models/mir-hologram.glb', (gltf) => {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model);
+        const cen = box.getCenter(new THREE.Vector3());
+        const siz = box.getSize(new THREE.Vector3()).length();
+        model.position.sub(cen);
+        model.scale.setScalar(2.4 / siz);
+        model.traverse(child => {
+          if (!child.isMesh) return;
+          child.material = holoMat;
+          child.add(new THREE.Mesh(child.geometry, wireMat));
+        });
+        holoGroup = new THREE.Group();
+        holoGroup.add(model);
+        scene.add(holoGroup);
+      });
 
-    function tick(ts) {
+      /* Resize when screen changes size */
+      new ResizeObserver(() => {
+        const { w: nw, h: nh } = getSize();
+        if (nw < 2) return;
+        renderer.setSize(nw, nh);
+        camera.aspect = nw / nh;
+        camera.updateProjectionMatrix();
+      }).observe(screenEl);
+
+      /* Animation loop */
+      let lastT = 0, flickerNext = 0, flickerVal = 1;
+      function tick(ts) {
+        requestAnimationFrame(tick);
+        if (ts - lastT < 30) return;
+        lastT = ts;
+        const t = ts * 0.001;
+        holoMat.uniforms.uTime.value = t;
+        if (t > flickerNext) {
+          flickerVal  = Math.random() > 0.85 ? 0.55 + Math.random() * 0.45 : 1.0;
+          flickerNext = t + 0.08 + Math.random() * 2.5;
+        }
+        holoMat.uniforms.uFlicker.value += (flickerVal - holoMat.uniforms.uFlicker.value) * 0.18;
+        if (holoGroup) {
+          holoGroup.rotation.y  = t * 0.42;
+          holoGroup.position.y  = Math.sin(t * 0.7) * 0.06;
+        }
+        renderer.render(scene, camera);
+      }
       requestAnimationFrame(tick);
-      if (ts - lastT < 30) return;   // ~33 fps
-      lastT = ts;
-
-      const t = ts * 0.001;
-      holoMat.uniforms.uTime.value = t;
-
-      /* Random flicker bursts */
-      if (t > flickerNext) {
-        flickerVal  = Math.random() > 0.85 ? 0.55 + Math.random() * 0.45 : 1.0;
-        flickerNext = t + 0.08 + Math.random() * 2.5;
-      }
-      holoMat.uniforms.uFlicker.value += (flickerVal - holoMat.uniforms.uFlicker.value) * 0.18;
-
-      if (holoGroup) {
-        holoGroup.rotation.y = t * 0.42;
-        /* Gentle bob */
-        holoGroup.position.y = Math.sin(t * 0.7) * 0.06;
-      }
-
-      renderer.render(scene, camera);
     }
-    requestAnimationFrame(tick);
+
+    /* Try immediately, then watch for when the element gains size (reveal animation) */
+    init();
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) init();
+    }, { threshold: 0.1 }).observe(screenEl);
   </script>
 </body>
 </html>
