@@ -1261,13 +1261,23 @@
     const hintBubble = document.getElementById('chat-hint-bubble');
 
     // ── Hint system ──
-    const HINTS = [
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    const HINTS_DESKTOP = [
       'Try typing <b>sudo</b> anywhere on the page... 🤫',
       'Check the gaming monitor — it shows whatever you type! ⌨️',
       'Click the spinning cube in Experience to see NVIDIA GB200 in 3D 🧊',
       'Scratch the project cards to peek inside ✦',
       'Want to send Mir a message? Just click me! 💬',
     ];
+    const HINTS_MOBILE = [
+      '🖥️ Visit on desktop for the full experience!',
+      'This site has 3D models, hidden easter eggs & more — best on desktop 💻',
+      '✨ On desktop you can interact with live NVIDIA hardware in 3D!',
+      '⌨️ There\'s a secret keyboard easter egg — try it on desktop!',
+      'Want to reach Mir? Click me to send a message 💬',
+    ];
+    const HINTS = isMobile ? HINTS_MOBILE : HINTS_DESKTOP;
     let hintIdx = 0;
 
     function showHint() {
