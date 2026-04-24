@@ -571,6 +571,10 @@
           <canvas class="scratch-canvas"></canvas>
           <div class="scratch-hint">✦ scratch to peek</div>
           <div class="project-content">
+            <div class="card-avatar-wrap" id="avatar-canvas-wrap">
+              <canvas id="avatar-canvas"></canvas>
+              <span class="card-avatar-badge">Tripo3D AI · Interactive</span>
+            </div>
             <div class="project-top">
               <span class="project-icon">🧊</span>
               <div class="project-links">
@@ -1033,6 +1037,108 @@
       if (e.key === 'ArrowLeft'  && !overlay.hasAttribute('hidden')) goTo(currentIdx - 1);
     });
     window.addEventListener('resize', onResize);
+  </script>
+
+  <!-- ── Avatar showcase in 3D project card ── -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+    (() => {
+      const wrap   = document.getElementById('avatar-canvas-wrap');
+      const canvas = document.getElementById('avatar-canvas');
+      if (!wrap || !canvas) return;
+
+      let renderer, scene, camera, avatarGroup, mixer, clock, animId;
+      let loaded = false;
+
+      function getSize() {
+        const r = wrap.getBoundingClientRect();
+        return { w: Math.round(r.width) || 300, h: Math.round(r.height) || 180 };
+      }
+
+      function init() {
+        if (renderer) return;
+        const { w, h } = getSize();
+
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping      = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.25;
+        renderer.setSize(w, h);
+
+        scene  = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(36, w / h, 0.01, 100);
+        camera.position.set(0, 0.8, 3.2);
+        camera.lookAt(0, 0.4, 0);
+
+        scene.add(new THREE.AmbientLight(0xfff5e0, 0.9));
+        const key = new THREE.DirectionalLight(0xffffff, 2.4);
+        key.position.set(2, 5, 4);
+        scene.add(key);
+        const rim = new THREE.DirectionalLight(0x7c3aed, 1.6);
+        rim.position.set(-3, 2, -2);
+        scene.add(rim);
+        const fill = new THREE.PointLight(0x60a5fa, 0.5, 14);
+        fill.position.set(0, -2, 2);
+        scene.add(fill);
+
+        clock = new THREE.Clock();
+
+        const draco = new DRACOLoader();
+        draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/');
+        const loader = new GLTFLoader();
+        loader.setDRACOLoader(draco);
+
+        loader.load('models/mir-avatar.glb', (gltf) => {
+          const model = gltf.scene;
+          const box   = new THREE.Box3().setFromObject(model);
+          const cen   = box.getCenter(new THREE.Vector3());
+          const siz   = box.getSize(new THREE.Vector3());
+
+          model.position.sub(cen);
+          model.scale.setScalar(2.8 / siz.y);
+
+          avatarGroup = new THREE.Group();
+          avatarGroup.add(model);
+          scene.add(avatarGroup);
+
+          if (gltf.animations?.length) {
+            mixer = new THREE.AnimationMixer(model);
+            mixer.clipAction(gltf.animations[0]).play();
+          }
+          loaded = true;
+        });
+
+        new ResizeObserver(() => {
+          if (!renderer) return;
+          const { w: nw, h: nh } = getSize();
+          renderer.setSize(nw, nh);
+          camera.aspect = nw / nh;
+          camera.updateProjectionMatrix();
+        }).observe(wrap);
+      }
+
+      function tick() {
+        animId = requestAnimationFrame(tick);
+        if (!loaded) return;
+        if (mixer) mixer.update(clock.getDelta());
+        if (avatarGroup) avatarGroup.rotation.y += 0.006;
+        renderer.render(scene, camera);
+      }
+
+      new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          init();
+          if (!animId) tick();
+        } else {
+          if (animId) { cancelAnimationFrame(animId); animId = null; }
+        }
+      }, { threshold: 0.05 }).observe(wrap);
+    })();
   </script>
 </body>
 </html>

@@ -803,6 +803,31 @@ a:hover { opacity: 0.75; }
   flex: 1;
 }
 
+/* ── 3D card avatar showcase ── */
+.card-avatar-wrap {
+  position: relative;
+  width: calc(100% + 0px);
+  height: 190px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 60%, rgba(124,58,237,0.22) 0%, rgba(8,5,20,0.85) 65%);
+  border: 1px solid rgba(124,58,237,0.18);
+  flex-shrink: 0;
+}
+#avatar-canvas {
+  display: block;
+}
+.card-avatar-badge {
+  position: absolute;
+  bottom: 0.55rem;
+  right: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: rgba(167,139,250,0.55);
+  pointer-events: none;
+}
+
 /* ── Contact ── */
 .contact-sub { text-align: center; color: var(--text-muted); margin-bottom: 3rem; font-size: 1.05rem; }
 .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; align-items: start; }
