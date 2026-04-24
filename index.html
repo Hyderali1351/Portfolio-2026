@@ -701,24 +701,23 @@
     </div>
   </div>
 
-  <!-- GB200 3D Board Modal -->
-  <div id="board-modal" class="board-modal-overlay" hidden role="dialog" aria-modal="true" aria-label="NVIDIA GB200 NVL72 3D Viewer">
+  <!-- NVIDIA Hardware 3D Viewer Modal -->
+  <div id="board-modal" class="board-modal-overlay" hidden role="dialog" aria-modal="true" aria-label="NVIDIA Hardware 3D Viewer">
     <div class="board-modal-inner">
-      <button class="board-modal-close" id="board-modal-close" aria-label="Close 3D viewer">&times;</button>
+      <button class="board-modal-close" id="board-modal-close" aria-label="Close viewer">&times;</button>
       <div class="board-modal-header">
-        <h3>NVIDIA GB200 NVL72</h3>
-        <p>Blackwell Architecture · AI Compute Board · Wistron Production Infrastructure</p>
+        <h3 id="board-title"></h3>
+        <p id="board-subtitle"></p>
       </div>
       <div id="board-canvas-wrap" class="board-canvas-wrap"></div>
-      <p class="board-hint">Drag to rotate &nbsp;·&nbsp; Scroll to zoom &nbsp;·&nbsp; Right-drag to pan</p>
-      <div class="board-specs">
-        <span>Blackwell Architecture</span>
-        <span>2× GB200 GPUs</span>
-        <span>NVLink 5th Gen</span>
-        <span>HBM3e Memory</span>
-        <span>NVSwitch Fabric</span>
-        <span>1000W TDP</span>
+      <p id="board-description" class="board-description"></p>
+      <div class="board-nav">
+        <button class="board-nav-btn" id="board-prev" aria-label="Previous">&#8592; Prev</button>
+        <span class="board-nav-counter" id="board-counter">1 / 2</span>
+        <button class="board-nav-btn board-nav-btn--next" id="board-next" aria-label="Next">Next &#8594;</button>
       </div>
+      <p class="board-hint">Drag to rotate &nbsp;·&nbsp; Scroll to zoom &nbsp;·&nbsp; Right-drag to pan</p>
+      <div class="board-specs" id="board-specs"></div>
     </div>
   </div>
 
@@ -726,67 +725,79 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="script.js"></script>
 
-  <!-- Three.js GB200 3D Board Viewer — isolated ES module -->
+  <!-- Three.js NVIDIA Hardware 3D Viewer — isolated ES module -->
   <script type="module">
     import * as THREE from 'three';
-    import { OrbitControls }  from 'three/addons/controls/OrbitControls.js';
-    import { GLTFLoader }     from 'three/addons/loaders/GLTFLoader.js';
-    import { DRACOLoader }    from 'three/addons/loaders/DRACOLoader.js';
+    import { OrbitControls }   from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader }      from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader }     from 'three/addons/loaders/DRACOLoader.js';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-    const overlay    = document.getElementById('board-modal');
-    const closeBtn   = document.getElementById('board-modal-close');
-    const canvasWrap = document.getElementById('board-canvas-wrap');
-    const triggers   = document.querySelectorAll('[data-open-board-modal]');
+    /* ── Hardware catalogue ─────────────────────────────────────────── */
+    const ITEMS = [
+      {
+        title:    'NVIDIA GB200 Grace Blackwell Superchip',
+        subtitle: 'Blackwell Architecture · The chip I bring online at Wistron',
+        desc:     'Two Blackwell GPUs fused to a Grace CPU via NVLink-C2C — 40 PFLOPS of AI compute with 372 GB of HBM3e memory running at 16 TB/s bandwidth. This is the board I configure, validate, and commission for Fortune 500 AI clients.',
+        specs:    ['40 PFLOPS (NVfp4)', '372 GB HBM3e', '16 TB/s Bandwidth', 'NVLink-C2C', 'Blackwell Architecture'],
+        model:    'models/gb200-board.glb',
+      },
+      {
+        title:    'NVIDIA GB200 NVL72 Compute Tray',
+        subtitle: '72 Blackwell GPUs · Rack-Scale AI Infrastructure',
+        desc:     '36 Grace CPUs and 72 Blackwell GPUs in one liquid-cooled rack, linked by 130 TB/s NVLink fabric — 1,440 PFLOPS total and 30× faster LLM inference than H100. I rack, cable, and commission these from bare metal to production at Wistron.',
+        specs:    ['1,440 PFLOPS', '13.4 TB GPU Memory', '72 Blackwell GPUs', '130 TB/s NVLink', 'Liquid Cooled'],
+        model:    'models/nvl72-tray.glb',
+      },
+    ];
 
-    let renderer, scene, camera, controls, model, animId;
-    let initialized = false;
-    let rendering   = false;
-    let autoSpin    = true;
+    /* ── DOM refs ───────────────────────────────────────────────────── */
+    const overlay     = document.getElementById('board-modal');
+    const closeBtn    = document.getElementById('board-modal-close');
+    const canvasWrap  = document.getElementById('board-canvas-wrap');
+    const elTitle     = document.getElementById('board-title');
+    const elSubtitle  = document.getElementById('board-subtitle');
+    const elDesc      = document.getElementById('board-description');
+    const elCounter   = document.getElementById('board-counter');
+    const elSpecs     = document.getElementById('board-specs');
+    const btnPrev     = document.getElementById('board-prev');
+    const btnNext     = document.getElementById('board-next');
+    const triggers    = document.querySelectorAll('[data-open-board-modal]');
 
-    /* Loading bar elements — injected once */
-    let loadBar, loadWrap;
+    /* ── State ──────────────────────────────────────────────────────── */
+    let renderer, scene, camera, controls, animId;
+    let initialized   = false;
+    let rendering     = false;
+    let autoSpin      = true;
+    let currentIdx    = 0;
+    let transitioning = false;
+    const modelCache  = {};   /* { path: THREE.Group } */
 
-    function showLoader() {
-      loadWrap = document.createElement('div');
-      loadWrap.style.cssText = `
-        position:absolute;inset:0;display:flex;flex-direction:column;
-        align-items:center;justify-content:center;gap:1rem;
-        background:#04020a;z-index:2;border-radius:12px;pointer-events:none;
-      `;
-      loadBar = document.createElement('div');
-      loadBar.style.cssText = `
-        width:200px;height:3px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;
-      `;
-      const fill = document.createElement('div');
-      fill.id = 'board-load-fill';
-      fill.style.cssText = `height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#60a5fa);transition:width 0.2s;`;
-      loadBar.appendChild(fill);
-      const label = document.createElement('p');
-      label.id = 'board-load-label';
-      label.style.cssText = `color:rgba(255,255,255,0.45);font-size:0.78rem;letter-spacing:0.06em;font-family:inherit;`;
-      label.textContent = 'Loading 3D model…';
-      loadWrap.appendChild(loadBar);
-      loadWrap.appendChild(label);
-      canvasWrap.style.position = 'relative';
-      canvasWrap.appendChild(loadWrap);
+    /* ── Shared loader (created once after init) ────────────────────── */
+    let gltfLoader;
+
+    /* ── Loading overlay ────────────────────────────────────────────── */
+    function makeLoader() {
+      const wrap = document.createElement('div');
+      wrap.className = 'board-loader';
+      wrap.innerHTML = `
+        <div class="board-loader-bar"><div class="board-loader-fill" id="blf"></div></div>
+        <p class="board-loader-label" id="bll">Loading 3D model…</p>`;
+      canvasWrap.appendChild(wrap);
+      return wrap;
     }
-
-    function updateLoader(pct) {
-      const fill  = document.getElementById('board-load-fill');
-      const label = document.getElementById('board-load-label');
+    function setLoaderPct(wrap, pct) {
+      const fill  = wrap.querySelector('#blf');
+      const label = wrap.querySelector('#bll');
       if (fill)  fill.style.width = pct + '%';
       if (label) label.textContent = pct < 100 ? `Loading… ${pct}%` : 'Almost ready…';
     }
-
-    function hideLoader() {
-      if (loadWrap) {
-        loadWrap.style.transition = 'opacity 0.4s';
-        loadWrap.style.opacity = '0';
-        setTimeout(() => loadWrap?.remove(), 420);
-      }
+    function removeLoader(wrap) {
+      wrap.style.opacity = '0';
+      setTimeout(() => wrap.remove(), 400);
     }
 
+    /* ── Three.js init (runs once on first open) ────────────────────── */
     function init() {
       if (initialized) return;
       initialized = true;
@@ -794,119 +805,158 @@
       const W = canvasWrap.clientWidth  || 800;
       const H = canvasWrap.clientHeight || 420;
 
-      /* Renderer */
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(W, H);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.toneMapping      = THREE.ACESFilmicToneMapping;
+      renderer.outputColorSpace    = THREE.SRGBColorSpace;
+      renderer.toneMapping         = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.1;
       canvasWrap.appendChild(renderer.domElement);
 
-      /* Scene */
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x04020a);
 
-      /* Environment — RoomEnvironment gives PBR materials proper reflections */
       const pmrem = new THREE.PMREMGenerator(renderer);
       scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
       pmrem.dispose();
 
-      /* Camera */
       camera = new THREE.PerspectiveCamera(42, W / H, 0.01, 100);
       camera.position.set(0, 0.5, 4);
 
-      /* Lights */
       scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-
       const key = new THREE.DirectionalLight(0xffffff, 1.8);
       key.position.set(4, 6, 6);
       scene.add(key);
-
       const rim = new THREE.DirectionalLight(0x7c3aed, 0.6);
       rim.position.set(-4, -2, -4);
       scene.add(rim);
-
       const fill = new THREE.PointLight(0x60a5fa, 0.8, 20);
       fill.position.set(-2, 4, 2);
       scene.add(fill);
 
-      /* OrbitControls */
       controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping  = true;
-      controls.dampingFactor  = 0.055;
-      controls.rotateSpeed    = 0.75;
-      controls.zoomSpeed      = 0.85;
-      controls.minDistance    = 0.5;
-      controls.maxDistance    = 15;
-      controls.enablePan      = true;
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.055;
+      controls.rotateSpeed   = 0.75;
+      controls.zoomSpeed     = 0.85;
+      controls.minDistance   = 0.3;
+      controls.maxDistance   = 20;
+      controls.enablePan     = true;
       controls.addEventListener('start', () => { autoSpin = false; });
 
-      /* Load GLB — DRACOLoader decodes the compressed geometry */
-      showLoader();
       const draco = new DRACOLoader();
       draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/');
-      const loader = new GLTFLoader();
-      loader.setDRACOLoader(draco);
-      loader.load(
-        'models/gb200-board.glb',
+      gltfLoader = new GLTFLoader();
+      gltfLoader.setDRACOLoader(draco);
+    }
+
+    /* ── Fit a loaded scene to the camera ───────────────────────────── */
+    function fitModel(obj) {
+      const box    = new THREE.Box3().setFromObject(obj);
+      const size   = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      obj.position.sub(center);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale  = 3.0 / maxDim;
+      obj.scale.setScalar(scale);
+      obj.rotation.y = 0.4;
+      camera.position.set(0, 0.3, maxDim * scale * 2.2);
+      controls.minDistance = maxDim * scale * 0.3;
+      controls.maxDistance = maxDim * scale * 12;
+      controls.reset();
+    }
+
+    /* ── Load a model (uses cache) ──────────────────────────────────── */
+    function loadItem(item, onDone) {
+      if (modelCache[item.model]) {
+        onDone(modelCache[item.model]);
+        return;
+      }
+      const loaderEl = makeLoader();
+      gltfLoader.load(
+        item.model,
         (gltf) => {
-          /* Auto-center and auto-fit to camera */
-          const box    = new THREE.Box3().setFromObject(gltf.scene);
-          const size   = box.getSize(new THREE.Vector3());
-          const center = box.getCenter(new THREE.Vector3());
-
-          gltf.scene.position.sub(center); /* center at origin */
-
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale  = 3.0 / maxDim;
-          gltf.scene.scale.setScalar(scale);
-
-          /* Slight initial rotation so depth is immediately obvious */
-          gltf.scene.rotation.y = 0.4;
-
-          model = gltf.scene;
-          scene.add(model);
-
-          /* Pull camera back to fit the scaled model */
-          camera.position.set(0, 0.3, maxDim * scale * 2.2);
-          controls.minDistance = maxDim * scale * 0.4;
-          controls.maxDistance = maxDim * scale * 10;
-
-          hideLoader();
-          updateLoader(100);
+          modelCache[item.model] = gltf.scene;
+          removeLoader(loaderEl);
+          onDone(gltf.scene);
         },
         (xhr) => {
-          if (xhr.lengthComputable) {
-            updateLoader(Math.round((xhr.loaded / xhr.total) * 100));
-          }
+          if (xhr.lengthComputable)
+            setLoaderPct(loaderEl, Math.round((xhr.loaded / xhr.total) * 100));
         },
-        (err) => {
-          console.error('GLB load error:', err);
-          hideLoader();
-        }
+        (err) => { console.error('GLB load error:', err); removeLoader(loaderEl); }
       );
     }
 
+    /* ── Update text UI for current item ────────────────────────────── */
+    function updateUI(idx) {
+      const item  = ITEMS[idx];
+      elTitle.textContent    = item.title;
+      elSubtitle.textContent = item.subtitle;
+      elDesc.textContent     = item.desc;
+      elCounter.textContent  = `${idx + 1} / ${ITEMS.length}`;
+      elSpecs.innerHTML      = item.specs.map(s => `<span>${s}</span>`).join('');
+      btnPrev.disabled = idx === 0;
+      btnNext.disabled = idx === ITEMS.length - 1;
+    }
+
+    /* ── Swap to a different model with crossfade ───────────────────── */
+    function goTo(idx) {
+      if (idx === currentIdx || transitioning) return;
+      transitioning = true;
+      autoSpin = true;
+
+      /* Fade canvas out */
+      canvasWrap.classList.add('is-transitioning');
+
+      setTimeout(() => {
+        /* Remove current model from scene */
+        const prev = modelCache[ITEMS[currentIdx].model];
+        if (prev) scene.remove(prev);
+
+        currentIdx = idx;
+        updateUI(idx);
+
+        loadItem(ITEMS[idx], (obj) => {
+          fitModel(obj);
+          scene.add(obj);
+          /* Fade canvas back in */
+          canvasWrap.classList.remove('is-transitioning');
+          transitioning = false;
+        });
+      }, 320);
+    }
+
+    /* ── Animate loop ───────────────────────────────────────────────── */
     function animate() {
       if (!rendering) return;
       animId = requestAnimationFrame(animate);
-      if (autoSpin && model) model.rotation.y += 0.004;
+      const active = modelCache[ITEMS[currentIdx].model];
+      if (autoSpin && active) active.rotation.y += 0.004;
       controls.update();
       renderer.render(scene, camera);
     }
 
+    /* ── Open / close ───────────────────────────────────────────────── */
     function openModal() {
-      autoSpin = true;
+      autoSpin    = true;
+      currentIdx  = 0;
       if (animId) { cancelAnimationFrame(animId); animId = null; }
       rendering = false;
       overlay.removeAttribute('hidden');
+      updateUI(0);
+
       requestAnimationFrame(() => {
         overlay.classList.add('is-open');
         init();
         onResize();
-        rendering = true;
-        animate();
+
+        loadItem(ITEMS[0], (obj) => {
+          fitModel(obj);
+          scene.add(obj);
+          rendering = true;
+          animate();
+        });
       });
     }
 
@@ -915,6 +965,11 @@
       rendering = false;
       overlay.addEventListener('transitionend', () => {
         overlay.setAttribute('hidden', '');
+        /* Clear scene of models so they re-fit on next open */
+        ITEMS.forEach(item => {
+          const obj = modelCache[item.model];
+          if (obj) scene.remove(obj);
+        });
       }, { once: true });
     }
 
@@ -927,6 +982,7 @@
       renderer.setSize(W, H);
     }
 
+    /* ── Event wiring ───────────────────────────────────────────────── */
     triggers.forEach(el => {
       el.addEventListener('click', openModal);
       el.addEventListener('keydown', e => {
@@ -934,10 +990,14 @@
       });
     });
 
+    btnPrev.addEventListener('click', () => goTo(currentIdx - 1));
+    btnNext.addEventListener('click', () => goTo(currentIdx + 1));
     closeBtn.addEventListener('click', closeModal);
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && !overlay.hasAttribute('hidden')) closeModal();
+      if (e.key === 'ArrowRight' && !overlay.hasAttribute('hidden')) goTo(currentIdx + 1);
+      if (e.key === 'ArrowLeft'  && !overlay.hasAttribute('hidden')) goTo(currentIdx - 1);
     });
     window.addEventListener('resize', onResize);
   </script>

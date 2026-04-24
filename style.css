@@ -3552,12 +3552,90 @@ body.cur-out .cur-ring { opacity: 0; }
   border: 1px solid rgba(255,255,255,0.08);
   position: relative;
   touch-action: none;
+  transition: opacity 0.32s ease;
 }
+.board-canvas-wrap.is-transitioning { opacity: 0; }
 .board-canvas-wrap canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
   touch-action: none;
+}
+
+/* Loading overlay (injected by JS) */
+.board-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  background: #04020a;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.board-loader-bar {
+  width: 180px;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.board-loader-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #7c3aed, #60a5fa);
+  transition: width 0.2s ease;
+}
+.board-loader-label {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  font-family: inherit;
+}
+
+/* Description */
+.board-description {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+/* Prev / Next nav */
+.board-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.board-nav-btn {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  padding: 0.42rem 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background var(--transition), transform var(--transition), opacity var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.board-nav-btn:hover:not(:disabled) { background: var(--glass-hover); transform: translateX(-3px); }
+.board-nav-btn--next:hover:not(:disabled) { transform: translateX(3px); }
+.board-nav-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+.board-nav-counter {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  min-width: 3rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .board-hint {
