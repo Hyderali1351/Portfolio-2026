@@ -1287,106 +1287,253 @@
 
     // ── Knowledge base ──
     const KB = [
-      {
-        match: /^(hi+|hey+|hello|sup|yo|hiya|howdy|good\s*(morning|evening|afternoon|day))/i,
-        reply: ["Hey! 😊 Ask me anything about Mir — his work, skills, projects, or background. Or type <b>send message</b> to reach him directly!"]
-      },
-      {
-        match: /who (is|are|was) mir|who('s| is) he|about mir|tell me about (him|mir)|introduce|mir hyder|background|bio/i,
-        reply: ["Mir Hyder Ali is an <b>AI HPC Infrastructure Lead Engineer</b> at <b>Wistron Corporation</b> in Irving, Texas. He specialises in large-scale GPU clusters — NVIDIA GB200 NVL72 and H100 systems. He also holds an M.S. in Computer Science from Lewis University and has co-authored published AI research. 🚀"]
-      },
-      {
-        match: /education|degree|university|college|school|masters?|m\.s\.?|bachelor|b\.e\.?|lewis|lords|study|graduate|graduation/i,
-        reply: ["Mir holds an <b>M.S. in Computer Science</b> from Lewis University (2023–2025) and a <b>B.E. in Computer Science</b> from Lords Institute of Engineering & Technology (2019–2022). 🎓"]
-      },
-      {
-        match: /experience|work(ing| history)?|job|career|employ|wistron|company|position|role|title|current(ly)?/i,
-        reply: ["Mir is the <b>AI HPC Infrastructure Lead Engineer</b> at <b>Wistron Corporation</b>, Irving TX. He manages 100+ GPU nodes (GB200 NVL72 & H100), InfiniBand fabric, Slurm job queues, and built a real-time monitoring system that cut hardware failure detection from ~2 hours to under 5 minutes. 💪"]
-      },
-      {
-        match: /skill|tech(nology|stack)?|know|language|tool|program|cod(e|ing)|expertise|good at|what can he do|proficien/i,
-        reply: ["Mir's stack includes: <b>NVIDIA GPU infrastructure</b> (GB200, NVL72, H100), <b>HPC cluster management</b>, <b>InfiniBand networking</b> (HDR/NDR), <b>Prometheus & Grafana</b>, <b>DCGM telemetry</b>, <b>Python & Bash</b>, <b>Slurm</b>, <b>Kubernetes</b>, and <b>Three.js / WebGL</b> for 3D web. 🛠️"]
-      },
-      {
-        match: /project|built|creat|made|portfolio|hpc.*monitor|monitor|cluster|3d model|showcase/i,
-        reply: ["Key projects: 🚀<br>• <b>HPC Cluster Monitor</b> — Prometheus/Grafana for 100+ GPU nodes<br>• <b>GenAI for Software Testing</b> — co-authored research, 78% valid test coverage<br>• <b>This Portfolio</b> — Three.js with live NVIDIA 3D models<br>Check the Projects section for full detail!"]
-      },
-      {
-        match: /research|paper|publicat|publish|genai|graph.*test|unit test|llm|gpt|codellama|lewis.*research/i,
-        reply: ["Mir co-authored <b>\"The Use of GenAI in Graph-Based Unit Testing\"</b> at Lewis University. Using call graphs + CFGs as LLM context, the system achieved <b>78% valid test coverage</b> — 2.3× better than naive prompting. Both GPT-4 and CodeLlama-34B were evaluated. 📄"]
-      },
-      {
-        match: /nvidia|gpu|gb200|nvl72|h100|hpc|infiniband|slurm|dcgm|nvlink|cuda|tensor/i,
-        reply: ["Mir works hands-on with <b>NVIDIA's latest hardware</b> — GB200 NVL72 racks (72 GPUs via NVLink), H100 clusters, InfiniBand HDR/NDR fabric, and DCGM for deep telemetry. He manages 100+ nodes at Wistron. You can explore a real 3D GB200 model in the Experience section! 🖥️"]
-      },
-      {
-        match: /contact|reach|email|message|talk to|connect|how.*find|get in touch/i,
-        reply: ["You can reach Mir at:<br>📧 mirhyderali619@gmail.com<br>💼 <a href='https://linkedin.com/in/mir-hyder-ali' target='_blank'>LinkedIn</a><br>💻 <a href='https://github.com/Hyderali1351' target='_blank'>GitHub</a><br><br>Or just type <b>send message</b> and I'll forward it to him! 📬"]
-      },
-      {
-        match: /linkedin/i,
-        reply: ["Mir's LinkedIn is <a href='https://linkedin.com/in/mir-hyder-ali' target='_blank'><b>linkedin.com/in/mir-hyder-ali</b></a> 💼"]
-      },
-      {
-        match: /github/i,
-        reply: ["Mir's GitHub is <a href='https://github.com/Hyderali1351' target='_blank'><b>github.com/Hyderali1351</b></a> 💻"]
-      },
-      {
-        match: /instagram/i,
-        reply: ["Mir's Instagram is <a href='https://instagram.com/zaid_hyder.ali' target='_blank'><b>@zaid_hyder.ali</b></a> 📸"]
-      },
-      {
-        match: /twitter|x\.com/i,
-        reply: ["Mir's X (Twitter) is <a href='https://x.com/Mirhyderali619' target='_blank'><b>@Mirhyderali619</b></a> 🐦"]
-      },
-      {
-        match: /snapchat|snap/i,
-        reply: ["Mir's Snapchat is <b>zaid_hyder.ali</b> 👻"]
-      },
-      {
-        match: /locat|where|city|state|country|based|live|irving|texas|\btx\b/i,
-        reply: ["Mir is based in <b>Irving, Texas</b> 📍 and open to remote & on-site opportunities."]
-      },
-      {
-        match: /hire|hiring|availab|open to work|opportunit|freelanc|contract|full.?time|job offer|recruit|looking for work/i,
-        reply: ["Mir is open to new opportunities! He's especially interested in <b>AI infrastructure, HPC, and GPU computing</b> roles. Feel free to reach out at mirhyderali619@gmail.com or send him a message through me! 🤝"]
-      },
-      {
-        match: /resum(e|é)|cv|download/i,
-        reply: ["Download Mir's resume from the <b>Contact section</b> of this page — click the <b>Download Resume</b> button on the LinkedIn card! 📄"]
-      },
-      {
-        match: /website|portfolio|site|this page|built this|three\.?js|webgl|how.*made/i,
-        reply: ["This portfolio is built with <b>vanilla HTML, CSS & Three.js</b> — zero frameworks! It has live NVIDIA 3D hardware models, a custom cursor, dark/light mode, and me 🤖. Try typing <b>sudo</b> somewhere on the page for a surprise..."]
-      },
-      {
-        match: /salary|pay|rate|compensation|money|cost|charge|how much/i,
-        reply: ["That's best discussed directly with Mir! 😄 Want me to connect you?"]
-      },
-      {
-        match: /age|old|born|birthday/i,
-        reply: ["Mir keeps that private, but he's a young professional already leading AI HPC infrastructure at scale! 😄"]
-      },
-      {
-        match: /hobby|hobbies|interest|free time|outside work|personal/i,
-        reply: ["Outside of work Mir is into 3D modelling (as you can see from this site!), tech, and building cool things. He's also clearly a fan of NVIDIA hardware 😄"]
-      },
-      {
-        match: /feedback|suggest|idea|improve|change|fix.*site|site.*fix/i,
-        reply: ["Mir loves feedback on this site! He reads everything and actually makes changes. Want to send him a suggestion? Just type <b>send message</b> and I'll forward it! 💡"]
-      },
-      {
-        match: /thank|thanks|thx|ty\b|appreciate|great|awesome|nice|helpful|cool|good job/i,
-        reply: ["Happy to help! 😊 Anything else you'd like to know about Mir?", "You're welcome! Feel free to ask more. 🤖"]
-      },
-      {
-        match: /bye|goodbye|see ya|later|cya|take care/i,
-        reply: ["Bye! 👋 Come back anytime — Mir's always here (via me 🤖). Have a great day!"]
-      },
-      {
-        match: /send (a )?message|contact him|message him|email him|reach him|write to him|tell him/i,
-        reply: ['__EMAIL_FLOW__']
-      },
+      // ── Greetings ──
+      { match: /^(hi+|hey+|hello|sup|yo|hiya|howdy|good\s*(morning|evening|afternoon|day)|what'?s up|wassup)/i,
+        reply: ["Hey! 😊 Ask me anything about Mir — his work, skills, projects, or even general tech topics. Or type <b>send message</b> to reach him!", "Hi there! 👋 I know a lot about Mir and tech in general. What are you curious about?"] },
+
+      // ── About Mir ──
+      { match: /who (is|are|was) mir|who('?s| is) he|about mir|tell me about (him|mir)|introduce|mir hyder|background|bio/i,
+        reply: ["Mir Hyder Ali is an <b>AI HPC Infrastructure Lead Engineer</b> at <b>Wistron Corporation</b>, Irving TX. He manages 100+ GPU nodes (NVIDIA GB200 NVL72 & H100), InfiniBand fabric, and built monitoring systems that cut failure detection from ~2 hours to &lt;5 min. He holds an M.S. CS from Lewis University and co-authored published AI research. 🚀"] },
+
+      { match: /hobby|hobbie|hobbi|interest(s|ed)?|passion|fun|enjoy|like to do|free time|outside (of )?work|personal|what does he do for|recreational|leisure/i,
+        reply: ["Mir is passionate about <b>3D modelling</b> (this whole site proves it 😄), cutting-edge <b>GPU & AI hardware</b>, <b>web development</b>, and exploring the latest in tech. He enjoys building immersive experiences — like this portfolio — in his spare time. He's also active on social media sharing tech content! 🎨💻"] },
+
+      { match: /education|degree|university|college|school|masters?|m\.s\.?|bachelor|b\.e\.?|lewis|lords|study|graduate|graduation|gpa|academic/i,
+        reply: ["Mir holds an <b>M.S. in Computer Science</b> from Lewis University (2023–2025) and a <b>B.E. in Computer Science</b> from Lords Institute of Engineering & Technology (2019–2022). 🎓"] },
+
+      { match: /experience|work(ing| history)?|job|career|employ|wistron|company|position|role|title|current(ly)?/i,
+        reply: ["Mir is the <b>AI HPC Infrastructure Lead Engineer</b> at <b>Wistron</b>, Irving TX — managing 100+ GPU nodes, InfiniBand fabric, Slurm scheduling, and real-time monitoring that cut MTTD from 2 hrs to &lt;5 min. He also served as IT Assistant at Lewis University while completing his M.S. 💪"] },
+
+      { match: /skill|tech(nology|stack)?|tool|program|cod(e|ing)|expertise|good at|what can he do|proficien|speciali/i,
+        reply: ["Mir's stack: <b>NVIDIA GPU infra</b> (GB200, NVL72, H100), <b>HPC cluster mgmt</b>, <b>InfiniBand HDR/NDR</b>, <b>Prometheus & Grafana</b>, <b>DCGM</b>, <b>Python & Bash</b>, <b>Slurm</b>, <b>Kubernetes</b>, <b>Three.js / WebGL</b>. 🛠️"] },
+
+      { match: /project|built|creat|made|hpc.*monitor|3d model|showcase|what has he/i,
+        reply: ["Key projects:<br>• <b>HPC Cluster Monitor</b> — Prometheus/Grafana for 100+ GPU nodes<br>• <b>GenAI for Software Testing</b> — 78% valid test coverage<br>• <b>This Portfolio</b> — Three.js + live NVIDIA 3D models<br>See the Projects section for details! 🚀"] },
+
+      { match: /research|paper|publicat|publish|graph.*test|unit test|codellama|lewis.*research/i,
+        reply: ["Mir co-authored <b>\"The Use of GenAI in Graph-Based Unit Testing\"</b> at Lewis University — using call graphs + CFGs as LLM context, achieving <b>78% valid test coverage</b> (2.3× over baseline). GPT-4 and CodeLlama-34B were both evaluated. 📄"] },
+
+      { match: /contact|reach|get in touch|how.*find him/i,
+        reply: ["Reach Mir at:<br>📧 mirhyderali619@gmail.com<br>💼 <a href='https://linkedin.com/in/mir-hyder-ali' target='_blank'>LinkedIn</a><br>💻 <a href='https://github.com/Hyderali1351' target='_blank'>GitHub</a><br>Or type <b>send message</b> and I'll forward it! 📬"] },
+
+      { match: /linkedin/i, reply: ["Mir's LinkedIn → <a href='https://linkedin.com/in/mir-hyder-ali' target='_blank'><b>linkedin.com/in/mir-hyder-ali</b></a> 💼"] },
+      { match: /\bgithub\b/i, reply: ["Mir's GitHub → <a href='https://github.com/Hyderali1351' target='_blank'><b>github.com/Hyderali1351</b></a> 💻"] },
+      { match: /instagram/i, reply: ["Mir's Instagram → <a href='https://instagram.com/zaid_hyder.ali' target='_blank'><b>@zaid_hyder.ali</b></a> 📸"] },
+      { match: /\btwitter\b|\bx\.com\b|\b\bx\b.*social/i, reply: ["Mir's X (Twitter) → <a href='https://x.com/Mirhyderali619' target='_blank'><b>@Mirhyderali619</b></a> 🐦"] },
+      { match: /snapchat|snap/i, reply: ["Mir's Snapchat → <b>zaid_hyder.ali</b> 👻"] },
+
+      { match: /locat|where.*he|city|state|based|irving|texas|\btx\b/i,
+        reply: ["Mir is based in <b>Irving, Texas</b> 📍 — open to remote & on-site opportunities."] },
+
+      { match: /hire|hiring|availab|open to work|opportunit|freelanc|contract|full.?time|job offer|recruit/i,
+        reply: ["Mir is open to new roles — especially <b>AI infrastructure, HPC, and GPU computing</b>. Email mirhyderali619@gmail.com or send a message through me! 🤝"] },
+
+      { match: /resum(e|é)|\bcv\b|download/i,
+        reply: ["Download Mir's resume from the <b>Contact section</b> — click <b>Download Resume</b> on the LinkedIn card! 📄"] },
+
+      { match: /website|this portfolio|built this|three\.?js|webgl|how.*made/i,
+        reply: ["Built with <b>vanilla HTML, CSS & Three.js</b> — zero frameworks! Features live NVIDIA 3D hardware, custom cursor, dark/light mode, and me 🤖. Type <b>sudo</b> on the page for a secret..."] },
+
+      { match: /salary|pay|rate|compensation|how much (does|is)/i,
+        reply: ["Best discussed directly with Mir! 😄 Want me to connect you?"] },
+
+      { match: /\bage\b|how old|born|birthday/i,
+        reply: ["Mir keeps that private — but he's a young professional already leading AI HPC at scale! 😄"] },
+
+      { match: /feedback|suggest|idea|improve.*site|site.*feedback/i,
+        reply: ["Mir loves site feedback — he actually implements changes! Type <b>send message</b> to share your thoughts. 💡"] },
+
+      { match: /send (a )?message|contact him|message him|email him|reach him|write to him|tell him/i,
+        reply: ['__EMAIL_FLOW__'] },
+
+      // ── NVIDIA & GPU Tech ──
+      { match: /what is (a )?gpu|how does (a )?gpu work|gpu vs cpu/i,
+        reply: ["A <b>GPU (Graphics Processing Unit)</b> has thousands of smaller cores optimised for parallel tasks — perfect for AI/ML matrix ops. A CPU has fewer, more powerful cores for sequential logic. Mir manages clusters of 100+ GPUs daily! 🖥️"] },
+
+      { match: /what is cuda/i,
+        reply: ["<b>CUDA</b> is NVIDIA's parallel computing platform that lets developers use GPUs for general computation. It's the foundation for all modern AI training — PyTorch and TensorFlow both run on CUDA under the hood. 🔧"] },
+
+      { match: /what is nvlink|nvlink/i,
+        reply: ["<b>NVLink</b> is NVIDIA's high-speed GPU-to-GPU interconnect — up to 900 GB/s in GB200. It lets multiple GPUs share memory and communicate at near-memory speeds, which is critical for large model training. Mir's NVL72 racks use NVLink to connect 72 GPUs. ⚡"] },
+
+      { match: /what is infiniband|infiniband/i,
+        reply: ["<b>InfiniBand</b> is a high-speed, low-latency networking standard used in HPC clusters — up to 400 Gb/s with NDR. It's used for inter-node GPU communication (RDMA) so GPUs across different servers can talk as if they're local. Mir manages InfiniBand fabric at Wistron. 🌐"] },
+
+      { match: /what is (a )?tensor core|tensor core/i,
+        reply: ["<b>Tensor Cores</b> are specialised units inside NVIDIA GPUs designed to accelerate matrix multiply-accumulate (MMA) operations — the heart of deep learning. Each H100 has 4th-gen Tensor Cores delivering 3958 TFLOPS of FP8 performance. 🧮"] },
+
+      { match: /h100|a100|difference between.*gpu|nvidia.*generation/i,
+        reply: ["NVIDIA's data centre GPUs: <b>A100</b> (Ampere, 80GB HBM2e, 312 TFLOPS), <b>H100</b> (Hopper, 80GB HBM3, 3958 TFLOPS FP8), <b>GB200</b> (Blackwell, 192GB HBM3e, 20 PFLOPS FP4). Mir works with H100 and GB200 NVL72 systems. 🚀"] },
+
+      { match: /what is dcgm|dcgm/i,
+        reply: ["<b>DCGM (Data Centre GPU Manager)</b> is NVIDIA's tool for managing and monitoring GPUs in clusters — tracking utilisation, memory, NVLink bandwidth, ECC errors, and thermal data. Mir integrates DCGM with Prometheus for real-time dashboards. 📊"] },
+
+      // ── HPC & Clusters ──
+      { match: /what is hpc|high performance computing/i,
+        reply: ["<b>HPC (High Performance Computing)</b> refers to clusters of powerful computers working in parallel to solve complex problems — AI training, scientific simulations, weather forecasting, etc. Mir specialises in GPU-based HPC for AI workloads. 🖥️"] },
+
+      { match: /what is slurm/i,
+        reply: ["<b>Slurm</b> is an open-source workload manager used in HPC clusters to schedule and manage jobs across nodes. Users submit jobs, Slurm queues and assigns GPU resources. Mir integrates Slurm with monitoring systems to track GPU utilisation per job. 📋"] },
+
+      { match: /what is prometheus|prometheus monitoring/i,
+        reply: ["<b>Prometheus</b> is an open-source monitoring & alerting toolkit that scrapes metrics from targets at intervals and stores them as time-series data. Mir uses it to collect GPU, InfiniBand, and Slurm metrics from 100+ nodes every 15 seconds. 📈"] },
+
+      { match: /what is grafana/i,
+        reply: ["<b>Grafana</b> is an open-source visualisation platform that turns Prometheus (and other) data into rich dashboards. Mir's HPC monitoring system uses Grafana to display GPU utilisation, temperatures, IB link health, and job queues in real-time. 📊"] },
+
+      { match: /what is kubernetes|k8s/i,
+        reply: ["<b>Kubernetes (K8s)</b> is an open-source container orchestration system that automates deploying, scaling, and managing containerised applications. Mir uses it as part of the HPC stack at Wistron for workload scheduling alongside Slurm. ☸️"] },
+
+      { match: /what is rdma/i,
+        reply: ["<b>RDMA (Remote Direct Memory Access)</b> lets computers access each other's memory directly without involving the CPU — ultra-low latency for GPU cluster communication. InfiniBand enables RDMA, which is why it's used in AI training clusters. ⚡"] },
+
+      // ── AI & Machine Learning ──
+      { match: /what is (ai|artificial intelligence)$|define ai|explain ai|how does ai work/i,
+        reply: ["<b>AI (Artificial Intelligence)</b> is the field of building systems that can perform tasks requiring human-like intelligence — reasoning, learning, perception. It includes ML, deep learning, NLP, and more. Mir provides the GPU infrastructure that powers AI training at scale. 🤖"] },
+
+      { match: /what is machine learning|\bml\b.*what|how does.*ml.*work/i,
+        reply: ["<b>Machine Learning</b> is a subset of AI where algorithms learn patterns from data — improving with experience without being explicitly programmed. Types: supervised, unsupervised, reinforcement learning. Deep learning (neural networks) is the dominant approach today. 🧠"] },
+
+      { match: /what is (a )?large language model|what is (an )?llm|how do llms work/i,
+        reply: ["<b>LLMs (Large Language Models)</b> are neural networks trained on massive text datasets to predict and generate human-like text. GPT-4, Claude, Llama are examples. They require thousands of GPUs to train — exactly the kind of infrastructure Mir manages. 🧠"] },
+
+      { match: /what is (a )?neural network|how do neural networks work/i,
+        reply: ["A <b>neural network</b> is a system of interconnected layers of 'neurons' that transform inputs into outputs — learning by adjusting weights during training. Deep networks (many layers) power modern AI for vision, language, speech, and more. 🔬"] },
+
+      { match: /what is deep learning/i,
+        reply: ["<b>Deep Learning</b> is ML using multi-layer neural networks to learn complex representations from raw data. It powers computer vision, LLMs, speech recognition, and generative AI. Deep learning is extremely GPU-hungry — that's why Mir's work matters! 🧠"] },
+
+      { match: /what is (a )?transformer(s)?|transformer architecture/i,
+        reply: ["The <b>Transformer</b> is the architecture behind modern LLMs (GPT, BERT, Claude). It uses self-attention to process sequences in parallel — enabling massive scaling with GPUs. Introduced in 'Attention Is All You Need' (2017). 🤖"] },
+
+      { match: /what is generative ai|genai|gen ai/i,
+        reply: ["<b>Generative AI</b> refers to AI systems that create new content — text (GPT, Claude), images (DALL-E, Stable Diffusion), code (Copilot), video (Sora). Mir even co-authored research applying GenAI to automated software testing! 🎨"] },
+
+      { match: /what is (a )?diffusion model|stable diffusion/i,
+        reply: ["<b>Diffusion models</b> generate images by learning to reverse a noise-adding process — starting from pure noise and gradually denoising into a coherent image. Stable Diffusion, DALL-E 3, and Midjourney use this approach. They require significant GPU power to run! 🎨"] },
+
+      { match: /what is fine.?tuning|finetuning|fine tuning (an )?llm/i,
+        reply: ["<b>Fine-tuning</b> is further training a pre-trained model on a specific dataset to specialise it for a task — cheaper than training from scratch. Techniques include LoRA, QLoRA, and instruction tuning. Requires GPUs but far fewer than pre-training. 🎯"] },
+
+      { match: /what is rag|retrieval augmented|retrieval-augmented/i,
+        reply: ["<b>RAG (Retrieval-Augmented Generation)</b> combines LLMs with a knowledge retrieval system — the model fetches relevant documents before generating answers, reducing hallucinations. It's widely used for enterprise AI that needs up-to-date information. 📚"] },
+
+      // ── Programming & CS ──
+      { match: /what is python|why use python|python.*popular/i,
+        reply: ["<b>Python</b> is the dominant language for AI/ML due to libraries like PyTorch, TensorFlow, NumPy, and pandas. It's also great for scripting, automation, and data pipelines. Mir uses Python extensively for GPU monitoring scripts and data collection. 🐍"] },
+
+      { match: /what is (a )?api|how (do|does) api(s)? work/i,
+        reply: ["An <b>API (Application Programming Interface)</b> is a set of rules that lets software applications communicate. REST APIs use HTTP; they're everywhere — from Slurm's REST API (which Mir uses for job data) to EmailJS (powering this chatbot's email!). 🔌"] },
+
+      { match: /what is docker|what.*container(isation|ization)?/i,
+        reply: ["<b>Docker</b> packages apps and their dependencies into containers — portable, consistent, isolated environments. Containers run the same everywhere, making deployment reliable. Kubernetes orchestrates containers at scale. Mir uses both in the HPC stack. 🐳"] },
+
+      { match: /what is linux|why linux/i,
+        reply: ["<b>Linux</b> is the dominant OS for servers, HPC, and AI infrastructure. It's open-source, stable, and highly customisable. Virtually all GPU clusters — including those Mir manages — run Linux (typically Ubuntu or RHEL). 🐧"] },
+
+      { match: /what is git|how does git work/i,
+        reply: ["<b>Git</b> is a distributed version control system that tracks code changes. Developers use branches to work in parallel, then merge changes. GitHub/GitLab host repositories online. This entire portfolio is version-controlled with Git! 📝"] },
+
+      { match: /what is (a )?rest api|what is http/i,
+        reply: ["<b>REST (Representational State Transfer)</b> is an architectural style for web APIs using HTTP methods: GET (read), POST (create), PUT (update), DELETE (remove). Most web services you use daily (Twitter, GitHub, Stripe) expose REST APIs. 🌐"] },
+
+      { match: /what is sql|what is (a )?database/i,
+        reply: ["<b>SQL (Structured Query Language)</b> is used to manage relational databases — tables of data with relationships. Common databases: PostgreSQL, MySQL, SQLite. For time-series data (like GPU metrics), Prometheus's TSDB or InfluxDB are used. 🗄️"] },
+
+      { match: /what is cloud computing|aws|azure|gcp|google cloud/i,
+        reply: ["<b>Cloud computing</b> provides on-demand compute, storage, and services over the internet. AWS, Azure, and GCP are the big three. Cloud GPU instances (like AWS p4d with A100s) can rent by the hour — though large-scale HPC often uses on-premise clusters like Mir manages. ☁️"] },
+
+      { match: /what is (a )?microservice|microservices/i,
+        reply: ["<b>Microservices</b> is an architecture where an app is split into small, independent services that communicate via APIs. Contrast with monolithic architecture. Kubernetes excels at orchestrating microservices at scale. 🔧"] },
+
+      { match: /what is (a )?hash|how does hashing work/i,
+        reply: ["A <b>hash function</b> maps data of any size to a fixed-size value (like MD5, SHA-256). Used for data integrity checks, password storage, and blockchain. Deterministic — same input always gives same output. 🔐"] },
+
+      { match: /what is (a )?(binary|b-?tree|data structure)|linked list|stack.*data|queue.*data/i,
+        reply: ["<b>Data structures</b> organise data for efficient access: arrays (indexed), linked lists (pointers), stacks (LIFO), queues (FIFO), trees (hierarchical), hash maps (key-value). Choosing the right one is key to algorithm efficiency. 📊"] },
+
+      { match: /what is big o|time complexity|o\(n\)/i,
+        reply: ["<b>Big O notation</b> describes an algorithm's time/space complexity as input grows: O(1) constant, O(log n) logarithmic, O(n) linear, O(n²) quadratic. Used to compare algorithm efficiency. Critical for writing performant code at scale. ⏱️"] },
+
+      { match: /what is (object.?oriented|oop)|encapsulation|polymorphism|inheritance/i,
+        reply: ["<b>OOP (Object-Oriented Programming)</b> organises code around objects with data (attributes) and behaviour (methods). Core principles: <b>Encapsulation</b> (data hiding), <b>Inheritance</b> (class hierarchy), <b>Polymorphism</b> (same interface, different behaviour). Python, Java, C++ all support OOP. 🏗️"] },
+
+      // ── Networking ──
+      { match: /what is tcp|tcp.?ip|how does networking work/i,
+        reply: ["<b>TCP/IP</b> is the foundation of internet networking. TCP ensures reliable, ordered packet delivery; IP handles routing. In HPC, TCP/IP is too slow — InfiniBand with RDMA bypasses the OS entirely for microsecond latencies. 🌐"] },
+
+      { match: /what is (a )?bandwidth|latency|throughput/i,
+        reply: ["<b>Bandwidth</b> = max data per second (GB/s). <b>Latency</b> = delay from send to receive (microseconds). <b>Throughput</b> = actual data transferred. In GPU clusters, both matter: NVLink gives 900 GB/s bandwidth, InfiniBand NDR gives ~2 µs latency. ⚡"] },
+
+      // ── Web Dev ──
+      { match: /what is three\.?js|how.*3d.*web|webgl/i,
+        reply: ["<b>Three.js</b> is a JavaScript library that makes WebGL 3D graphics accessible in browsers — handling cameras, lights, meshes, and renderers. Mir used it to embed live NVIDIA hardware 3D models in this portfolio. The GB200 model you can explore is ~2MB Draco-compressed GLB! 🎮"] },
+
+      { match: /what is html|what is css/i,
+        reply: ["<b>HTML</b> structures web content; <b>CSS</b> styles it. Together they form the foundation of every website. This entire portfolio uses only HTML + CSS + vanilla JS — no React, no frameworks. Sometimes the best tool is also the simplest! 🌐"] },
+
+      { match: /what is javascript|\bjs\b.*what|why javascript/i,
+        reply: ["<b>JavaScript</b> is the language of the web — runs in browsers to make pages interactive. Also used server-side (Node.js). This portfolio's 3D rendering, custom cursor, chatbot, and animations are all plain JavaScript. 🚀"] },
+
+      { match: /what is react|angular|vue|svelte|frontend framework/i,
+        reply: ["<b>React, Vue, Angular, Svelte</b> are JavaScript frameworks that simplify building complex UIs with components and state management. Interestingly, Mir's portfolio uses <em>zero</em> frameworks — pure HTML/CSS/JS proves you don't always need them! ⚛️"] },
+
+      // ── Career & Industry ──
+      { match: /how to get (a job|into|started|hired).*ai|break into ai|career in ai/i,
+        reply: ["To get into AI: 1) Learn Python + math (linear algebra, stats). 2) Study ML fundamentals (fast.ai, Coursera). 3) Build projects and put them on GitHub. 4) For infrastructure like Mir — learn Linux, Kubernetes, and GPU computing. 5) Network on LinkedIn. 🎯"] },
+
+      { match: /how to become (a )?software engineer|software engineer career|software developer/i,
+        reply: ["Path to software engineering: 1) Learn fundamentals (CS degree or bootcamp). 2) Master a language (Python, JavaScript, Java). 3) Build real projects. 4) Contribute to open source. 5) Ace DSA interviews (LeetCode). Mir combined a CS degree with hands-on HPC work. 💻"] },
+
+      { match: /what is (a )?(devops|mlops|devsecops)/i,
+        reply: ["<b>DevOps</b> bridges dev and operations — automating CI/CD pipelines, infrastructure as code, monitoring. <b>MLOps</b> applies DevOps principles to ML — managing model training, deployment, and monitoring. Mir's HPC work has strong MLOps overlap. 🔄"] },
+
+      { match: /what is (a )?data scientist|data science/i,
+        reply: ["A <b>Data Scientist</b> extracts insights from data using statistics, ML, and visualisation. They work on model building and analysis. Distinct from ML Engineers (focus on systems) and Data Engineers (focus on pipelines). 📊"] },
+
+      // ── General Tech ──
+      { match: /what is (a )?blockchain/i,
+        reply: ["<b>Blockchain</b> is a distributed, immutable ledger where data is stored in linked blocks cryptographically. Powers cryptocurrencies (Bitcoin, Ethereum) and decentralised apps. Interesting tech, but Mir's focus is on GPU-based AI rather than blockchain. ⛓️"] },
+
+      { match: /what is (the )?metaverse/i,
+        reply: ["The <b>metaverse</b> is a vision of persistent, immersive 3D virtual worlds — combining VR, AR, and social interaction. Still evolving. Mir's 3D web skills (Three.js, WebGL) are directly applicable to building metaverse-style experiences! 🌐"] },
+
+      { match: /what is quantum computing/i,
+        reply: ["<b>Quantum computing</b> uses quantum bits (qubits) that can be 0 AND 1 simultaneously (superposition), enabling solving certain problems exponentially faster than classical computers. Still early-stage but could transform cryptography, chemistry, and optimisation. ⚛️"] },
+
+      { match: /what is (the )?internet of things|iot/i,
+        reply: ["<b>IoT (Internet of Things)</b> refers to physical devices (sensors, cameras, appliances) connected to the internet, collecting and exchanging data. From smart thermostats to industrial sensors — all generating data that often ends up in cloud or HPC systems. 📡"] },
+
+      { match: /what is (a )?firewall|cybersecurity|cyber security|network security/i,
+        reply: ["<b>Firewalls</b> monitor and filter network traffic based on rules, blocking unauthorised access. <b>Cybersecurity</b> broadly covers protecting systems, networks, and data from attacks. HPC clusters require robust security since they handle sensitive AI workloads. 🔐"] },
+
+      { match: /what is (a )?vpn/i,
+        reply: ["A <b>VPN (Virtual Private Network)</b> encrypts your internet connection and routes it through a server elsewhere — masking your IP and protecting data on public networks. Also used by companies for secure remote access to internal systems. 🔒"] },
+
+      // ── Fun & General ──
+      { match: /what is (the meaning of life|42)|meaning of life/i,
+        reply: ["42. 😄 (According to The Hitchhiker's Guide to the Galaxy.) But if you want a real answer — Mir would probably say it's building cool things that matter! 🚀"] },
+
+      { match: /tell me (a )?joke|joke/i,
+        reply: ["Why do programmers prefer dark mode? Because light attracts bugs! 😄🐛", "Why was the GPU tired? Because it had too many cores to keep up with! 😂", "A SQL query walks into a bar, walks up to two tables and asks... 'Can I join you?' 😄"] },
+
+      { match: /what is (the )?capital of|capital city/i,
+        reply: ["Good question! That's a bit outside my main expertise 😄 — I'm best at tech and questions about Mir. For geography, Google's got you covered! But if you have a tech question, I'm all yours. 🌍"] },
+
+      { match: /who (made|created|built|invented) you|what are you|are you (a )?ai|are you (a )?(bot|robot)/i,
+        reply: ["I'm <b>Kai</b> — Mir's custom AI assistant, built right into this portfolio! I'm trained on everything about Mir and general tech. Not a full LLM, but I know a lot! 🤖 For complex AI questions, I might suggest Googling further."] },
+
+      { match: /what is chatgpt|what is claude|what is gemini|openai/i,
+        reply: ["<b>ChatGPT</b> (OpenAI), <b>Claude</b> (Anthropic), and <b>Gemini</b> (Google) are leading LLM-based AI assistants. They're all transformer-based models trained on massive text datasets. Running them requires the kind of GPU infrastructure Mir manages at Wistron! 🤖"] },
+
+      { match: /what is (a )?data center|data centre/i,
+        reply: ["A <b>data centre</b> is a facility housing servers, storage, and networking equipment for computing and data storage. Modern AI data centres are GPU-dense — a single GB200 NVL72 rack has 72 H100-class GPUs. Mir works in this space daily. 🏢"] },
+
+      { match: /thank|thanks|thx|ty\b|appreciate|great|awesome|nice|helpful|good job|perfect|love it/i,
+        reply: ["Happy to help! 😊 Anything else about Mir or tech?", "You're welcome! I'm always here if you have more questions. 🤖", "Glad I could help! Feel free to ask anything else. 😊"] },
+
+      { match: /bye|goodbye|see ya|later|cya|take care|good night|gotta go/i,
+        reply: ["Bye! 👋 Come back anytime. Have a great day!", "See you! 😊 Don't forget to check out the 3D models before you go!"] },
     ];
 
     function matchKB(text) {
