@@ -218,25 +218,6 @@ a:hover { opacity: 0.75; }
 
 .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; padding: 0.4rem; }
 
-.nav-resume-btn {
-  color: var(--accent) !important;
-  border: 1px solid rgba(167,139,250,0.35) !important;
-  background: rgba(124,58,237,0.08) !important;
-  padding: 0.3rem 0.85rem !important;
-  border-radius: 9999px !important;
-  font-weight: 600 !important;
-  transition: background 0.2s, border-color 0.2s, transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s !important;
-  white-space: nowrap;
-  text-decoration: none !important;
-}
-.nav-resume-btn:hover {
-  background: rgba(124,58,237,0.18) !important;
-  border-color: rgba(167,139,250,0.65) !important;
-  box-shadow: 0 0 18px rgba(124,58,237,0.3) !important;
-  transform: translateY(-3px) scale(1.07) !important;
-  text-shadow: none !important;
-  color: #c4b5fd !important;
-}
 
 .nav-brand {
   display: none;
@@ -3104,17 +3085,6 @@ body.cur-out .cur-ring { opacity: 0; }
   text-shadow: 0 0 14px rgba(124,58,237,0.38);
 }
 [data-theme="light"] .nav-toggle { color: var(--text); }
-[data-theme="light"] .nav-resume-btn {
-  color: #7c3aed !important;
-  border-color: rgba(124,58,237,0.3) !important;
-  background: rgba(124,58,237,0.07) !important;
-}
-[data-theme="light"] .nav-resume-btn:hover {
-  background: rgba(124,58,237,0.14) !important;
-  color: #6d28d9 !important;
-  border-color: rgba(124,58,237,0.5) !important;
-  box-shadow: 0 0 18px rgba(124,58,237,0.18) !important;
-}
 
 [data-theme="light"] .nav-bubble {
   background:
@@ -3827,20 +3797,5 @@ body.cur-out .cur-ring { opacity: 0; }
     color: #7c3aed;
     background: rgba(124,58,237,0.08);
     text-shadow: none;
-  }
-  /* Resume button in light mode mobile dropdown */
-  [data-theme="light"] .nav-resume-btn {
-    color: #7c3aed !important;
-    background: rgba(124,58,237,0.07) !important;
-    border-color: rgba(124,58,237,0.25) !important;
-  }
-}
-
-/* ── Resume button in dark mode mobile dropdown ── */
-@media (max-width: 600px) {
-  .nav-resume-btn {
-    display: inline-block;
-    width: fit-content;
-    margin: 0.25rem 0 0.1rem;
   }
 }
