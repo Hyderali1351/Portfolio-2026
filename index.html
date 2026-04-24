@@ -1100,11 +1100,11 @@
 
         loader.load('models/graduation.glb', (gltf) => {
           const model = gltf.scene;
-          const box   = new THREE.Box3().setFromObject(model);
-          const cen   = box.getCenter(new THREE.Vector3());
-          const siz   = box.getSize(new THREE.Vector3());
+          // scale first, then recompute centre so the offset is correct
+          const siz0 = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
+          model.scale.setScalar(1.6 / siz0.y);
+          const cen  = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
           model.position.sub(cen);
-          model.scale.setScalar(1.6 / siz.y);
           modelGroup = new THREE.Group();
           modelGroup.add(model);
           scene.add(modelGroup);

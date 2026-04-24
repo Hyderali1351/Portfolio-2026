@@ -4012,6 +4012,10 @@ body.cur-out .cur-ring { opacity: 0; }
   justify-content: center;
   margin-bottom: 3rem;
 }
+.contact-linkedin .li-badge {
+  max-width: 460px;
+  width: 100%;
+}
 
 .socials-grid {
   display: flex;
@@ -4109,7 +4113,7 @@ body.cur-out .cur-ring { opacity: 0; }
 #chatbot-widget {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  right: 20px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -4121,8 +4125,8 @@ body.cur-out .cur-ring { opacity: 0; }
 /* ── Toggle button ── */
 #chat-toggle-btn {
   pointer-events: all;
-  width: 62px;
-  height: 62px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: none;
   padding: 0;
@@ -4139,8 +4143,8 @@ body.cur-out .cur-ring { opacity: 0; }
   box-shadow: 0 6px 28px rgba(124,58,237,0.7), 0 0 0 4px rgba(124,58,237,0.35);
 }
 #chat-toggle-btn svg {
-  width: 62px;
-  height: 62px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: block;
 }
