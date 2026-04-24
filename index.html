@@ -1108,10 +1108,8 @@
           modelGroup = new THREE.Group();
           modelGroup.add(model);
           scene.add(modelGroup);
-          if (gltf.animations?.length) {
-            mixer = new THREE.AnimationMixer(model);
-            mixer.clipAction(gltf.animations[0]).play();
-          }
+          /* deliberately not playing GLB animations — they include root-motion
+             that drift the model off screen; pure rotation.y spin is used instead */
           loaded = true;
         });
 
@@ -1127,7 +1125,6 @@
       function tick() {
         animId = requestAnimationFrame(tick);
         if (!loaded) return;
-        if (mixer) mixer.update(clock.getDelta());
         if (modelGroup) modelGroup.rotation.y += 0.006;
         renderer.render(scene, camera);
       }
@@ -1146,46 +1143,49 @@
   <div id="chatbot-widget">
     <div id="chat-hint-bubble" aria-live="polite"></div>
     <button id="chat-toggle-btn" aria-label="Open chat">
-      <!-- Anime avatar SVG -->
+      <!-- Robot avatar SVG -->
       <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="face-bg" cx="50%" cy="60%" r="55%">
-            <stop offset="0%" stop-color="#fde8ff"/>
-            <stop offset="100%" stop-color="#f0c8f8"/>
-          </radialGradient>
+          <linearGradient id="rb-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4c1d95"/>
+            <stop offset="100%" stop-color="#1e1b4b"/>
+          </linearGradient>
+          <linearGradient id="rb-face" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2e2060"/>
+            <stop offset="100%" stop-color="#1a0f3a"/>
+          </linearGradient>
         </defs>
-        <!-- Hair -->
-        <ellipse cx="32" cy="17" rx="22" ry="16" fill="#1a0535"/>
-        <path d="M10 22 Q8 34 10 42 Q13 34 16 30Z" fill="#1a0535"/>
-        <path d="M54 22 Q56 34 54 42 Q51 34 48 30Z" fill="#1a0535"/>
-        <!-- Face -->
-        <ellipse cx="32" cy="37" rx="19" ry="21" fill="url(#face-bg)"/>
-        <!-- Hair highlight -->
-        <path d="M22 11 Q28 8 34 10" stroke="rgba(255,255,255,0.22)" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <!-- Left eye white -->
-        <ellipse cx="23" cy="35" rx="5.5" ry="6.5" fill="white"/>
-        <!-- Left iris -->
-        <ellipse cx="23" cy="36.5" rx="3.8" ry="4.8" fill="#7c3aed"/>
-        <!-- Left pupil -->
-        <ellipse cx="23" cy="37.5" rx="2.2" ry="3" fill="#0d0618"/>
-        <!-- Left highlight -->
-        <circle cx="24.8" cy="34.8" r="1.4" fill="white"/>
-        <!-- Right eye white -->
-        <ellipse cx="41" cy="35" rx="5.5" ry="6.5" fill="white"/>
-        <!-- Right iris -->
-        <ellipse cx="41" cy="36.5" rx="3.8" ry="4.8" fill="#7c3aed"/>
-        <!-- Right pupil -->
-        <ellipse cx="41" cy="37.5" rx="2.2" ry="3" fill="#0d0618"/>
-        <!-- Right highlight -->
-        <circle cx="42.8" cy="34.8" r="1.4" fill="white"/>
-        <!-- Nose -->
-        <path d="M30.5 44 Q32 46.5 33.5 44" stroke="#c084c8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <!-- Smile -->
-        <path d="M26 49 Q32 54.5 38 49" stroke="#e879a0" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <!-- Blush left -->
-        <ellipse cx="16" cy="44" rx="5" ry="3" fill="rgba(244,114,182,0.28)"/>
-        <!-- Blush right -->
-        <ellipse cx="48" cy="44" rx="5" ry="3" fill="rgba(244,114,182,0.28)"/>
+        <!-- Antenna -->
+        <line x1="32" y1="5" x2="32" y2="13" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="32" cy="4" r="3" fill="#7c3aed"/>
+        <circle cx="32" cy="4" r="1.5" fill="#c4b5fd"/>
+        <!-- Head -->
+        <rect x="10" y="13" width="44" height="36" rx="8" fill="url(#rb-body)"/>
+        <!-- Face plate -->
+        <rect x="14" y="17" width="36" height="28" rx="6" fill="url(#rb-face)"/>
+        <!-- Left eye -->
+        <rect x="18" y="22" width="11" height="9" rx="3" fill="#0d0618"/>
+        <rect x="19" y="23" width="9" height="7" rx="2" fill="#7c3aed"/>
+        <rect x="20" y="24" width="4" height="3" rx="1" fill="#c4b5fd" opacity="0.9"/>
+        <!-- Right eye -->
+        <rect x="35" y="22" width="11" height="9" rx="3" fill="#0d0618"/>
+        <rect x="36" y="23" width="9" height="7" rx="2" fill="#7c3aed"/>
+        <rect x="37" y="24" width="4" height="3" rx="1" fill="#c4b5fd" opacity="0.9"/>
+        <!-- Mouth grill -->
+        <rect x="20" y="36" width="24" height="6" rx="3" fill="#0d0618"/>
+        <line x1="24" y1="36" x2="24" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+        <line x1="28" y1="36" x2="28" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+        <line x1="32" y1="36" x2="32" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+        <line x1="36" y1="36" x2="36" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+        <line x1="40" y1="36" x2="40" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+        <!-- Ear bolts -->
+        <circle cx="10" cy="27" r="3" fill="#312e81"/>
+        <circle cx="10" cy="27" r="1.5" fill="#6d28d9"/>
+        <circle cx="54" cy="27" r="3" fill="#312e81"/>
+        <circle cx="54" cy="27" r="1.5" fill="#6d28d9"/>
+        <!-- Status light -->
+        <circle cx="32" cy="51" r="2" fill="#34d399"/>
+        <circle cx="32" cy="51" r="1" fill="#a7f3d0"/>
       </svg>
       <span class="chat-toggle-dot"></span>
     </button>
@@ -1195,21 +1195,39 @@
       <div class="chat-panel-header">
         <div class="chat-panel-avatar">
           <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="32" cy="17" rx="22" ry="16" fill="#1a0535"/>
-            <path d="M10 22 Q8 34 10 42 Q13 34 16 30Z" fill="#1a0535"/>
-            <path d="M54 22 Q56 34 54 42 Q51 34 48 30Z" fill="#1a0535"/>
-            <ellipse cx="32" cy="37" rx="19" ry="21" fill="#fde8ff"/>
-            <ellipse cx="23" cy="35" rx="5.5" ry="6.5" fill="white"/>
-            <ellipse cx="23" cy="36.5" rx="3.8" ry="4.8" fill="#7c3aed"/>
-            <ellipse cx="23" cy="37.5" rx="2.2" ry="3" fill="#0d0618"/>
-            <circle cx="24.8" cy="34.8" r="1.4" fill="white"/>
-            <ellipse cx="41" cy="35" rx="5.5" ry="6.5" fill="white"/>
-            <ellipse cx="41" cy="36.5" rx="3.8" ry="4.8" fill="#7c3aed"/>
-            <ellipse cx="41" cy="37.5" rx="2.2" ry="3" fill="#0d0618"/>
-            <circle cx="42.8" cy="34.8" r="1.4" fill="white"/>
-            <path d="M26 49 Q32 54.5 38 49" stroke="#e879a0" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <ellipse cx="16" cy="44" rx="5" ry="3" fill="rgba(244,114,182,0.28)"/>
-            <ellipse cx="48" cy="44" rx="5" ry="3" fill="rgba(244,114,182,0.28)"/>
+            <defs>
+              <linearGradient id="rb-body2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4c1d95"/>
+                <stop offset="100%" stop-color="#1e1b4b"/>
+              </linearGradient>
+              <linearGradient id="rb-face2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2e2060"/>
+                <stop offset="100%" stop-color="#1a0f3a"/>
+              </linearGradient>
+            </defs>
+            <line x1="32" y1="5" x2="32" y2="13" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="32" cy="4" r="3" fill="#7c3aed"/>
+            <circle cx="32" cy="4" r="1.5" fill="#c4b5fd"/>
+            <rect x="10" y="13" width="44" height="36" rx="8" fill="url(#rb-body2)"/>
+            <rect x="14" y="17" width="36" height="28" rx="6" fill="url(#rb-face2)"/>
+            <rect x="18" y="22" width="11" height="9" rx="3" fill="#0d0618"/>
+            <rect x="19" y="23" width="9" height="7" rx="2" fill="#7c3aed"/>
+            <rect x="20" y="24" width="4" height="3" rx="1" fill="#c4b5fd" opacity="0.9"/>
+            <rect x="35" y="22" width="11" height="9" rx="3" fill="#0d0618"/>
+            <rect x="36" y="23" width="9" height="7" rx="2" fill="#7c3aed"/>
+            <rect x="37" y="24" width="4" height="3" rx="1" fill="#c4b5fd" opacity="0.9"/>
+            <rect x="20" y="36" width="24" height="6" rx="3" fill="#0d0618"/>
+            <line x1="24" y1="36" x2="24" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+            <line x1="28" y1="36" x2="28" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+            <line x1="32" y1="36" x2="32" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+            <line x1="36" y1="36" x2="36" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+            <line x1="40" y1="36" x2="40" y2="42" stroke="#7c3aed" stroke-width="1.2" opacity="0.7"/>
+            <circle cx="10" cy="27" r="3" fill="#312e81"/>
+            <circle cx="10" cy="27" r="1.5" fill="#6d28d9"/>
+            <circle cx="54" cy="27" r="3" fill="#312e81"/>
+            <circle cx="54" cy="27" r="1.5" fill="#6d28d9"/>
+            <circle cx="32" cy="51" r="2" fill="#34d399"/>
+            <circle cx="32" cy="51" r="1" fill="#a7f3d0"/>
           </svg>
         </div>
         <div class="chat-panel-info">

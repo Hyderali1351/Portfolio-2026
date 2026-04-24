@@ -4014,13 +4014,14 @@ body.cur-out .cur-ring { opacity: 0; }
 }
 
 .socials-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.1rem;
   margin-bottom: 2.5rem;
 }
-
 .social-card {
+  flex: 0 1 160px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4424,5 +4425,5 @@ body.cur-out .cur-ring { opacity: 0; }
 @media (max-width: 600px) {
   #chatbot-widget { bottom: 16px; right: 16px; }
   #chat-panel { width: 285px; max-height: 420px; }
-  .socials-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .socials-grid .social-card { flex: 0 1 140px; }
 }
