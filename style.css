@@ -4485,23 +4485,19 @@ body.cur-out .cur-ring { opacity: 0; }
 
 /* responsive — on mobile move to bottom-LEFT so right-side scroll indicator is never covered */
 @media (max-width: 768px) {
-  /* Keep chatbot bottom-right on mobile — phones have overlay scrollbars so no conflict.
-     Constrain panel width so it never overflows the viewport. */
   #chatbot-widget {
     right: 12px;
     bottom: 16px;
     left: auto;
     align-items: flex-end;
-    max-width: calc(100vw - 24px);
   }
+  /* No 100vw — it can exceed the content width on mobile and push the page off-centre.
+     Fixed pixel widths keep the widget fully inside the viewport on any phone ≥ 320px. */
   #chat-hint-bubble {
-    border-radius: 14px 14px 4px 14px;
-    text-align: right;
-    max-width: min(240px, calc(100vw - 80px));
+    max-width: 200px;
   }
   #chat-panel {
-    width: calc(100vw - 24px);
-    max-width: 320px;
+    width: 270px;
     max-height: 420px;
   }
   .socials-grid .social-card { flex: 0 1 140px; }
