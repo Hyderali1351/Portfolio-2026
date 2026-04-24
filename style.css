@@ -1477,38 +1477,130 @@ body.cur-out .cur-ring { opacity: 0; }
   top: 0.22em;
 }
 
-/* Education card items */
-.edu-bento-item {
+/* ── Education section ── */
+.edu-section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 3rem;
+  align-items: start;
+  margin-bottom: 4rem;
+}
+
+/* Left: 3D graduation model */
+.edu-model-col { display: flex; flex-direction: column; }
+.edu-grad-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  max-height: 440px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 65%, rgba(190,24,93,0.22) 0%, rgba(8,3,18,0.92) 68%);
+  border: 1px solid rgba(190,24,93,0.2);
+  box-shadow: 0 0 40px rgba(190,24,93,0.12);
+}
+#grad-canvas { display: block; width: 100%; height: 100%; }
+.edu-grad-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 1.2rem 1rem 1rem;
+  background: linear-gradient(to top, rgba(8,3,18,0.88) 0%, transparent 100%);
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.7rem 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  gap: 0.2rem;
 }
-.edu-degree { font-size: 0.9rem; font-weight: 600; color: var(--text); }
-.edu-school  { font-size: 0.77rem; color: var(--text-muted); }
+.edu-grad-overlay-deg {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f9a8d4;
+}
+.edu-grad-overlay-school {
+  font-size: 0.7rem;
+  color: rgba(244,114,182,0.65);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+}
 
-/* Graduation 3D model preview inside education bubble */
-.edu-grad-wrap {
+/* Right: degree timeline */
+.edu-degrees-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 0.5rem;
+}
+.edu-entry {
   position: relative;
-  height: 155px;
-  margin: -1.65rem -1.65rem 0;
-  overflow: hidden;
-  border-radius: var(--radius) var(--radius) 0 0;
-  background: radial-gradient(ellipse at 50% 70%, rgba(190,24,93,0.18) 0%, rgba(8,3,18,0.9) 65%);
+  padding-left: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.edu-entry-dot {
+  position: absolute;
+  left: 0; top: 0.45rem;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #be185d;
+  box-shadow: 0 0 10px rgba(190,24,93,0.6);
   flex-shrink: 0;
 }
-#grad-canvas { display: block; }
-.edu-grad-badge {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.65rem;
+.edu-entry-year {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
-  color: rgba(244,114,182,0.6);
-  pointer-events: none;
+  font-size: 0.72rem;
+  color: #f472b6;
+  letter-spacing: 0.08em;
 }
+.edu-entry-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.edu-entry-school {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.edu-entry-detail {
+  font-size: 0.85rem;
+  color: var(--text-dim, var(--text-muted));
+  line-height: 1.6;
+  margin: 0;
+}
+.edu-entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+.edu-entry-tags span {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(190,24,93,0.12);
+  border: 1px solid rgba(190,24,93,0.28);
+  color: #f9a8d4;
+  font-family: 'JetBrains Mono', monospace;
+}
+.edu-entry-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: linear-gradient(to bottom, rgba(190,24,93,0.4), rgba(190,24,93,0.1));
+  margin-left: 0.25rem;
+  margin: 1.4rem 0 1.4rem 0.25rem;
+}
+
+/* Skills heading inside education */
+.edu-skills-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+/* ── legacy: kept for any existing references ── */
+.edu-bento-item { display: none; }
+.edu-degree, .edu-school { display: none; }
 
 /* ═══════════════════════════════
    RESEARCH SECTION
@@ -2396,6 +2488,9 @@ body.cur-out .cur-ring { opacity: 0; }
   .about-avatar { justify-content: center; }
   .about-stats { justify-content: center; }
   .about-actions { justify-content: center; }
+
+  .edu-section-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .edu-grad-hero { aspect-ratio: 16/9; max-height: 260px; }
 
   .contact-grid { grid-template-columns: 1fr; }
   .interests-grid { grid-template-columns: 1fr; }

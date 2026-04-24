@@ -68,11 +68,11 @@
     <span class="nav-brand">MHA</span>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
-      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
       <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
       <li><a href="#research">Research</a></li>
       <li><a href="#interests">Interests</a></li>
-      <li><a href="#projects">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <button class="nav-toggle" aria-label="toggle menu">&#9776;</button>
@@ -148,10 +148,56 @@
     </div>
   </section>
 
-  <!-- SKILLS -->
-  <section class="section section-dark" id="skills">
+  <!-- EDUCATION -->
+  <section class="section section-dark" id="education">
     <div class="container">
-      <h2 class="section-title reveal">My <span class="accent">Skills</span></h2>
+      <h2 class="section-title reveal">My <span class="accent">Education</span></h2>
+
+      <div class="edu-section-grid">
+
+        <!-- Left: spinning graduation model -->
+        <div class="edu-model-col reveal-left">
+          <div class="edu-grad-hero" id="grad-canvas-wrap">
+            <canvas id="grad-canvas"></canvas>
+            <div class="edu-grad-overlay">
+              <span class="edu-grad-overlay-deg">M.S. Computer Science</span>
+              <span class="edu-grad-overlay-school">Lewis University · 2025</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: degree timeline -->
+        <div class="edu-degrees-col reveal-right">
+
+          <div class="edu-entry">
+            <div class="edu-entry-dot"></div>
+            <span class="edu-entry-year">2023 – 2025</span>
+            <h3 class="edu-entry-title">M.S. Computer Science</h3>
+            <p class="edu-entry-school">Lewis University · Romeoville, IL</p>
+            <p class="edu-entry-detail">Graduate research in AI and software engineering. Co-authored a peer-reviewed paper on GenAI-driven unit test generation published by Springer (ITNG 2025). Also served as IT Graduate Assistant — administering campus network infrastructure.</p>
+            <div class="edu-entry-tags">
+              <span>AI / ML</span><span>Software Engineering</span><span>Research</span><span>Springer Publication</span>
+            </div>
+          </div>
+
+          <div class="edu-entry-divider"></div>
+
+          <div class="edu-entry">
+            <div class="edu-entry-dot"></div>
+            <span class="edu-entry-year">2019 – 2022</span>
+            <h3 class="edu-entry-title">B.E. Computer Science</h3>
+            <p class="edu-entry-school">Lords Institute of Engineering &amp; Technology · Hyderabad, India</p>
+            <p class="edu-entry-detail">Bachelor of Engineering in Computer Science. Core coursework in algorithms, operating systems, computer networks, and software design principles.</p>
+            <div class="edu-entry-tags">
+              <span>Computer Science</span><span>Systems</span><span>Networking</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Skills merged in -->
+      <h3 class="edu-skills-heading reveal">Technical <span class="accent">Skills</span></h3>
       <div class="skills-grid">
         <div class="skill-card reveal-scale" style="--delay:0ms">
           <div class="skill-icon">🖥️</div>
@@ -194,6 +240,7 @@
           </ul>
         </div>
       </div>
+
     </div>
   </section>
 
@@ -202,18 +249,16 @@
     <div class="container">
       <h2 class="section-title reveal">Work <span class="accent">Experience</span></h2>
 
-      <!-- Experience filter -->
       <div class="exp-filter">
         <button class="exp-filter-btn active" data-filter="all">All</button>
         <button class="exp-filter-btn" data-filter="hpc">AI &amp; HPC</button>
         <button class="exp-filter-btn" data-filter="it">IT Systems</button>
-        <button class="exp-filter-btn" data-filter="edu">Education</button>
         <span class="exp-filter-track"></span>
       </div>
 
       <div class="exp-bento">
 
-        <!-- Wistron — tall featured card (left, spans 2 rows) -->
+        <!-- Wistron — tall featured card -->
         <div class="exp-bubble exp-bubble--featured" data-category="hpc">
           <div class="exp-bubble-glow" style="--gc:124,58,237"></div>
           <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#7c3aed,#4338ca)"></div>
@@ -228,7 +273,6 @@
             <span class="exp-bubble-company" data-admin-key="exp.0.company">Wistron Corporation · Irving, TX</span>
             <p class="exp-bubble-blurb" data-admin-key="exp.0.blurb">Deploying NVIDIA GB200 NVL72 &amp; H100 GPU clusters for Fortune 500 AI clients — full rack lifecycle, InfiniBand fabric, and automated monitoring.</p>
 
-            <!-- 3D viewer launcher -->
             <div class="board-teaser board-teaser--no-img" data-open-board-modal role="button" tabindex="0" aria-label="Explore NVIDIA hardware in 3D">
               <div class="board-teaser-scene">
                 <div class="bts-orbit bts-orbit--1"></div>
@@ -267,7 +311,7 @@
           </div>
         </div>
 
-        <!-- Lewis University — top right -->
+        <!-- Lewis University IT Graduate Assistant -->
         <div class="exp-bubble" data-category="it">
           <div class="exp-bubble-glow" style="--gc:37,99,235"></div>
           <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#2563eb,#0891b2)"></div>
@@ -293,33 +337,6 @@
                 <li>Provided Tier 2 technical support for faculty and students; resolved hardware, software, and network issues.</li>
               </ul>
               <div class="exp-tags"><span>Networking</span><span>Tier 2 Support</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Education — bottom right -->
-        <div class="exp-bubble exp-bubble--edu" data-category="edu">
-          <div class="exp-bubble-glow" style="--gc:190,24,93"></div>
-          <div class="exp-bubble-bar" style="--bar:linear-gradient(90deg,#be185d,#7c3aed)"></div>
-          <div class="exp-bubble-inner">
-            <div class="edu-grad-wrap" id="grad-canvas-wrap">
-              <canvas id="grad-canvas"></canvas>
-              <span class="edu-grad-badge">Lewis University · M.S. 2025</span>
-            </div>
-            <div class="exp-bubble-top">
-              <div class="exp-bubble-badge" style="--bc:rgba(190,24,93,0.18);--bbd:rgba(190,24,93,0.5);--bco:#f472b6">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M12 13L2 8l10-5 10 5-10 5z"/><path d="M6 10.6V16a6 6 0 0 0 12 0v-5.4"/></svg>
-              </div>
-              <span class="exp-bubble-date">2019 – 2025</span>
-            </div>
-            <h3 class="exp-bubble-title">Education</h3>
-            <div class="edu-bento-item">
-              <span class="edu-degree">M.S. Computer Science</span>
-              <span class="edu-school">Lewis University · 2023 – 2025</span>
-            </div>
-            <div class="edu-bento-item" style="border-bottom:none;padding-bottom:0">
-              <span class="edu-degree">B.E. Computer Science</span>
-              <span class="edu-school">Lords Institute of Engineering · 2019 – 2022</span>
             </div>
           </div>
         </div>
