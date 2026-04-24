@@ -1054,44 +1054,35 @@
       const canvas = document.getElementById('grad-canvas');
       if (!wrap || !canvas) return;
 
-      let renderer, scene, camera, modelGroup, mixer, clock, animId;
+      let renderer, scene, camera, modelGroup, animId;
       let loaded = false;
-
-      function getSize() {
-        const r = wrap.getBoundingClientRect();
-        return { w: Math.round(r.width) || 280, h: Math.round(r.height) || 150 };
-      }
 
       function init() {
         if (renderer) return;
-        const { w, h } = getSize();
-        if (w < 2) return;
+        const w = wrap.clientWidth  || 280;
+        const h = wrap.clientHeight || 240;
 
         renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setClearColor(0x000000, 0);
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.toneMapping      = THREE.ACESFilmicToneMapping;
+        renderer.outputColorSpace   = THREE.SRGBColorSpace;
+        renderer.toneMapping        = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.3;
-        renderer.setSize(w, h);
+        // false = don't override canvas CSS — prevents infinite resize loop
+        renderer.setSize(w, h, false);
 
         scene  = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(38, w / h, 0.01, 100);
-        camera.position.set(0, 0.5, 5.5);
-        camera.lookAt(0, 0.0, 0);
+        camera.position.set(0, 0, 4);
+        camera.lookAt(0, 0, 0);
 
         scene.add(new THREE.AmbientLight(0xfff8e8, 1.0));
         const key = new THREE.DirectionalLight(0xffffff, 2.2);
-        key.position.set(2, 5, 4);
-        scene.add(key);
+        key.position.set(2, 5, 4); scene.add(key);
         const rim = new THREE.DirectionalLight(0xbe185d, 1.4);
-        rim.position.set(-3, 1, -2);
-        scene.add(rim);
+        rim.position.set(-3, 1, -2); scene.add(rim);
         const fill = new THREE.PointLight(0x7c3aed, 0.6, 12);
-        fill.position.set(0, -2, 2);
-        scene.add(fill);
-
-        clock = new THREE.Clock();
+        fill.position.set(0, -2, 2); scene.add(fill);
 
         const draco = new DRACOLoader();
         draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/');
@@ -1100,23 +1091,23 @@
 
         loader.load('models/graduation.glb', (gltf) => {
           const model = gltf.scene;
-          // scale first, then recompute centre so the offset is correct
-          const siz0 = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
-          model.scale.setScalar(1.6 / siz0.y);
+          // 1. scale to fit, 2. recompute centre AFTER scale, 3. offset so origin = visual centre
+          const size = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
+          model.scale.setScalar(1.6 / size.y);
           const cen  = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
-          model.position.sub(cen);
+          model.position.set(-cen.x, -cen.y, -cen.z);
           modelGroup = new THREE.Group();
           modelGroup.add(model);
           scene.add(modelGroup);
-          /* deliberately not playing GLB animations — they include root-motion
-             that drift the model off screen; pure rotation.y spin is used instead */
           loaded = true;
         });
 
         new ResizeObserver(() => {
           if (!renderer) return;
-          const { w: nw, h: nh } = getSize();
-          renderer.setSize(nw, nh);
+          const nw = wrap.clientWidth;
+          const nh = wrap.clientHeight;
+          if (!nw || !nh) return;
+          renderer.setSize(nw, nh, false); // keep false here too
           camera.aspect = nw / nh;
           camera.updateProjectionMatrix();
         }).observe(wrap);
@@ -1125,13 +1116,13 @@
       function tick() {
         animId = requestAnimationFrame(tick);
         if (!loaded) return;
-        if (modelGroup) modelGroup.rotation.y += 0.006;
+        modelGroup.rotation.y += 0.006;
         renderer.render(scene, camera);
       }
 
       new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) { init(); if (!animId) tick(); }
-        else { if (animId) { cancelAnimationFrame(animId); animId = null; } }
+        else { cancelAnimationFrame(animId); animId = null; }
       }, { threshold: 0.05 }).observe(wrap);
     })();
   </script>
