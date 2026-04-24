@@ -1154,6 +1154,13 @@ body.cur-out .cur-ring { opacity: 0; }
   z-index: 1;
 }
 
+#neon-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
 /* Two door halves that slide apart */
 #intro-door-l,
 #intro-door-r {

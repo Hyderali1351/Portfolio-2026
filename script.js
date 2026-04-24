@@ -1220,24 +1220,22 @@ async function handleSubmit(e) {
 }
 
 // ─────────────────────────────────────────
-// INTRO — Clean door reveal (no canvas)
+// INTRO — Neon sign boot, then door reveal
 // ─────────────────────────────────────────────────────
 {
   const intro = document.getElementById("intro");
   if (intro) {
     const fireIntroDone = () => window.dispatchEvent(new CustomEvent('intro-done'));
-    // Short pause so scan animation shows, then doors split — reduced from 700→400ms
-    setTimeout(() => {
+    // Wait for neon sequence (~3s), then open doors
+    const openDoors = () => {
       intro.classList.add('door-open');
-      setTimeout(() => { intro.remove(); fireIntroDone(); }, 620);
-    }, 400);
-    // Hard safety fallback
+      setTimeout(() => { intro.remove(); fireIntroDone(); }, 650);
+    };
+    // Neon script signals when ready; hard fallback at 5s
+    window.addEventListener('neon-ready', openDoors, { once: true });
     setTimeout(() => {
-      if (intro.isConnected) {
-        intro.classList.add('door-open');
-        setTimeout(() => { intro.remove(); fireIntroDone(); }, 620);
-      }
-    }, 2800);
+      if (intro.isConnected) openDoors();
+    }, 5000);
   }
 }
 
