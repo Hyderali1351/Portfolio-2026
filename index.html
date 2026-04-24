@@ -1040,6 +1040,7 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
+    (() => {
     const canvas = document.getElementById('neon-canvas');
     if (!canvas) { window.dispatchEvent(new CustomEvent('neon-ready')); return; }
 
@@ -1213,6 +1214,7 @@
       camera.aspect = nw / nh;
       camera.updateProjectionMatrix();
     }, { passive: true });
+    })();
   </script>
 
   <!-- Hologram monitor — isolated ES module -->
@@ -1221,6 +1223,7 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
+    (() => {
     const canvas    = document.getElementById('hologram-canvas');
     const screenEl  = document.getElementById('s-screen');
     if (!canvas || !screenEl) return;
@@ -1345,6 +1348,7 @@
     new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) init();
     }, { threshold: 0.1 }).observe(screenEl);
+    })();
   </script>
 </body>
 </html>
