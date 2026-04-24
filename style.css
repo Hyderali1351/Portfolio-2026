@@ -4485,22 +4485,24 @@ body.cur-out .cur-ring { opacity: 0; }
 
 /* responsive — on mobile move to bottom-LEFT so right-side scroll indicator is never covered */
 @media (max-width: 768px) {
+  /* Keep chatbot bottom-right on mobile — phones have overlay scrollbars so no conflict.
+     Constrain panel width so it never overflows the viewport. */
   #chatbot-widget {
-    right: auto;
-    left: 16px;
+    right: 12px;
     bottom: 16px;
-    align-items: flex-start;
+    left: auto;
+    align-items: flex-end;
+    max-width: calc(100vw - 24px);
   }
   #chat-hint-bubble {
-    border-radius: 14px 14px 14px 4px;
-    text-align: left;
+    border-radius: 14px 14px 4px 14px;
+    text-align: right;
+    max-width: min(240px, calc(100vw - 80px));
   }
-  #chat-panel { width: calc(100vw - 32px); max-width: 320px; max-height: 420px; }
-}
-
-@media (min-width: 769px) {
-  .socials-grid .social-card { flex: 0 1 160px; }
-}
-@media (max-width: 768px) {
+  #chat-panel {
+    width: calc(100vw - 24px);
+    max-width: 320px;
+    max-height: 420px;
+  }
   .socials-grid .social-card { flex: 0 1 140px; }
 }
