@@ -1251,51 +1251,157 @@
 
   // ── Chatbot ────────────────────────────────────────────────────────
   (() => {
-    const widget   = document.getElementById('chatbot-widget');
-    const toggleBtn= document.getElementById('chat-toggle-btn');
-    const panel    = document.getElementById('chat-panel');
-    const closeBtn = document.getElementById('chat-close-btn');
-    const messages = document.getElementById('chat-messages');
-    const input    = document.getElementById('chat-input');
-    const sendBtn  = document.getElementById('chat-send-btn');
+    const toggleBtn  = document.getElementById('chat-toggle-btn');
+    const panel      = document.getElementById('chat-panel');
+    const closeBtn   = document.getElementById('chat-close-btn');
+    const messages   = document.getElementById('chat-messages');
+    const input      = document.getElementById('chat-input');
+    const sendBtn    = document.getElementById('chat-send-btn');
     const hintBubble = document.getElementById('chat-hint-bubble');
 
     // ── Hint system ──
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
     const HINTS_DESKTOP = [
       'Try typing <b>sudo</b> anywhere on the page... 🤫',
       'Check the gaming monitor — it shows whatever you type! ⌨️',
-      'Click the spinning cube in Experience to see NVIDIA GB200 in 3D 🧊',
+      'Click <b>Explore in 3D</b> in Experience to see NVIDIA GB200 in 3D 🧊',
       'Scratch the project cards to peek inside ✦',
-      'Want to send Mir a message? Just click me! 💬',
+      'Ask me anything about Mir — I know a lot! 🤖',
     ];
     const HINTS_MOBILE = [
       '🖥️ Visit on desktop for the full experience!',
-      'This site has 3D models, hidden easter eggs & more — best on desktop 💻',
-      '✨ On desktop you can interact with live NVIDIA hardware in 3D!',
+      'This site has 3D models & hidden easter eggs — best on desktop 💻',
+      '✨ On desktop you can explore live NVIDIA hardware in 3D!',
       '⌨️ There\'s a secret keyboard easter egg — try it on desktop!',
-      'Want to reach Mir? Click me to send a message 💬',
+      'Have a question about Mir? Ask me! 💬',
     ];
     const HINTS = isMobile ? HINTS_MOBILE : HINTS_DESKTOP;
     let hintIdx = 0;
-
     function showHint() {
       hintBubble.innerHTML = HINTS[hintIdx % HINTS.length];
       hintBubble.classList.add('hint-visible');
       hintIdx++;
       setTimeout(() => hintBubble.classList.remove('hint-visible'), 8000);
     }
+    setTimeout(() => { showHint(); setInterval(showHint, 15000); }, 8000);
 
-    // First hint after 8s, then every 15s
-    setTimeout(() => {
-      showHint();
-      setInterval(showHint, 15000);
-    }, 8000);
+    // ── Knowledge base ──
+    const KB = [
+      {
+        match: /^(hi+|hey+|hello|sup|yo|hiya|howdy|good\s*(morning|evening|afternoon|day))/i,
+        reply: ["Hey! 😊 Ask me anything about Mir — his work, skills, projects, or background. Or type <b>send message</b> to reach him directly!"]
+      },
+      {
+        match: /who (is|are|was) mir|who('s| is) he|about mir|tell me about (him|mir)|introduce|mir hyder|background|bio/i,
+        reply: ["Mir Hyder Ali is an <b>AI HPC Infrastructure Lead Engineer</b> at <b>Wistron Corporation</b> in Irving, Texas. He specialises in large-scale GPU clusters — NVIDIA GB200 NVL72 and H100 systems. He also holds an M.S. in Computer Science from Lewis University and has co-authored published AI research. 🚀"]
+      },
+      {
+        match: /education|degree|university|college|school|masters?|m\.s\.?|bachelor|b\.e\.?|lewis|lords|study|graduate|graduation/i,
+        reply: ["Mir holds an <b>M.S. in Computer Science</b> from Lewis University (2023–2025) and a <b>B.E. in Computer Science</b> from Lords Institute of Engineering & Technology (2019–2022). 🎓"]
+      },
+      {
+        match: /experience|work(ing| history)?|job|career|employ|wistron|company|position|role|title|current(ly)?/i,
+        reply: ["Mir is the <b>AI HPC Infrastructure Lead Engineer</b> at <b>Wistron Corporation</b>, Irving TX. He manages 100+ GPU nodes (GB200 NVL72 & H100), InfiniBand fabric, Slurm job queues, and built a real-time monitoring system that cut hardware failure detection from ~2 hours to under 5 minutes. 💪"]
+      },
+      {
+        match: /skill|tech(nology|stack)?|know|language|tool|program|cod(e|ing)|expertise|good at|what can he do|proficien/i,
+        reply: ["Mir's stack includes: <b>NVIDIA GPU infrastructure</b> (GB200, NVL72, H100), <b>HPC cluster management</b>, <b>InfiniBand networking</b> (HDR/NDR), <b>Prometheus & Grafana</b>, <b>DCGM telemetry</b>, <b>Python & Bash</b>, <b>Slurm</b>, <b>Kubernetes</b>, and <b>Three.js / WebGL</b> for 3D web. 🛠️"]
+      },
+      {
+        match: /project|built|creat|made|portfolio|hpc.*monitor|monitor|cluster|3d model|showcase/i,
+        reply: ["Key projects: 🚀<br>• <b>HPC Cluster Monitor</b> — Prometheus/Grafana for 100+ GPU nodes<br>• <b>GenAI for Software Testing</b> — co-authored research, 78% valid test coverage<br>• <b>This Portfolio</b> — Three.js with live NVIDIA 3D models<br>Check the Projects section for full detail!"]
+      },
+      {
+        match: /research|paper|publicat|publish|genai|graph.*test|unit test|llm|gpt|codellama|lewis.*research/i,
+        reply: ["Mir co-authored <b>\"The Use of GenAI in Graph-Based Unit Testing\"</b> at Lewis University. Using call graphs + CFGs as LLM context, the system achieved <b>78% valid test coverage</b> — 2.3× better than naive prompting. Both GPT-4 and CodeLlama-34B were evaluated. 📄"]
+      },
+      {
+        match: /nvidia|gpu|gb200|nvl72|h100|hpc|infiniband|slurm|dcgm|nvlink|cuda|tensor/i,
+        reply: ["Mir works hands-on with <b>NVIDIA's latest hardware</b> — GB200 NVL72 racks (72 GPUs via NVLink), H100 clusters, InfiniBand HDR/NDR fabric, and DCGM for deep telemetry. He manages 100+ nodes at Wistron. You can explore a real 3D GB200 model in the Experience section! 🖥️"]
+      },
+      {
+        match: /contact|reach|email|message|talk to|connect|how.*find|get in touch/i,
+        reply: ["You can reach Mir at:<br>📧 mirhyderali619@gmail.com<br>💼 <a href='https://linkedin.com/in/mir-hyder-ali' target='_blank'>LinkedIn</a><br>💻 <a href='https://github.com/Hyderali1351' target='_blank'>GitHub</a><br><br>Or just type <b>send message</b> and I'll forward it to him! 📬"]
+      },
+      {
+        match: /linkedin/i,
+        reply: ["Mir's LinkedIn is <a href='https://linkedin.com/in/mir-hyder-ali' target='_blank'><b>linkedin.com/in/mir-hyder-ali</b></a> 💼"]
+      },
+      {
+        match: /github/i,
+        reply: ["Mir's GitHub is <a href='https://github.com/Hyderali1351' target='_blank'><b>github.com/Hyderali1351</b></a> 💻"]
+      },
+      {
+        match: /instagram/i,
+        reply: ["Mir's Instagram is <a href='https://instagram.com/zaid_hyder.ali' target='_blank'><b>@zaid_hyder.ali</b></a> 📸"]
+      },
+      {
+        match: /twitter|x\.com/i,
+        reply: ["Mir's X (Twitter) is <a href='https://x.com/Mirhyderali619' target='_blank'><b>@Mirhyderali619</b></a> 🐦"]
+      },
+      {
+        match: /snapchat|snap/i,
+        reply: ["Mir's Snapchat is <b>zaid_hyder.ali</b> 👻"]
+      },
+      {
+        match: /locat|where|city|state|country|based|live|irving|texas|\btx\b/i,
+        reply: ["Mir is based in <b>Irving, Texas</b> 📍 and open to remote & on-site opportunities."]
+      },
+      {
+        match: /hire|hiring|availab|open to work|opportunit|freelanc|contract|full.?time|job offer|recruit|looking for work/i,
+        reply: ["Mir is open to new opportunities! He's especially interested in <b>AI infrastructure, HPC, and GPU computing</b> roles. Feel free to reach out at mirhyderali619@gmail.com or send him a message through me! 🤝"]
+      },
+      {
+        match: /resum(e|é)|cv|download/i,
+        reply: ["Download Mir's resume from the <b>Contact section</b> of this page — click the <b>Download Resume</b> button on the LinkedIn card! 📄"]
+      },
+      {
+        match: /website|portfolio|site|this page|built this|three\.?js|webgl|how.*made/i,
+        reply: ["This portfolio is built with <b>vanilla HTML, CSS & Three.js</b> — zero frameworks! It has live NVIDIA 3D hardware models, a custom cursor, dark/light mode, and me 🤖. Try typing <b>sudo</b> somewhere on the page for a surprise..."]
+      },
+      {
+        match: /salary|pay|rate|compensation|money|cost|charge|how much/i,
+        reply: ["That's best discussed directly with Mir! 😄 Want me to connect you?"]
+      },
+      {
+        match: /age|old|born|birthday/i,
+        reply: ["Mir keeps that private, but he's a young professional already leading AI HPC infrastructure at scale! 😄"]
+      },
+      {
+        match: /hobby|hobbies|interest|free time|outside work|personal/i,
+        reply: ["Outside of work Mir is into 3D modelling (as you can see from this site!), tech, and building cool things. He's also clearly a fan of NVIDIA hardware 😄"]
+      },
+      {
+        match: /feedback|suggest|idea|improve|change|fix.*site|site.*fix/i,
+        reply: ["Mir loves feedback on this site! He reads everything and actually makes changes. Want to send him a suggestion? Just type <b>send message</b> and I'll forward it! 💡"]
+      },
+      {
+        match: /thank|thanks|thx|ty\b|appreciate|great|awesome|nice|helpful|cool|good job/i,
+        reply: ["Happy to help! 😊 Anything else you'd like to know about Mir?", "You're welcome! Feel free to ask more. 🤖"]
+      },
+      {
+        match: /bye|goodbye|see ya|later|cya|take care/i,
+        reply: ["Bye! 👋 Come back anytime — Mir's always here (via me 🤖). Have a great day!"]
+      },
+      {
+        match: /send (a )?message|contact him|message him|email him|reach him|write to him|tell him/i,
+        reply: ['__EMAIL_FLOW__']
+      },
+    ];
+
+    function matchKB(text) {
+      for (const entry of KB) {
+        if (entry.match.test(text)) {
+          const r = entry.reply;
+          return r[Math.floor(Math.random() * r.length)];
+        }
+      }
+      return null;
+    }
 
     // ── Chat state ──
-    const STATE = { IDLE: 0, AWAIT_EMAIL: 1, AWAIT_MSG: 2, DONE: 3 };
-    let state = STATE.IDLE;
+    const STATE = { CHAT: 0, AWAIT_EMAIL: 1, AWAIT_MSG: 2, DONE: 3 };
+    let state = STATE.CHAT;
     let userEmail = '';
 
     function addMsg(text, who) {
@@ -1307,6 +1413,9 @@
     }
 
     function addQuickReplies(options) {
+      // remove any existing quick-reply row first
+      const old = messages.querySelector('.chat-quick-replies');
+      if (old) old.remove();
       const row = document.createElement('div');
       row.className = 'chat-quick-replies';
       options.forEach(opt => {
@@ -1336,49 +1445,47 @@
       });
     }
 
-    async function startConversation() {
-      await botTyping("Hey! 👋 I'm <b>Kai</b>, Mir's little assistant.", 700);
-      await botTyping("Got a message for Mir? Maybe an opportunity, a question — or even an idea or concern about this website? He reads everything and will make changes! Drop it here and I'll forward it straight to his inbox. 📬", 1200);
+    function showSuggestedQuestions() {
       addQuickReplies([
-        { label: '💬 Send a message', value: 'yes' },
-        { label: '💡 Share site feedback', value: 'yes' },
-        { label: '👋 Just browsing', value: 'no' },
+        { label: '👤 Who is Mir?',      value: 'Who is Mir?' },
+        { label: '🛠️ His skills',        value: 'What are his skills?' },
+        { label: '💼 His work',          value: 'Tell me about his work experience' },
+        { label: '📬 Send him a message', value: 'send message' },
       ]);
+    }
+
+    async function startEmailFlow() {
+      state = STATE.AWAIT_EMAIL;
+      await botTyping("Sure! What's your email address so Mir can reply? 📧", 700);
+    }
+
+    async function startConversation() {
+      await botTyping("Hey! 👋 I'm <b>Kai</b>, Mir's assistant. Ask me anything about him — or send him a message!", 900);
+      showSuggestedQuestions();
     }
 
     async function handleUserInput(val) {
       const text = val.trim();
       if (!text) return;
 
-      if (state === STATE.IDLE) {
-        addMsg(text, 'user');
-        if (text.toLowerCase() === 'yes' || text.toLowerCase().includes('message') || text.toLowerCase().includes('send')) {
-          state = STATE.AWAIT_EMAIL;
-          await botTyping("What's your email address? Mir will reply to you there.", 800);
-        } else {
-          await botTyping("No worries! Feel free to explore 😊 And if you ever have a site suggestion or idea for Mir — I'm always here, just click me again!", 800);
-          state = STATE.DONE;
-        }
-        return;
-      }
-
+      // ── Collecting email ──
       if (state === STATE.AWAIT_EMAIL) {
         addMsg(text, 'user');
-        if (!text.includes('@')) {
-          await botTyping("That doesn't look like an email address — mind double-checking? 🙈", 700);
+        if (!text.includes('@') || !text.includes('.')) {
+          await botTyping("That doesn't look like a valid email — double-check? 🙈", 700);
           return;
         }
         userEmail = text;
         state = STATE.AWAIT_MSG;
-        await botTyping(`Got it! ✓ Now, what would you like to say to Mir?`, 800);
+        await botTyping(`Got it ✓ — now type your message for Mir and I'll forward it! 💬`, 800);
         return;
       }
 
+      // ── Collecting message ──
       if (state === STATE.AWAIT_MSG) {
         addMsg(text, 'user');
         state = STATE.DONE;
-        await botTyping('Sending your message... ✉️', 500);
-
+        await botTyping('Sending... ✉️', 500);
         try {
           await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             to_email:   'mirhyderali619@gmail.com',
@@ -1389,12 +1496,37 @@
           await botTyping(`Done! ✅ Mir will get back to you at <b>${userEmail}</b>. Have a great day!`, 800);
         } catch (err) {
           console.error('EmailJS error:', err);
-          await botTyping(`Hmm, something went wrong (${err?.text || err?.status || 'unknown error'}). You can reach Mir directly at <a href="mailto:mirhyderali619@gmail.com">mirhyderali619@gmail.com</a> 🙏`, 800);
+          await botTyping(`Something went wrong 😓 — email Mir directly at <a href="mailto:mirhyderali619@gmail.com">mirhyderali619@gmail.com</a>`, 800);
         }
         input.disabled = true;
         sendBtn.disabled = true;
         return;
       }
+
+      if (state === STATE.DONE) return;
+
+      // ── CHAT state: KB lookup ──
+      addMsg(text, 'user');
+
+      const answer = matchKB(text);
+
+      if (answer === '__EMAIL_FLOW__') {
+        await startEmailFlow();
+        return;
+      }
+
+      if (answer) {
+        await botTyping(answer, 750);
+        showSuggestedQuestions();
+        return;
+      }
+
+      // No match — offer to email
+      await botTyping(`Hmm, I don't have a great answer for that one! 🤔 Want me to forward your question directly to Mir so he can answer personally?`, 800);
+      addQuickReplies([
+        { label: '✉️ Yes, email him', value: 'send message' },
+        { label: '❓ Ask something else', value: '__suggest__' },
+      ]);
     }
 
     // ── Toggle panel ──
@@ -1402,15 +1534,18 @@
       const isOpen = !panel.hidden;
       panel.hidden = isOpen;
       hintBubble.classList.remove('hint-visible');
-      if (!isOpen && state === STATE.IDLE && messages.children.length === 0) {
-        startConversation();
-      }
+      if (!isOpen && messages.children.length === 0) startConversation();
     });
 
     closeBtn.addEventListener('click', () => { panel.hidden = true; });
 
-    // ── Send ──
     function submit() {
+      // handle special internal tokens from quick replies
+      if (input.value.trim() === '__suggest__') {
+        input.value = '';
+        showSuggestedQuestions();
+        return;
+      }
       const val = input.value.trim();
       if (!val) return;
       input.value = '';
