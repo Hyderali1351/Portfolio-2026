@@ -1380,12 +1380,15 @@
 
         try {
           await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email:   'mirhyderali619@gmail.com',
             from_email: userEmail,
+            reply_to:   userEmail,
             message:    text,
           });
           await botTyping(`Done! ✅ Mir will get back to you at <b>${userEmail}</b>. Have a great day!`, 800);
         } catch (err) {
-          await botTyping(`Hmm, something went wrong. You can reach Mir directly at <a href="mailto:mirhyderali619@gmail.com">mirhyderali619@gmail.com</a> 🙏`, 800);
+          console.error('EmailJS error:', err);
+          await botTyping(`Hmm, something went wrong (${err?.text || err?.status || 'unknown error'}). You can reach Mir directly at <a href="mailto:mirhyderali619@gmail.com">mirhyderali619@gmail.com</a> 🙏`, 800);
         }
         input.disabled = true;
         sendBtn.disabled = true;
