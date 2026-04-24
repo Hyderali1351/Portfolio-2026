@@ -845,7 +845,7 @@
       controls.addEventListener('start', () => { autoSpin = false; });
 
       const draco = new DRACOLoader();
-      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/');
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/');
       gltfLoader = new GLTFLoader();
       gltfLoader.setDRACOLoader(draco);
     }
