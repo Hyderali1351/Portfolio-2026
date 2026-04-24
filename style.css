@@ -3828,4 +3828,19 @@ body.cur-out .cur-ring { opacity: 0; }
     background: rgba(124,58,237,0.08);
     text-shadow: none;
   }
+  /* Resume button in light mode mobile dropdown */
+  [data-theme="light"] .nav-resume-btn {
+    color: #7c3aed !important;
+    background: rgba(124,58,237,0.07) !important;
+    border-color: rgba(124,58,237,0.25) !important;
+  }
+}
+
+/* ── Resume button in dark mode mobile dropdown ── */
+@media (max-width: 600px) {
+  .nav-resume-btn {
+    display: inline-block;
+    width: fit-content;
+    margin: 0.25rem 0 0.1rem;
+  }
 }
