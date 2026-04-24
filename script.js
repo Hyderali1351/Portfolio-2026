@@ -1009,109 +1009,120 @@ if (!isTouch) (function () {
   requestAnimationFrame(drawWeb);
 })();
 
-// ── Light mode: PCB circuit grid ──
-(function initPCBCanvas() {
+// ── Light mode: neural-network particle web ──
+(function initNeuralCanvas() {
   const bc = document.getElementById('bubble-canvas');
   if (!bc) return;
   const ctx = bc.getContext('2d');
 
-  const SPACING = 58;
-  const DOT_R   = 2.2;
-  const PR      = [100, 60, 220]; // purple-indigo
+  const COUNT      = 68;
+  const LINK_DIST  = 155;
+  const LINK_DIST2 = LINK_DIST * LINK_DIST;
+  /* two accent colours — purple + indigo-blue */
+  const COL = [[124,58,237],[79,70,229]];
 
-  let nodes = [], edges = [], pulses = [];
+  let nodes = [];
 
-  function build() {
-    nodes = []; edges = [];
-    const cols = Math.ceil(bc.width  / SPACING) + 2;
-    const rows = Math.ceil(bc.height / SPACING) + 2;
-    const rng  = () => (Math.random() - 0.5) * 14;
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        nodes.push({
-          x: c * SPACING + rng(),
-          y: r * SPACING + rng(),
-          phase: Math.random() * Math.PI * 2,
-          i: r * cols + c,
-        });
-      }
-    }
-
-    /* Connect ~40% of orthogonal neighbours */
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const i = r * cols + c;
-        if (c < cols - 1 && Math.random() < 0.42) edges.push([i, r * cols + c + 1]);
-        if (r < rows - 1 && Math.random() < 0.42) edges.push([i, (r + 1) * cols + c]);
-      }
-    }
+  function mkNode() {
+    const c = COL[Math.floor(Math.random() * COL.length)];
+    return {
+      x:     Math.random() * bc.width,
+      y:     Math.random() * bc.height,
+      vx:    (Math.random() - 0.5) * 0.28,
+      vy:    (Math.random() - 0.5) * 0.28,
+      r:     1.8 + Math.random() * 1.6,
+      color: c,
+      phase: Math.random() * Math.PI * 2,
+      /* nodes occasionally "fire" — a brief glow that travels outward */
+      fireT: -1,
+    };
   }
 
   function resize() {
     bc.width  = window.innerWidth;
     bc.height = window.innerHeight;
-    build();
+    /* re-clamp existing positions */
+    nodes.forEach(n => {
+      n.x = Math.min(n.x, bc.width);
+      n.y = Math.min(n.y, bc.height);
+    });
   }
   window.addEventListener('resize', resize, { passive: true });
-  resize();
+  bc.width  = window.innerWidth;
+  bc.height = window.innerHeight;
+  nodes = Array.from({ length: COUNT }, mkNode);
 
-  let lastSpawn = 0;
-  function spawnPulse() {
-    if (!edges.length) return;
-    const e = edges[Math.floor(Math.random() * edges.length)];
-    pulses.push({ from: e[0], to: e[1], t: 0, speed: 0.007 + Math.random() * 0.007 });
-  }
+  let lastFire = 0;
 
   function draw(ts) {
     requestAnimationFrame(draw);
     if (!window.__lightMode) { ctx.clearRect(0, 0, bc.width, bc.height); return; }
 
     ctx.clearRect(0, 0, bc.width, bc.height);
-    const [R, G, B] = PR;
+    const W = bc.width, H = bc.height;
 
-    /* Edges */
-    ctx.lineWidth = 0.7;
-    for (const [i, j] of edges) {
-      const a = nodes[i], b = nodes[j];
-      if (!a || !b) continue;
-      ctx.strokeStyle = `rgba(${R},${G},${B},0.09)`;
-      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    /* randomly fire a node every ~1.8 s */
+    if (ts - lastFire > 1800) {
+      nodes[Math.floor(Math.random() * nodes.length)].fireT = ts;
+      lastFire = ts;
     }
 
-    /* Nodes — gentle pulse */
+    /* move nodes — bounce off edges */
     for (const n of nodes) {
-      const a = 0.14 + Math.sin(ts * 0.0012 + n.phase) * 0.06;
-      ctx.fillStyle = `rgba(${R},${G},${B},${a.toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(n.x, n.y, DOT_R, 0, Math.PI * 2); ctx.fill();
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) { n.vx *= -1; n.x = Math.max(0, Math.min(W, n.x)); }
+      if (n.y < 0 || n.y > H) { n.vy *= -1; n.y = Math.max(0, Math.min(H, n.y)); }
     }
 
-    /* Spawn signal pulses */
-    if (ts - lastSpawn > 700 && pulses.length < 18) { spawnPulse(); lastSpawn = ts; }
+    /* draw edges between nearby nodes */
+    ctx.lineWidth = 0.65;
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > LINK_DIST2) continue;
 
-    /* Draw & advance pulses */
-    pulses = pulses.filter(p => {
-      p.t += p.speed;
-      if (p.t >= 1) return false;
-      const a = nodes[p.from], b = nodes[p.to];
-      if (!a || !b) return false;
-      const x = a.x + (b.x - a.x) * p.t;
-      const y = a.y + (b.y - a.y) * p.t;
-      const alpha = Math.sin(p.t * Math.PI);
+        const t   = 1 - Math.sqrt(d2) / LINK_DIST;
+        const alp = (t * t * 0.18).toFixed(3);
+        const [R, G, B] = a.color;
+        ctx.strokeStyle = `rgba(${R},${G},${B},${alp})`;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
 
-      /* Glow halo */
-      const grd = ctx.createRadialGradient(x, y, 0, x, y, 9);
-      grd.addColorStop(0, `rgba(${R},${G},${B},${(alpha * 0.38).toFixed(3)})`);
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grd;
-      ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
+    /* draw nodes */
+    for (const n of nodes) {
+      const [R, G, B] = n.color;
+      const pulse = 0.85 + Math.sin(ts * 0.0014 + n.phase) * 0.15;
 
-      /* Core dot */
-      ctx.fillStyle = `rgba(${R},${G},${B},${(alpha * 0.85).toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(x, y, 2.8, 0, Math.PI * 2); ctx.fill();
-      return true;
-    });
+      /* fired glow */
+      let extra = 0;
+      if (n.fireT > 0) {
+        const age = (ts - n.fireT) / 1200;
+        if (age < 1) {
+          extra = Math.sin(age * Math.PI) * 0.55;
+          const gr = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 22);
+          gr.addColorStop(0, `rgba(${R},${G},${B},${(extra * 0.4).toFixed(3)})`);
+          gr.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = gr;
+          ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, Math.PI * 2); ctx.fill();
+        } else { n.fireT = -1; }
+      }
+
+      const a = ((0.22 + extra) * pulse).toFixed(3);
+      ctx.fillStyle = `rgba(${R},${G},${B},${a})`;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r + extra * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
+
   requestAnimationFrame(draw);
 })();
 

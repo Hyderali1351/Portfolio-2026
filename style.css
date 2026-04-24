@@ -3687,3 +3687,25 @@ body.cur-out .cur-ring { opacity: 0; }
   .board-modal-header h3 { font-size: 1.05rem; }
   .board-teaser-img { height: 120px; }
 }
+
+/* ── Light mode: mobile nav dropdown ── */
+@media (max-width: 900px) {
+  [data-theme="light"] .nav-links {
+    background: rgba(255,255,255,0.97);
+    border-color: rgba(124,58,237,0.15);
+    box-shadow: 0 12px 40px rgba(124,58,237,0.12), inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  [data-theme="light"] .nav-links a {
+    color: rgba(30,27,75,0.6);
+  }
+  [data-theme="light"] .nav-links a:hover {
+    color: #1e1b4b;
+    background: rgba(124,58,237,0.06);
+    text-shadow: none;
+  }
+  [data-theme="light"] .nav-links a.nav-active {
+    color: #7c3aed;
+    background: rgba(124,58,237,0.08);
+    text-shadow: none;
+  }
+}
