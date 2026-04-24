@@ -1819,6 +1819,47 @@ puzzleInput.addEventListener('keydown', e => {
   };
   document.querySelectorAll('.project-card[data-project]').forEach(c => window.admReinitScratchCard(c));
 
+  // ── Global keyboard → gaming monitor display ──────────────────────────
+  {
+    const monOutput = document.getElementById('s-mon-output');
+    const monLabel  = document.getElementById('s-mon-label');
+    if (monOutput && monLabel) {
+      const PLACEHOLDER = 'Mir Hyder Ali';
+      const MAX_LEN = 20;
+      let buf = '';
+
+      function refreshMonitor() {
+        const display = buf.length > MAX_LEN ? buf.slice(-MAX_LEN) : buf;
+        monOutput.textContent = display || PLACEHOLDER;
+        monLabel.textContent  = buf.length ? 'INPUT' : 'OPERATOR';
+        monOutput.style.opacity = buf.length ? '1' : '0.7';
+      }
+
+      document.addEventListener('keydown', (e) => {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if (document.activeElement?.isContentEditable) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        if (e.key === 'Backspace') {
+          buf = buf.slice(0, -1);
+          refreshMonitor();
+          return;
+        }
+        if (e.key === 'Escape') {
+          buf = '';
+          refreshMonitor();
+          return;
+        }
+        if (e.key === ' ') e.preventDefault();
+        if (e.key.length === 1) {
+          buf += e.key;
+          refreshMonitor();
+        }
+      });
+    }
+  }
+
   // Expose tilt reinit for admin-created project cards
   window.admReinitTilt = function(card) {
     card.addEventListener('mousemove', e => {
