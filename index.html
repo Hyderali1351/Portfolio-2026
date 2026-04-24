@@ -1090,8 +1090,8 @@
 
         scene  = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(38, w / h, 0.01, 100);
-        camera.position.set(0, 0.8, 3.0);
-        camera.lookAt(0, 0.3, 0);
+        camera.position.set(0, 0.5, 5.5);
+        camera.lookAt(0, 0.0, 0);
 
         scene.add(new THREE.AmbientLight(0xfff8e8, 1.0));
         const key = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -1117,7 +1117,7 @@
           const cen   = box.getCenter(new THREE.Vector3());
           const siz   = box.getSize(new THREE.Vector3());
           model.position.sub(cen);
-          model.scale.setScalar(2.6 / siz.y);
+          model.scale.setScalar(1.6 / siz.y);
           modelGroup = new THREE.Group();
           modelGroup.add(model);
           scene.add(modelGroup);
