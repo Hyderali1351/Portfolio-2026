@@ -227,11 +227,19 @@
             <span class="exp-bubble-company" data-admin-key="exp.0.company">Wistron Corporation · Irving, TX</span>
             <p class="exp-bubble-blurb" data-admin-key="exp.0.blurb">Deploying NVIDIA GB200 NVL72 &amp; H100 GPU clusters for Fortune 500 AI clients — full rack lifecycle, InfiniBand fabric, and automated monitoring.</p>
 
-            <!-- GB200 board teaser — click to open 3D viewer -->
-            <div class="board-teaser" data-open-board-modal role="button" tabindex="0" aria-label="Explore the NVIDIA GB200 board in 3D">
-              <img src="images/gb200-front.png" alt="NVIDIA GB200 NVL72 AI compute board" class="board-teaser-img" loading="lazy" />
-              <div class="board-teaser-overlay">
-                <span class="board-teaser-badge">NVIDIA GB200 NVL72</span>
+            <!-- 3D viewer launcher -->
+            <div class="board-teaser board-teaser--no-img" data-open-board-modal role="button" tabindex="0" aria-label="Explore NVIDIA hardware in 3D">
+              <div class="board-teaser-scene">
+                <div class="bts-orbit bts-orbit--1"></div>
+                <div class="bts-orbit bts-orbit--2"></div>
+                <div class="bts-orbit bts-orbit--3"></div>
+                <div class="bts-cube">
+                  <span></span><span></span><span></span>
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="board-teaser-overlay board-teaser-overlay--no-img">
+                <span class="board-teaser-badge">NVIDIA GB200 NVL72 · 4 Models</span>
                 <span class="board-teaser-cta">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                   Explore in 3D
@@ -737,16 +745,30 @@
     const ITEMS = [
       {
         title:    'NVIDIA GB200 Grace Blackwell Superchip',
-        subtitle: 'Blackwell Architecture · The chip I bring online at Wistron',
-        desc:     'Two Blackwell GPUs fused to a Grace CPU via NVLink-C2C — 40 PFLOPS of AI compute with 372 GB of HBM3e memory running at 16 TB/s bandwidth. This is the board I configure, validate, and commission for Fortune 500 AI clients.',
-        specs:    ['40 PFLOPS (NVfp4)', '372 GB HBM3e', '16 TB/s Bandwidth', 'NVLink-C2C', 'Blackwell Architecture'],
-        model:    'models/gb200-board.glb',
+        subtitle: 'Blackwell Architecture · Base Compute Module',
+        desc:     'One Grace CPU paired with two Blackwell B200 GPUs via 900 GB/s NVLink-C2C — delivering 40 PFLOPS of AI compute in a single module. 72 Arm Neoverse V2 cores drive 192 GB of HBM3e per GPU with unified memory across the whole superchip.',
+        specs:    ['40 PFLOPS (NVfp4)', '192 GB HBM3e / GPU', '900 GB/s NVLink-C2C', '72-core Grace CPU', 'Blackwell Architecture'],
+        model:    'models/bianca2.glb',
+      },
+      {
+        title:    'NVIDIA GB200 NVL2 Module',
+        subtitle: 'Grace Blackwell + ConnectX-7 · NDR InfiniBand On-Board',
+        desc:     'Grace Blackwell with ConnectX-7 integrated directly on the module — NDR 400G InfiniBand fabric connectivity without an external HCA. PCIe Gen6 host interface and on-board NIC collapse what would otherwise be a separate adapter card into the compute module itself.',
+        specs:    ['40 PFLOPS (NVfp4)', 'ConnectX-7 NDR 400G', 'PCIe Gen6', '192 GB HBM3e / GPU', 'Integrated InfiniBand'],
+        model:    'models/bianca3.glb',
+      },
+      {
+        title:    'NVIDIA GB200 NVL72 Rack Chassis',
+        subtitle: '8-Tray Chassis · Liquid-Cooled Hyperscale Frame',
+        desc:     'The bare skeleton of the NVL72 — an 8-tray, full-rack chassis engineered for 120 kW of liquid-cooled compute density. Houses 36 Grace CPUs and 72 Blackwell GPUs across eight compute trays, all unified by the NVSwitch fabric backplane.',
+        specs:    ['8 Compute Trays', '120 kW Power Envelope', 'Direct Liquid Cooling', 'NVSwitch Backplane', 'Open Rack V3'],
+        model:    'models/chassis-no-cables.glb',
       },
       {
         title:    'NVIDIA GB200 NVL72 Compute Tray',
-        subtitle: '72 Blackwell GPUs · Rack-Scale AI Infrastructure',
-        desc:     'This is one compute tray — a full NVL72 rack holds 72 of them. Together: 36 Grace CPUs, 72 Blackwell GPUs, 130 TB/s NVLink fabric, and 1,440 PFLOPS. 30× faster LLM inference than H100. I rack, cable, and commission the full system from bare metal to production at Wistron.',
-        specs:    ['1,440 PFLOPS', '13.4 TB GPU Memory', '72 Blackwell GPUs', '130 TB/s NVLink', 'Liquid Cooled'],
+        subtitle: '9× NVL2 Modules · Full Signal & Power Cabling',
+        desc:     'Nine NVL2 modules per tray, eight trays per rack. The complete cabling visible here — power, NVLink, InfiniBand, and cooling lines — is what enables 1.44 PB/s of all-to-all GPU bandwidth across the full NVL72 system. I rack, cable, and commission this from bare metal at Wistron.',
+        specs:    ['1,440 PFLOPS', '13.4 TB GPU Memory', '72 Blackwell GPUs', '1.44 PB/s NVLink', 'Liquid Cooled'],
         model:    'models/nvl72-tray.glb',
       },
     ];
