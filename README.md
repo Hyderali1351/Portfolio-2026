@@ -2,7 +2,7 @@
 
 > **Live site:** [mirhyderali.com](https://mirhyderali.com)
 
-Personal portfolio for an **AI HPC Infrastructure Lead Engineer** at Wistron Corporation. Built entirely from scratch with vanilla HTML, CSS, and JavaScript — no frameworks.
+Personal portfolio for an **HPC Systems Engineer** at NorthMark Compute & Cloud (NMC²). Built entirely from scratch with vanilla HTML, CSS, and JavaScript — no frameworks.
 
 ---
 

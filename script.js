@@ -725,7 +725,7 @@ window.__lightMode = document.documentElement.getAttribute('data-theme') === 'li
 })();
 
 // ── Typing animation ──
-const titles = ["HPC Infrastructure Engineer", "AI Systems Builder", "Problem Solver", "Creative Coder"];
+const titles = ["HPC Systems Engineer", "GPU Cluster Builder", "Infrastructure Automator", "Problem Solver"];
 let ti = 0, ci = 0, deleting = false;
 const typedEl = document.querySelector(".typed");
 function type() {
